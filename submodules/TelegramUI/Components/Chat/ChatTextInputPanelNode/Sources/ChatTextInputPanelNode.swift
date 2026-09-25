@@ -5749,8 +5749,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                         return
                     }
                     completion(templates.map { text in
-                        var title = text.replacingOccurrences(of: "
-", with: " ")
+                        var title = text.replacingOccurrences(of: "\n", with: " ")
                         if title.count > 60 {
                             title = String(title.prefix(60)) + "…"
                         }

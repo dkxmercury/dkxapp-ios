@@ -680,8 +680,7 @@ public final class ChatTitleView: UIView, NavigationBarTitleView {
                                         // обрежется многоточием, целиком она видна в профиле.
                                         var dkxFinal = dkxResult
                                         if DkxRuntime.current.showNoteInHeader, let dkxNoteText = (peerView.cachedData as? CachedUserData)?.note?.text {
-                                            let dkxNoteLine = (dkxNoteText.split(separator: "
-").first.map(String.init) ?? "").trimmingCharacters(in: .whitespaces)
+                                            let dkxNoteLine = (dkxNoteText.split(separator: "\n").first.map(String.init) ?? "").trimmingCharacters(in: .whitespaces)
                                             if !dkxNoteLine.isEmpty {
                                                 let dkxWithNote = NSMutableAttributedString(attributedString: dkxResult)
                                                 if dkxWithNote.length != 0 {
