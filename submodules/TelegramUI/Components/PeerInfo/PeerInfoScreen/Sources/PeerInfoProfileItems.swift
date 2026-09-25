@@ -205,6 +205,11 @@ func infoItems(
             )
         }
         
+        // MARK: DKX Telegram ID
+        if let dkxIdItem = dkxPeerIdItem(id: 3099, peerId: user.id, presentationData: presentationData, interaction: interaction) {
+            items[currentPeerInfoSection]!.append(dkxIdItem)
+        }
+        
         if let cachedData = data.cachedData as? CachedUserData {
             if let birthday = cachedData.birthday {
                 let isBirthdayToday = hasBirthdayToday(birthday: birthday)
@@ -825,6 +830,10 @@ func infoItems(
                 }
             }
         }
+        // MARK: DKX Telegram ID
+        if let dkxIdItem = dkxPeerIdItem(id: 99, peerId: channel.id, presentationData: presentationData, interaction: interaction) {
+            items[.peerInfo]!.append(dkxIdItem)
+        }
     } else if case let .legacyGroup(group) = data.peer {
         if let cachedData = data.cachedData as? CachedGroupData {
             let aboutText: String?
@@ -845,6 +854,10 @@ func infoItems(
                     interaction.requestLayout(animated)
                 }))
             }
+        }
+        // MARK: DKX Telegram ID
+        if let dkxIdItem = dkxPeerIdItem(id: 99, peerId: group.id, presentationData: presentationData, interaction: interaction) {
+            items[.peerInfo]!.append(dkxIdItem)
         }
     }
     
