@@ -140,6 +140,8 @@ private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
 private final class DkxSettingsControllerArguments {
     let updateHideStories: (Bool) -> Void
     let updateHidePremiumPromo: (Bool) -> Void
+    let updateAntiDelete: (Bool) -> Void
+    let updateEditHistory: (Bool) -> Void
     let updateToggle: (DkxToggle, Bool) -> Void
     let updateUnansweredHours: (Int32) -> Void
     let openQuickReplies: () -> Void
@@ -160,6 +162,8 @@ private final class DkxSettingsControllerArguments {
     init(
         updateHideStories: @escaping (Bool) -> Void,
         updateHidePremiumPromo: @escaping (Bool) -> Void,
+        updateAntiDelete: @escaping (Bool) -> Void,
+        updateEditHistory: @escaping (Bool) -> Void,
         updateToggle: @escaping (DkxToggle, Bool) -> Void,
         updateUnansweredHours: @escaping (Int32) -> Void,
         openQuickReplies: @escaping () -> Void,
@@ -179,6 +183,8 @@ private final class DkxSettingsControllerArguments {
     ) {
         self.updateHideStories = updateHideStories
         self.updateHidePremiumPromo = updateHidePremiumPromo
+        self.updateAntiDelete = updateAntiDelete
+        self.updateEditHistory = updateEditHistory
         self.updateToggle = updateToggle
         self.updateUnansweredHours = updateUnansweredHours
         self.openQuickReplies = openQuickReplies
@@ -254,6 +260,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case disableFooter
 
     case featuresHeader
+    case antiDelete(Bool)
+    case editHistory(Bool)
     case featuresFooter
 
     case debugHeader
@@ -281,7 +289,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return DkxSettingsSection.routeControl.rawValue
         case .disableSpoof, .disableFooter:
             return DkxSettingsSection.disable.rawValue
-        case .featuresHeader, .featuresFooter:
+        case .featuresHeader, .antiDelete, .editHistory, .featuresFooter:
             return DkxSettingsSection.features.rawValue
         case .debugHeader, .openLog, .openDebug, .debugFooter:
             return DkxSettingsSection.debug.rawValue
@@ -358,8 +366,12 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 1501
         case .featuresHeader:
             return 2000
-        case .featuresFooter:
+        case .antiDelete:
             return 2001
+        case .editHistory:
+            return 2002
+        case .featuresFooter:
+            return 2003
         case .debugHeader:
             return 3000
         case .openLog:
@@ -489,6 +501,14 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
 
         case .featuresHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: "СООБЩЕНИЯ", sectionId: self.section)
+        case let .antiDelete(value):
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Сохранять удалённые", value: value, sectionId: self.section, style: .blocks, updated: { value in
+                arguments.updateAntiDelete(value)
+            })
+        case let .editHistory(value):
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Сохранять историю правок", value: value, sectionId: self.section, style: .blocks, updated: { value in
+                arguments.updateEditHistory(value)
+            })
         case .featuresFooter:
             return ItemListTextItem(presentationData: presentationData, text: .plain("Удалённые собеседником сообщения остаются в чате с пометкой «удалено». У отредактированных в контекстном меню доступна история правок.\n\nСекретные чаты и самоуничтожающиеся сообщения не затрагиваются."), sectionId: self.section)
 
@@ -638,6 +658,8 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
     }
 
     entries.append(.featuresHeader)
+    entries.append(.antiDelete(settings.antiDelete))
+    entries.append(.editHistory(settings.editHistory))
     entries.append(.featuresFooter)
 
     entries.append(.debugHeader)
@@ -732,6 +754,12 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
         },
         updateHidePremiumPromo: { value in
             update { $0.hidePremiumPromo = value }
+        },
+        updateAntiDelete: { value in
+            update { $0.antiDelete = value }
+        },
+        updateEditHistory: { value in
+            update { $0.editHistory = value }
         },
         updateToggle: { toggle, value in
             if toggle == .chatLock && !value {

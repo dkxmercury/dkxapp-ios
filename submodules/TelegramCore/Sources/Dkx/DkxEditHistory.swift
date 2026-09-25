@@ -24,6 +24,11 @@ public enum DkxEditHistory {
         // и FactCheckMessageAttribute, и именно поэтому те блоки существуют.
         carryOver(previousMessage: previousMessage, attributes: &attributes)
 
+        // Тумблер выключен: накопленное сохраняем, новые версии не заводим
+        if !DkxCoreFlags.editHistory {
+            return
+        }
+
         // Текст не изменился. Это правка медиа, реакций, разметки или чего-то
         // ещё, новую версию заводить незачем, но перенос выше уже случился.
         if previousMessage.text == newText {

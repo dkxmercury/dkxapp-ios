@@ -859,6 +859,9 @@ private final class NotificationServiceHandler {
 
             // MARK: DKX список закрытых Face ID чатов: их текст в уведомлениях прячем
             let dkxSettings = sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
+            // Тумблеры сохранения удалённых и истории правок: пуш тоже
+            // применяет удаления и правки
+            DkxCoreFlags.update(antiDelete: dkxSettings.antiDelete, editHistory: dkxSettings.editHistory)
             
 //            var automaticMediaDownloadSettings: MediaAutoDownloadSettings
 //            if let value = sharedData.entries[ApplicationSpecificSharedDataKeys.automaticMediaDownloadSettings]?.get(MediaAutoDownloadSettings.self) {

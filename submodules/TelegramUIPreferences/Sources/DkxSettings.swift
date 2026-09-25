@@ -26,6 +26,9 @@ public struct DkxSettings: Codable, Equatable {
     public var hideStories: Bool
     // Предложения премиума, подсказки покупки, навязчивые баннеры
     public var hidePremiumPromo: Bool
+    // Главные правки форка: удалённые остаются, правки сохраняются
+    public var antiDelete: Bool
+    public var editHistory: Bool
     // Личные заметки на чаты. Ключ это идентификатор собеседника строкой,
     // потому что Codable плохо работает со словарями с числовыми ключами.
     // Заметка видна только владельцу и на сервер не уходит.
@@ -89,6 +92,8 @@ public struct DkxSettings: Codable, Equatable {
     public init() {
         self.hideStories = false
         self.hidePremiumPromo = false
+        self.antiDelete = true
+        self.editHistory = true
         self.chatNotes = [:]
         self.showContactBadge = true
         self.showNoteInHeader = true
@@ -162,6 +167,8 @@ public struct DkxSettings: Codable, Equatable {
         let defaults = DkxSettings()
         self.hideStories = (try container.decodeIfPresent(Int32.self, forKey: "hideStories") ?? 0) != 0
         self.hidePremiumPromo = (try container.decodeIfPresent(Int32.self, forKey: "hidePremiumPromo") ?? 0) != 0
+        self.antiDelete = (try container.decodeIfPresent(Int32.self, forKey: "antiDelete")).map { $0 != 0 } ?? defaults.antiDelete
+        self.editHistory = (try container.decodeIfPresent(Int32.self, forKey: "editHistory")).map { $0 != 0 } ?? defaults.editHistory
         self.chatNotes = (try container.decodeIfPresent([String: String].self, forKey: "chatNotes")) ?? defaults.chatNotes
         self.showContactBadge = (try container.decodeIfPresent(Int32.self, forKey: "showContactBadge")).map { $0 != 0 } ?? defaults.showContactBadge
         self.showNoteInHeader = (try container.decodeIfPresent(Int32.self, forKey: "showNoteInHeader")).map { $0 != 0 } ?? defaults.showNoteInHeader
@@ -193,6 +200,8 @@ public struct DkxSettings: Codable, Equatable {
         var container = encoder.container(keyedBy: StringCodingKey.self)
         try container.encode((self.hideStories ? 1 : 0) as Int32, forKey: "hideStories")
         try container.encode((self.hidePremiumPromo ? 1 : 0) as Int32, forKey: "hidePremiumPromo")
+        try container.encode((self.antiDelete ? 1 : 0) as Int32, forKey: "antiDelete")
+        try container.encode((self.editHistory ? 1 : 0) as Int32, forKey: "editHistory")
         try container.encode(self.chatNotes, forKey: "chatNotes")
         try container.encode((self.showContactBadge ? 1 : 0) as Int32, forKey: "showContactBadge")
         try container.encode((self.showNoteInHeader ? 1 : 0) as Int32, forKey: "showNoteInHeader")

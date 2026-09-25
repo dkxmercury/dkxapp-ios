@@ -559,6 +559,7 @@ public final class SharedAccountContextImpl: SharedAccountContext {
                 // Снимок для ячеек и шапок, которые не подписаны на настройки
                 DkxRuntime.update(settings)
                 PremiumConfiguration.dkxHidePromo = settings.hidePremiumPromo
+                DkxCoreFlags.update(antiDelete: settings.antiDelete, editHistory: settings.editHistory)
                 
                 // Любая неполная настройка, будь то пустая точка или маршрут
                 // без одного конца, означает настоящую координату.

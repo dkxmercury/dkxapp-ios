@@ -11,6 +11,10 @@ public enum DkxDeleteReason {
 public enum DkxAntiDelete {
     // Разделяет список на те, что оставляем помеченными, и те, что реально удаляем.
     public static func partition(transaction: Transaction, ids: [MessageId]) -> (keep: [MessageId], drop: [MessageId]) {
+        // Тумблер в настройках Dkx выключен: удаляем как обычный Telegram
+        if !DkxCoreFlags.antiDelete {
+            return ([], ids)
+        }
         var keep: [MessageId] = []
         var drop: [MessageId] = []
         for id in ids {
