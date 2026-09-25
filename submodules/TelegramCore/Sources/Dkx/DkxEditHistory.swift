@@ -10,8 +10,22 @@ public enum DkxEditHistory {
     // полное сообщение до правки, сервер старый текст не присылает никогда,
     // поэтому снимок можно взять только здесь.
     public static func appendVersion(previousMessage: Message, newText: String, attributes: inout [MessageAttribute]) {
+        // ВАЖНО. attributes это набор атрибутов, пришедший с сервера, и он
+        // целиком заменяет прежний через withUpdatedAttributes. Наших атрибутов
+        // сервер не знает, поэтому их надо переносить вручную на КАЖДОМ
+        // обновлении, а не только когда изменился текст.
+        //
+        // Иначе происходит вот что. Первая правка сохраняет историю, а любое
+        // следующее обновление того же сообщения (счётчик просмотров, реакция,
+        // повторная правка без смены текста) выходит отсюда рано и затирает
+        // её набором с сервера.
+        //
+        // Апстрим делает ровно то же самое рядом для TranslationMessageAttribute
+        // и FactCheckMessageAttribute, и именно поэтому те блоки существуют.
+        carryOver(previousMessage: previousMessage, attributes: &attributes)
+
         // Текст не изменился. Это правка медиа, реакций, разметки или чего-то
-        // ещё, версию заводить незачем.
+        // ещё, новую версию заводить незачем, но перенос выше уже случился.
         if previousMessage.text == newText {
             return
         }
@@ -47,5 +61,22 @@ public enum DkxEditHistory {
         // не получить два.
         attributes.removeAll(where: { $0 is DkxEditHistoryAttribute })
         attributes.append(DkxEditHistoryAttribute(texts: texts, dates: dates))
+    }
+
+    // Переносит наши атрибуты из прежнего сообщения в новый набор с сервера.
+    private static func carryOver(previousMessage: Message, attributes: inout [MessageAttribute]) {
+        for attribute in previousMessage.attributes {
+            if attribute is DkxEditHistoryAttribute {
+                if !attributes.contains(where: { $0 is DkxEditHistoryAttribute }) {
+                    attributes.append(attribute)
+                }
+            } else if attribute is DkxDeletedMessageAttribute {
+                // Пометку удалённого тоже переносим, иначе правка по уже
+                // помеченному сообщению стёрла бы её.
+                if !attributes.contains(where: { $0 is DkxDeletedMessageAttribute }) {
+                    attributes.append(attribute)
+                }
+            }
+        }
     }
 }
