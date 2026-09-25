@@ -40,6 +40,7 @@ private enum DkxToggle: Int32 {
     case peerId
     case unanswered
     case quickReplies
+    case authorMessages
 }
 
 private let dkxUnansweredThresholds: [(hours: Int32, title: String)] = [
@@ -61,6 +62,8 @@ private func dkxToggleValue(_ toggle: DkxToggle, _ settings: DkxSettings) -> Boo
         return settings.unansweredFilter
     case .quickReplies:
         return settings.quickReplies
+    case .authorMessages:
+        return settings.authorMessages
     }
 }
 
@@ -76,6 +79,8 @@ private func dkxToggleUpdate(_ toggle: DkxToggle, _ value: Bool, _ settings: ino
         settings.unansweredFilter = value
     case .quickReplies:
         settings.quickReplies = value
+    case .authorMessages:
+        settings.authorMessages = value
     }
 }
 
@@ -91,6 +96,8 @@ private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
         return "Список «Без ответа»"
     case .quickReplies:
         return "Шаблоны быстрых ответов"
+    case .authorMessages:
+        return "Все сообщения автора в группе"
     }
 }
 
@@ -255,10 +262,12 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 99
         case .chatsHeader:
             return 100
+        // У тумблеров чётные номера, нечётное место сразу под тумблером
+        // занимает его вложенная строка, если она есть
         case let .toggle(toggle, _):
-            return 101 + toggle.rawValue
+            return 101 + toggle.rawValue * 2
         case .openQuickReplies:
-            return 150
+            return 101 + DkxToggle.quickReplies.rawValue * 2 + 1
         case .chatsFooter:
             return 199
         case .unansweredHeader:
@@ -356,6 +365,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return ItemListTextItem(presentationData: presentationData, text: .plain("Метка «сохранил» или «не сохранил» видна в шапке чата и в списке контактов, только для тех, кого вы сами сохранили.
 
 Заметка в шапке чата это первая строка вашей заметки из профиля собеседника. Правится в профиле через «Изменить».
+
+Шаблоны вставляются кнопкой в поле ввода, она появляется после добавления первого шаблона. «Все сообщения автора» есть в меню долгого нажатия на сообщение в группе.
 
 Включённое или выключенное применяется при следующем открытии экрана."), sectionId: self.section)
 
@@ -514,7 +525,7 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
     entries.append(.interfaceFooter)
 
     entries.append(.chatsHeader)
-    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies] {
+    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies, .authorMessages] {
         entries.append(.toggle(toggle, dkxToggleValue(toggle, settings)))
     }
     if settings.quickReplies {

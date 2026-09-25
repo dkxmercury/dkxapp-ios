@@ -1334,6 +1334,26 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             })))
         }
 
+        // MARK: DKX все сообщения автора в группе. Это штатный поиск Telegram
+        // по участнику с пустым запросом, тут только быстрый вход в него.
+        if messages.count == 1, DkxRuntime.current.authorMessages, let dkxAuthor = message.author, dkxAuthor is TelegramUser {
+            var dkxIsGroup = false
+            if let channel = chatPresentationInterfaceState.renderedPeer?.peer as? TelegramChannel, case .group = channel.info {
+                dkxIsGroup = true
+            } else if chatPresentationInterfaceState.renderedPeer?.peer is TelegramGroup {
+                dkxIsGroup = true
+            }
+            if dkxIsGroup {
+                actions.append(.action(ContextMenuActionItem(text: "Все сообщения автора", icon: { theme in
+                    return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Search"), color: theme.actionSheet.primaryTextColor)
+                }, action: { c, _ in
+                    c?.dismiss(completion: {
+                        interfaceInteraction?.beginMessageSearch(.member(dkxAuthor), "")
+                    })
+                })))
+            }
+        }
+
         var richMessageMarkdown: String?
         var richMessageInstantPage: InstantPage?
         var activeTranslateToLang: String?
