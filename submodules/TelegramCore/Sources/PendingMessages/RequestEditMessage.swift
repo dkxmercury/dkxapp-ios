@@ -277,7 +277,11 @@ private func requestEditMessageInternal(accountPeerId: PeerId, postbox: Postbox,
                                                     updatedMedia = previousMessage.media
                                                 }
 
-                                                return .update(message.withUpdatedLocalTags(updatedLocalTags).withUpdatedFlags(updatedFlags).withUpdatedMedia(updatedMedia))
+                                                // MARK: DKX своя правка. Ответ сервера пишется сюда напрямую,
+                                                // мимо обработчика входящих правок, прежний текст есть только тут.
+                                                var dkxAttributes = message.attributes
+                                                DkxEditHistory.appendVersion(previousMessage: previousMessage, newText: message.text, attributes: &dkxAttributes)
+                                                return .update(message.withUpdatedLocalTags(updatedLocalTags).withUpdatedFlags(updatedFlags).withUpdatedMedia(updatedMedia).withUpdatedAttributes(dkxAttributes))
                                             })
                                         }
                                     case .updateNewMessage(let data):
@@ -303,7 +307,11 @@ private func requestEditMessageInternal(accountPeerId: PeerId, postbox: Postbox,
                                                     updatedMedia = previousMessage.media
                                                 }
 
-                                                return .update(message.withUpdatedLocalTags(updatedLocalTags).withUpdatedFlags(updatedFlags).withUpdatedMedia(updatedMedia))
+                                                // MARK: DKX своя правка. Ответ сервера пишется сюда напрямую,
+                                                // мимо обработчика входящих правок, прежний текст есть только тут.
+                                                var dkxAttributes = message.attributes
+                                                DkxEditHistory.appendVersion(previousMessage: previousMessage, newText: message.text, attributes: &dkxAttributes)
+                                                return .update(message.withUpdatedLocalTags(updatedLocalTags).withUpdatedFlags(updatedFlags).withUpdatedMedia(updatedMedia).withUpdatedAttributes(dkxAttributes))
                                             })
                                         }
                                     case .updateEditChannelMessage(let data):
@@ -329,7 +337,11 @@ private func requestEditMessageInternal(accountPeerId: PeerId, postbox: Postbox,
                                                     updatedMedia = previousMessage.media
                                                 }
 
-                                                return .update(message.withUpdatedLocalTags(updatedLocalTags).withUpdatedFlags(updatedFlags).withUpdatedMedia(updatedMedia))
+                                                // MARK: DKX своя правка. Ответ сервера пишется сюда напрямую,
+                                                // мимо обработчика входящих правок, прежний текст есть только тут.
+                                                var dkxAttributes = message.attributes
+                                                DkxEditHistory.appendVersion(previousMessage: previousMessage, newText: message.text, attributes: &dkxAttributes)
+                                                return .update(message.withUpdatedLocalTags(updatedLocalTags).withUpdatedFlags(updatedFlags).withUpdatedMedia(updatedMedia).withUpdatedAttributes(dkxAttributes))
                                             })
                                         }
                                     case .updateNewChannelMessage(let data):
@@ -355,7 +367,11 @@ private func requestEditMessageInternal(accountPeerId: PeerId, postbox: Postbox,
                                                     updatedMedia = previousMessage.media
                                                 }
                                                 
-                                                return .update(message.withUpdatedLocalTags(updatedLocalTags).withUpdatedFlags(updatedFlags).withUpdatedMedia(updatedMedia))
+                                                // MARK: DKX своя правка. Ответ сервера пишется сюда напрямую,
+                                                // мимо обработчика входящих правок, прежний текст есть только тут.
+                                                var dkxAttributes = message.attributes
+                                                DkxEditHistory.appendVersion(previousMessage: previousMessage, newText: message.text, attributes: &dkxAttributes)
+                                                return .update(message.withUpdatedLocalTags(updatedLocalTags).withUpdatedFlags(updatedFlags).withUpdatedMedia(updatedMedia).withUpdatedAttributes(dkxAttributes))
                                             })
                                         }
                                     default:
