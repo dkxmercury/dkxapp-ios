@@ -651,6 +651,38 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             
             actions.append(.separator)
             
+            // MARK: DKX просмотр предыдущих версий отредактированного сообщения.
+            // Строки захардкожены намеренно: свои ключи в Localizable.strings
+            // требуют прогона GenerateStrings.py, а это отдельный шаг сборки
+            // ради форка на несколько устройств.
+            if let dkxHistory = message.attributes.first(where: { $0 is DkxEditHistoryAttribute }) as? DkxEditHistoryAttribute, !dkxHistory.texts.isEmpty {
+                actions.append(.action(ContextMenuActionItem(text: "История правок", icon: { theme in
+                    return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Edit"), color: theme.actionSheet.primaryTextColor)
+                }, action: { c, _ in
+                    c?.dismiss(completion: {
+                        let presentationData = context.sharedContext.currentPresentationData.with { $0 }
+                        let dkxFormatter = DateFormatter()
+                        dkxFormatter.dateStyle = .short
+                        dkxFormatter.timeStyle = .short
+                        var dkxLines: [String] = []
+                        for i in 0 ..< dkxHistory.texts.count {
+                            let dkxDate = Date(timeIntervalSince1970: Double(dkxHistory.dates[i]))
+                            dkxLines.append(dkxFormatter.string(from: dkxDate) + "\n" + dkxHistory.texts[i])
+                        }
+                        dkxLines.append("сейчас\n" + message.text)
+                        controllerInteraction.presentController(textAlertController(
+                            context: context,
+                            title: "История правок",
+                            text: dkxLines.joined(separator: "\n\n"),
+                            actions: [
+                                TextAlertAction(type: .defaultAction, title: presentationData.strings.Common_OK, action: {})
+                            ],
+                            actionLayout: .vertical
+                        ), nil)
+                    })
+                })))
+            }
+
             if chatPresentationInterfaceState.copyProtectionEnabled {
             } else {
                 actions.append(.action(ContextMenuActionItem(text: chatPresentationInterfaceState.strings.Conversation_ContextMenuCopy, icon: { theme in
