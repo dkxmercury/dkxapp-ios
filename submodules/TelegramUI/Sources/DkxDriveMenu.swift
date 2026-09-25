@@ -80,11 +80,11 @@ func dkxUploadMessageToDrive(context: AccountContext, message: Message, present:
     if let fileReference = media.fileReference {
         fetch = freeMediaFileInteractiveFetched(account: account, userLocation: userLocation, fileReference: fileReference)
         |> ignoreValues
-        |> `catch` { _ in return .complete() }
+        |> `catch` { _ -> Signal<Never, NoError> in return .complete() }
     } else {
         fetch = fetchedMediaResource(mediaBox: account.postbox.mediaBox, userLocation: userLocation, userContentType: .image, reference: media.imageReference!.resourceReference(media.resource))
         |> ignoreValues
-        |> `catch` { _ in return .complete() }
+        |> `catch` { _ -> Signal<Never, NoError> in return .complete() }
     }
 
     let path = account.postbox.mediaBox.resourceData(media.resource)
