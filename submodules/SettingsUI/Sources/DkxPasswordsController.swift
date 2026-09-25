@@ -153,7 +153,7 @@ enum DkxPasswordStore {
 
 // Буфер обмена только на этом устройстве и с самоочисткой
 private func dkxCopySecret(_ value: String) {
-    UIPasteboard.general.setItems([[UIPasteboard.typeAutomatic: value]], options: [.localOnly: true, .expirationDate: Date(timeIntervalSinceNow: 120.0)])
+    UIPasteboard.general.setItems([["public.utf8-plain-text": value]], options: [.localOnly: true, .expirationDate: Date(timeIntervalSinceNow: 120.0)])
 }
 
 // Сигнал списка: хранилище синхронное, а экраны должны обновляться после
