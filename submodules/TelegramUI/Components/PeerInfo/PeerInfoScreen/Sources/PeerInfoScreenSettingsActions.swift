@@ -15,6 +15,8 @@ import TelegramPresentationData
 import PresentationDataUtils
 import PasswordSetupUI
 import InstantPageCache
+import CoreLocation
+import LocationUI
 
 extension PeerInfoScreenNode {
     func openSettings(section: PeerInfoSettingsSection) {
@@ -143,7 +145,13 @@ extension PeerInfoScreenNode {
             push(dataAndStorageController(context: self.context))
         // MARK: DKX
         case .dkx:
-            push(dkxSettingsController(context: self.context))
+            let dkxContext = self.context
+            push(dkxSettingsController(context: dkxContext, makeLocationPicker: { initial, completion in
+                let initialLocation = initial.map { CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude) }
+                return LocationPickerController(context: dkxContext, style: .glass, mode: .pick, initialLocation: initialLocation, completion: { location, _, _, _, _ in
+                    completion(location.latitude, location.longitude)
+                })
+            }))
         case .appearance:
             push(themeSettingsController(context: self.context))
         case .language:

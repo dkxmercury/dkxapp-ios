@@ -43,6 +43,9 @@ public final class DeviceLocationManager: NSObject {
     private var currentLocation: CLLocation?
     private var currentHeading: CLHeading?
     
+    // MARK: DKX таймер движения по маршруту
+    private var dkxRouteTimer: SwiftSignalKit.Timer?
+    
     public init(queue: Queue, log: ((String) -> Void)? = nil) {
         assert(queue.isCurrent())
         
@@ -119,12 +122,48 @@ public final class DeviceLocationManager: NSObject {
 
                     self.manager.startUpdatingLocation()
                     self.manager.startUpdatingHeading()
+                    
+                    // MARK: DKX
+                    self.dkxStartRouteTimer()
                 }
             } else {
                 self.currentLocation = nil
                 self.manager.stopUpdatingLocation()
                 self.log?("stopped")
+                
+                // MARK: DKX
+                self.dkxRouteTimer?.invalidate()
+                self.dkxRouteTimer = nil
             }
+        }
+    }
+    
+    // MARK: DKX. Пока координата едет по маршруту, настоящий GPS может
+    // молчать, например когда телефон лежит на столе. Таймер раз в две
+    // секунды отдаёт подписчикам свежую точку. Трансляция геопозиции сама
+    // прореживает обновления до одного в четыре секунды, так что чаще не надо.
+    // Вне маршрута тик ничего не делает.
+    private func dkxStartRouteTimer() {
+        self.dkxRouteTimer?.invalidate()
+        let timer = SwiftSignalKit.Timer(timeout: 2.0, repeat: true, completion: { [weak self] in
+            self?.dkxRouteTick()
+        }, queue: self.queue)
+        self.dkxRouteTimer = timer
+        timer.start()
+    }
+    
+    private func dkxRouteTick() {
+        assert(self.queue.isCurrent())
+        
+        guard self.currentTopMode != nil, DkxLocationOverride.needsTicking() else {
+            return
+        }
+        guard let location = DkxLocationOverride.synthesize(base: self.currentLocation) else {
+            return
+        }
+        self.currentLocation = location
+        for subscriber in self.subscribers {
+            subscriber.update(location, self.currentHeading?.effectiveHeading)
         }
     }
 }
@@ -146,7 +185,9 @@ extension DeviceLocationManager: CLLocationManagerDelegate {
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         assert(self.queue.isCurrent())
         
-        if let location = locations.first {
+        // MARK: DKX подмена координат, единая точка для всех подписчиков
+        if let realLocation = locations.first {
+            let location = DkxLocationOverride.apply(realLocation)
             if self.currentTopMode != nil {
                 self.currentLocation = location
                 for subscriber in self.subscribers {

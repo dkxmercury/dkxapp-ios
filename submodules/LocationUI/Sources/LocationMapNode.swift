@@ -4,6 +4,7 @@ import AsyncDisplayKit
 import Display
 import SwiftSignalKit
 import MapKit
+import DeviceLocationManager
 
 private let pinOffset = CGPoint(x: 0.0, y: 33.0)
 
@@ -547,7 +548,8 @@ public final class LocationMapNode: ASDisplayNode, MKMapViewDelegateTarget {
             return
         }
         userLocation.title = ""
-        self.locationPromise.set(.single(location))
+        // MARK: DKX подмена координат
+        self.locationPromise.set(.single(DkxLocationOverride.apply(location)))
     }
     
     public func mapView(_ mapView: MKMapView, didFailToLocateUserWithError error: Error) {
@@ -669,7 +671,11 @@ public final class LocationMapNode: ASDisplayNode, MKMapViewDelegateTarget {
     }
     
     public var currentUserLocation: CLLocation? {
-        return self.mapView?.userLocation.location
+        // MARK: DKX подмена координат
+        guard let location = self.mapView?.userLocation.location else {
+            return nil
+        }
+        return DkxLocationOverride.apply(location)
     }
     
     public var userLocation: Signal<CLLocation?, NoError> {

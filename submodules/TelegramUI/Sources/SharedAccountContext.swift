@@ -298,6 +298,8 @@ public final class SharedAccountContextImpl: SharedAccountContext {
     private var invalidatedApsToken: Data?
     
     private let energyUsageAutomaticDisposable = MetaDisposable()
+    // MARK: DKX подмена координат
+    private let dkxLocationOverrideDisposable = MetaDisposable()
     
     init(mainWindow: Window1?, sharedContainerPath: String, basePath: String, encryptionParameters: ValueBoxEncryptionParameters, accountManager: AccountManager<TelegramAccountManagerTypes>, appLockContext: AppLockContext, notificationController: NotificationContainerController?, applicationBindings: TelegramApplicationBindings, initialPresentationDataAndSettings: InitialPresentationDataAndSettings, networkArguments: NetworkInitializationArguments, hasInAppPurchases: Bool, rootPath: String, legacyBasePath: String?, apsNotificationToken: Signal<Data?, NoError>, voipNotificationToken: Signal<Data?, NoError>, firebaseSecretStream: Signal<[String: String], NoError>, setNotificationCall: @escaping (PresentationCall?) -> Void, navigateToChat: @escaping (AccountRecordId, PeerId, MessageId?, Bool) -> Void, displayUpgradeProgress: @escaping (Float?) -> Void = { _ in }, appDelegate: AppDelegate?, testingEnvironment: Bool = false) {
         assert(Queue.mainQueue().isCurrent())
@@ -537,6 +539,41 @@ public final class SharedAccountContextImpl: SharedAccountContext {
                 return settings
             }).start()
         })
+        
+        // MARK: DKX подмена координат. Единственное место, где настройки
+        // доезжают до слоя геолокации: тот модуль лежит слишком низко и
+        // читать их сам не может. Подписка стоит здесь, а не рядом с
+        // созданием менеджера, потому что до конца инициализации всех полей
+        // трогать self нельзя.
+        if applicationBindings.isMainApp {
+            self.dkxLocationOverrideDisposable.set((accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.dkxSettings])
+            |> map { sharedData -> DkxSettings in
+                return sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
+            }
+            |> distinctUntilChanged
+            |> deliverOnMainQueue).start(next: { settings in
+                // Любая неполная настройка, будь то пустая точка или маршрут
+                // без одного конца, означает настоящую координату.
+                guard settings.spoofLocation else {
+                    DkxLocationOverride.clear()
+                    return
+                }
+                switch settings.spoofMode {
+                case .point:
+                    if let point = DkxSettings.parseCoordinate(settings.spoofCoordinate) {
+                        DkxLocationOverride.setPoint(latitude: point.latitude, longitude: point.longitude)
+                    } else {
+                        DkxLocationOverride.clear()
+                    }
+                case .route:
+                    if let from = DkxSettings.parseCoordinate(settings.routeFrom), let to = DkxSettings.parseCoordinate(settings.routeTo), settings.routeSpeed > 0 {
+                        DkxLocationOverride.setRoute(fromLatitude: from.latitude, fromLongitude: from.longitude, toLatitude: to.latitude, toLongitude: to.longitude, metersPerSecond: Double(settings.routeSpeed) / 3.6, startedAt: settings.routeStartedAt > 0 ? Double(settings.routeStartedAt) : nil)
+                    } else {
+                        DkxLocationOverride.clear()
+                    }
+                }
+            }))
+        }
         
         self.automaticMediaDownloadSettingsDisposable.set(self._automaticMediaDownloadSettings.get().start(next: { [weak self] next in
             if let strongSelf = self {
