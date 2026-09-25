@@ -300,6 +300,8 @@ public final class SharedAccountContextImpl: SharedAccountContext {
     private let energyUsageAutomaticDisposable = MetaDisposable()
     // MARK: DKX подмена координат
     private let dkxLocationOverrideDisposable = MetaDisposable()
+    // MARK: DKX Face ID на чат, снова закрываем при уходе в фон
+    private var dkxBackgroundObserver: NSObjectProtocol?
     
     init(mainWindow: Window1?, sharedContainerPath: String, basePath: String, encryptionParameters: ValueBoxEncryptionParameters, accountManager: AccountManager<TelegramAccountManagerTypes>, appLockContext: AppLockContext, notificationController: NotificationContainerController?, applicationBindings: TelegramApplicationBindings, initialPresentationDataAndSettings: InitialPresentationDataAndSettings, networkArguments: NetworkInitializationArguments, hasInAppPurchases: Bool, rootPath: String, legacyBasePath: String?, apsNotificationToken: Signal<Data?, NoError>, voipNotificationToken: Signal<Data?, NoError>, firebaseSecretStream: Signal<[String: String], NoError>, setNotificationCall: @escaping (PresentationCall?) -> Void, navigateToChat: @escaping (AccountRecordId, PeerId, MessageId?, Bool) -> Void, displayUpgradeProgress: @escaping (Float?) -> Void = { _ in }, appDelegate: AppDelegate?, testingEnvironment: Bool = false) {
         assert(Queue.mainQueue().isCurrent())
@@ -589,6 +591,12 @@ public final class SharedAccountContextImpl: SharedAccountContext {
                     DkxLog.write("гео", description)
                 }
             }))
+            
+            // MARK: DKX Face ID на чат. Фон, а не потеря фокуса: окно Face ID
+            // само снимает фокус, и замок захлопывался бы сразу после проверки
+            self.dkxBackgroundObserver = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: OperationQueue.main, using: { _ in
+                DkxChatLock.lockAll()
+            })
         }
         
         self.automaticMediaDownloadSettingsDisposable.set(self._automaticMediaDownloadSettings.get().start(next: { [weak self] next in
@@ -2225,6 +2233,21 @@ public final class SharedAccountContextImpl: SharedAccountContext {
     }
     
     public func navigateToChatController(_ params: NavigateToChatControllerParams) {
+        // MARK: DKX Face ID на чат. Сюда сходятся открытия чата из списка,
+        // поиска, уведомлений и ссылок
+        let dkxPeerId = params.chatLocation.peerId
+        if DkxChatLock.needsAuthentication(dkxPeerId) {
+            let _ = (DkxChatLock.authenticate(reason: "Открыть закрытый чат")
+            |> deliverOnMainQueue).start(next: { success in
+                if success {
+                    DkxChatLock.markUnlocked(dkxPeerId)
+                    navigateToChatControllerImpl(params)
+                } else {
+                    DkxLog.write("замок", "проверка не прошла, чат не открыт")
+                }
+            })
+            return
+        }
         navigateToChatControllerImpl(params)
     }
     

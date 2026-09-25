@@ -542,6 +542,38 @@ func chatContextMenuItems(context: AccountContext, peerId: EnginePeer.Id, promoI
                             }
                         }
                         
+                        // MARK: DKX Face ID на этот чат
+                        if DkxRuntime.current.chatLock, case .chatList = source {
+                            let dkxLocked = DkxRuntime.current.lockedPeers.contains(peerId.toInt64())
+                            items.append(.action(ContextMenuActionItem(text: dkxLocked ? "Снять Face ID" : "Закрыть Face ID", icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Lock"), color: theme.contextMenu.primaryColor) }, action: { _, f in
+                                f(.default)
+                                let dkxApply: () -> Void = {
+                                    let _ = updateDkxSettingsInteractively(accountManager: context.sharedContext.accountManager, { current in
+                                        var updated = current
+                                        if dkxLocked {
+                                            updated.lockedPeers.removeAll(where: { $0 == peerId.toInt64() })
+                                        } else if !updated.lockedPeers.contains(peerId.toInt64()) {
+                                            updated.lockedPeers.append(peerId.toInt64())
+                                        }
+                                        return updated
+                                    }).start()
+                                }
+                                if dkxLocked {
+                                    // Снять замок может только владелец
+                                    let _ = (DkxChatLock.authenticate(reason: "Снять Face ID с чата")
+                                    |> deliverOnMainQueue).start(next: { success in
+                                        if success {
+                                            dkxApply()
+                                        }
+                                    })
+                                } else {
+                                    // Только что закрыл сам, спрашивать тут же незачем
+                                    DkxChatLock.markUnlocked(peerId)
+                                    dkxApply()
+                                }
+                            })))
+                        }
+                        
                         let appendDeleteOrUngroupItem = {
                             if case .community = peer {
                                 items.append(.action(ContextMenuActionItem(text: strings.ChatList_Context_Ungroup, textColor: .destructive, icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Ungroup"), color: theme.contextMenu.destructiveColor) }, action: { _, f in

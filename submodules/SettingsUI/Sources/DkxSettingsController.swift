@@ -43,6 +43,7 @@ private enum DkxToggle: Int32 {
     case authorMessages
     case chatExport
     case mediaNoCompression
+    case chatLock
 }
 
 private let dkxUnansweredThresholds: [(hours: Int32, title: String)] = [
@@ -70,6 +71,8 @@ private func dkxToggleValue(_ toggle: DkxToggle, _ settings: DkxSettings) -> Boo
         return settings.chatExport
     case .mediaNoCompression:
         return settings.mediaNoCompression
+    case .chatLock:
+        return settings.chatLock
     }
 }
 
@@ -91,6 +94,8 @@ private func dkxToggleUpdate(_ toggle: DkxToggle, _ value: Bool, _ settings: ino
         settings.chatExport = value
     case .mediaNoCompression:
         settings.mediaNoCompression = value
+    case .chatLock:
+        settings.chatLock = value
     }
 }
 
@@ -112,6 +117,8 @@ private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
         return "Выгрузка чата в файл"
     case .mediaNoCompression:
         return "Фото и видео без сжатия"
+    case .chatLock:
+        return "Face ID на отдельные чаты"
     }
 }
 
@@ -384,6 +391,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
 
 Без сжатия фото и видео из галереи уходят оригиналом, файлом, как через «Отправить файлом». Получатель увидит файл, а не картинку в ленте. Предел размера 2 ГБ держит сервер Telegram, его не поднять.
 
+Face ID на чат: долгое нажатие на чат в списке, «Закрыть Face ID». У закрытого чата скрыт текст последнего сообщения и предпросмотр, открывается он после проверки и снова закрывается, когда приложение уходит в фон. Снять замок или выключить эту настройку можно только после проверки.
+
 Включённое или выключенное применяется при следующем открытии экрана."), sectionId: self.section)
 
         case .unansweredHeader:
@@ -541,7 +550,7 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
     entries.append(.interfaceFooter)
 
     entries.append(.chatsHeader)
-    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies, .authorMessages, .chatExport, .mediaNoCompression] {
+    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies, .authorMessages, .chatExport, .mediaNoCompression, .chatLock] {
         entries.append(.toggle(toggle, dkxToggleValue(toggle, settings)))
     }
     if settings.quickReplies {
@@ -653,6 +662,17 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
             update { $0.hidePremiumPromo = value }
         },
         updateToggle: { toggle, value in
+            if toggle == .chatLock && !value {
+                // Выключить замки может только владелец, иначе их снимали бы
+                // здесь в обход проверки
+                let _ = (DkxChatLock.authenticate(reason: "Выключить Face ID на чатах")
+                |> deliverOnMainQueue).start(next: { success in
+                    if success {
+                        update { dkxToggleUpdate(toggle, value, &$0) }
+                    }
+                })
+                return
+            }
             update { dkxToggleUpdate(toggle, value, &$0) }
         },
         updateUnansweredHours: { value in

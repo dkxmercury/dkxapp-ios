@@ -1,4 +1,5 @@
 import Foundation
+import TelegramUIPreferences
 import UIKit
 import AsyncDisplayKit
 import Display
@@ -2626,6 +2627,17 @@ public class ChatListItemNode: ItemListRevealOptionsItemNode {
                         }
                     default:
                         break
+                    }
+                    
+                    // MARK: DKX закрытый Face ID чат: текст последнего сообщения не
+                    // показываем, пока чат не открыт в этой сессии
+                    if DkxChatLock.needsAuthentication(itemPeer.peerId) {
+                        messageText = "Скрыто Face ID"
+                        messageEntities = []
+                        spoilers = nil
+                        customEmojiRanges = nil
+                        richTextPreview = nil
+                        initialHideAuthor = true
                     }
                     
                     contentData = .chat(itemPeer: itemPeer, threadInfo: threadInfo, peer: peer, hideAuthor: hideAuthor, messageText: messageText, messageEntities: messageEntities, spoilers: spoilers, customEmojiRanges: customEmojiRanges, richTextPreview: richTextPreview)

@@ -1956,6 +1956,11 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
                         if case .community = peer.peer {
                             let communityController = strongSelf.makeCommunityViewController(communityId: peer.peerId, mode: .preview)
                             source = .controller(ContextControllerContentSourceImpl(controller: communityController, sourceNode: node, navigationController: strongSelf.navigationController as? NavigationController))
+                        } else if DkxChatLock.needsAuthentication(peer.peerId) {
+                            // MARK: DKX закрытый Face ID чат: только меню, без предпросмотра
+                            // содержимого, иначе замок обходился бы долгим нажатием
+                            let dkxPoint = node.view.convert(CGPoint(x: node.bounds.midX, y: node.bounds.midY), to: nil)
+                            source = .location(ChatListContextLocationContentSource(controller: strongSelf, location: dkxPoint))
                         } else if let location = location {
                             source = .location(ChatListContextLocationContentSource(controller: strongSelf, location: location))
                         } else {
