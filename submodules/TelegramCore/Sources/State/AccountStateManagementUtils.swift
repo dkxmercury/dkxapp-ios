@@ -4541,6 +4541,12 @@ func replayFinalState(
                         updatedMedia = previousMessage.media
                     }
                     
+                    // MARK: DKX снимок предыдущего текста. Сервер старый текст
+                    // не присылает никогда, updateEditMessage это только новое
+                    // сообщение, pts и pts_count. Взять снимок можно лишь здесь,
+                    // где previousMessage ещё доступен.
+                    DkxEditHistory.appendVersion(previousMessage: previousMessage, newText: message.text, attributes: &updatedAttributes)
+
                     return .update(message.withUpdatedLocalTags(updatedLocalTags).withUpdatedFlags(updatedFlags).withUpdatedAttributes(updatedAttributes).withUpdatedMedia(updatedMedia))
                 })
                 if let generatedEvent = generatedEvent {
