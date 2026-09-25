@@ -182,10 +182,23 @@ jobs:
           df -h /System/Volumes/Data
           du -sh ~/telegram-bazel-cache 2>/dev/null || true
 
+      # Артефакты публичного репозитория может скачать любой залогиненный
+      # пользователь GitHub, а в IPA лежит профиль подписи с UDID устройств.
+      # Поэтому срок короткий: сборку сразу забирают на свой сервер.
       - uses: actions/upload-artifact@v4
         if: success()
         with:
           name: DkxApp-${{ env.APP_VERSION }}-${{ env.BUILD_NUMBER }}
           path: build/artifacts/*.ipa
-          retention-days: 30
+          retention-days: 3
           if-no-files-found: error
+
+      # Символы для расшифровки стеков из отчётов о падениях. Ничего
+      # секретного в них нет, исходники и так открыты.
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: DkxApp-${{ env.APP_VERSION }}-${{ env.BUILD_NUMBER }}-dSYM
+          path: build/artifacts/Telegram.DSYMs.zip
+          retention-days: 14
+          if-no-files-found: warn
