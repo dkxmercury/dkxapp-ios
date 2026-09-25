@@ -845,6 +845,7 @@ private final class NotificationServiceHandler {
         let _ = (combineLatest(queue: self.queue,
             self.accountManager.accountRecords(),
             self.accountManager.sharedData(keys: [
+                ApplicationSpecificSharedDataKeys.dkxSettings, // MARK: DKX
                 ApplicationSpecificSharedDataKeys.inAppNotificationSettings,
                 ApplicationSpecificSharedDataKeys.voiceCallSettings,
                 ApplicationSpecificSharedDataKeys.automaticMediaDownloadSettings,
@@ -855,6 +856,9 @@ private final class NotificationServiceHandler {
         |> deliverOn(self.queue)).start(next: { [weak self] records, sharedData in
             var recordId: AccountRecordId?
             var isCurrentAccount: Bool = false
+
+            // MARK: DKX список закрытых Face ID чатов: их текст в уведомлениях прячем
+            let dkxSettings = sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
             
 //            var automaticMediaDownloadSettings: MediaAutoDownloadSettings
 //            if let value = sharedData.entries[ApplicationSpecificSharedDataKeys.automaticMediaDownloadSettings]?.get(MediaAutoDownloadSettings.self) {
@@ -1153,6 +1157,10 @@ private final class NotificationServiceHandler {
                     } else {
                         if let aps = payloadJson["aps"] as? [String: Any], var peerId = peerId {
                             var content: NotificationContent = NotificationContent(isLockedMessage: isLockedMessage)
+                            // MARK: DKX закрытый Face ID чат: вместо текста нейтральная строка
+                            if dkxSettings.chatLock && dkxSettings.lockedPeers.contains(peerId.toInt64()) {
+                                content.isLockedMessage = "Новое сообщение в закрытом чате"
+                            }
                             if let alert = aps["alert"] as? [String: Any] {
                                 if let topicTitleValue = payloadJson["topic_title"] as? String {
                                     topicTitle = topicTitleValue
