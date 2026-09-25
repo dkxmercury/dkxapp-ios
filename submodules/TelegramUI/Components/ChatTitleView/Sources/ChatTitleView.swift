@@ -673,7 +673,25 @@ public final class ChatTitleView: UIView, NavigationBarTitleView {
                                         } else {
                                             dkxResult = attributedString
                                         }
-                                        state = .info(dkxResult, activity ? .online : .lastSeenTime)
+                                        // MARK: DKX заметка на контакт в шапке чата.
+                                        // Это встроенная заметка Telegram из профиля, её видит только
+                                        // владелец. Правится в профиле через «Изменить». Строка статуса
+                                        // однострочная, поэтому берём первую строку заметки, хвост
+                                        // обрежется многоточием, целиком она видна в профиле.
+                                        var dkxFinal = dkxResult
+                                        if let dkxNoteText = (peerView.cachedData as? CachedUserData)?.note?.text {
+                                            let dkxNoteLine = (dkxNoteText.split(separator: "
+").first.map(String.init) ?? "").trimmingCharacters(in: .whitespaces)
+                                            if !dkxNoteLine.isEmpty {
+                                                let dkxWithNote = NSMutableAttributedString(attributedString: dkxResult)
+                                                if dkxWithNote.length != 0 {
+                                                    dkxWithNote.append(NSAttributedString(string: " · ", font: subtitleFont, textColor: titleTheme.rootController.navigationBar.secondaryTextColor))
+                                                }
+                                                dkxWithNote.append(NSAttributedString(string: "✎ " + dkxNoteLine, font: subtitleFont, textColor: UIColor(rgb: 0xFF9F0A)))
+                                                dkxFinal = dkxWithNote
+                                            }
+                                        }
+                                        state = .info(dkxFinal, activity ? .online : .lastSeenTime)
                                     } else {
                                         let string = NSAttributedString(string: "", font: subtitleFont, textColor: titleTheme.rootController.navigationBar.secondaryTextColor)
                                         state = .info(string, .generic)
