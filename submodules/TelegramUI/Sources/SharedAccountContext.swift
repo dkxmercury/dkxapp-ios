@@ -556,6 +556,7 @@ public final class SharedAccountContextImpl: SharedAccountContext {
             |> deliverOnMainQueue).start(next: { settings in
                 // Снимок для ячеек и шапок, которые не подписаны на настройки
                 DkxRuntime.update(settings)
+                PremiumConfiguration.dkxHidePromo = settings.hidePremiumPromo
                 
                 // Любая неполная настройка, будь то пустая точка или маршрут
                 // без одного конца, означает настоящую координату.

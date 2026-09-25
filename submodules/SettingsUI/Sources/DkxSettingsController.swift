@@ -291,11 +291,13 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
                 arguments.updateHideStories(value)
             })
         case let .hidePremiumPromo(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Убрать предложения премиума", value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Убрать навязывание премиума", value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateHidePremiumPromo(value)
             })
         case .interfaceFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Лента историй над списком чатов исчезнет полностью. Сами истории останутся доступны в профилях."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain("Лента историй над списком чатов исчезнет полностью. Сами истории останутся доступны в профилях.
+
+Без навязывания пропадут плашки и экраны покупки Premium, пункты Premium, Business и подарков в настройках, значки подарков в поле ввода, а при наборе будут предлагаться только ваши стикеры, без чужих паков. Если Premium уже есть, он продолжит работать. Покупка Stars остаётся. Применяется при следующем открытии экрана."), sectionId: self.section)
 
         case .chatsHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: "КОНТАКТЫ И ЧАТЫ", sectionId: self.section)
@@ -452,8 +454,7 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
 
     entries.append(.interfaceHeader)
     entries.append(.hideStories(settings.hideStories))
-    // Убирание предложений премиума пока не показываем: единой точки нет,
-    // это 58 разных мест, отдельная работа. Поле в настройках уже заведено.
+    entries.append(.hidePremiumPromo(settings.hidePremiumPromo))
     entries.append(.interfaceFooter)
 
     entries.append(.chatsHeader)

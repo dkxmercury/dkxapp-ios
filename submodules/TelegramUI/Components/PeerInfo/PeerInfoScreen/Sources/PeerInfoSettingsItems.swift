@@ -262,7 +262,9 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
         }))
     }
     if let starsState = data.starsState {
-        if !isPremiumDisabled || abs(starsState.balance.value) > 0 {
+        // MARK: DKX пункт Stars остаётся и при тумблере «без навязывания»,
+        // покупка Stars нужна для проверки платных ботов
+        if !isPremiumDisabled || PremiumConfiguration.dkxHidePromo || abs(starsState.balance.value) > 0 {
             let balanceText: NSAttributedString
             if abs(starsState.balance.value) > 0 {
                 let formattedLabel = formatStarsAmountText(starsState.balance, dateTimeFormat: presentationData.dateTimeFormat)

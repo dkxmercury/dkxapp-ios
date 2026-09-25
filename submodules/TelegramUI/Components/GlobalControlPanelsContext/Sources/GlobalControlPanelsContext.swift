@@ -330,7 +330,23 @@ public final class GlobalControlPanelsContext {
                 let starsSubscriptionsContextPromise = Promise<StarsSubscriptionsContext?>(nil)
                 
                 let suggestedChatListNoticeSignal: Signal<ChatListNotice?, NoError> = combineLatest(
-                    context.engine.notices.getServerProvidedSuggestions(),
+                    context.engine.notices.getServerProvidedSuggestions()
+                    |> map { suggestions -> [ServerProvidedSuggestion] in
+                        // MARK: DKX без навязывания. Убираем плашки премиума, подарков,
+                        // Stars и серверные промо-ссылки. Пароль, день рождения, фото
+                        // профиля и заморозка аккаунта остаются, они по делу.
+                        guard DkxRuntime.current.hidePremiumPromo else {
+                            return suggestions
+                        }
+                        return suggestions.filter { suggestion in
+                            switch suggestion {
+                            case .upgradePremium, .annualPremium, .restorePremium, .xmasPremiumGift, .gracePremium, .starsSubscriptionLowBalance, .link:
+                                return false
+                            default:
+                                return true
+                            }
+                        }
+                    },
                     context.engine.notices.getServerDismissedSuggestions(),
                     twoStepData,
                     newSessionReviews(postbox: context.account.postbox),

@@ -108,7 +108,8 @@ private func updatedContextQueryResultStateForQuery(context: AccountContext, cha
                 case .installed:
                     scope = [.installed]
             }
-            return context.engine.stickers.searchStickers(query: nil, emoticon: [query.basicEmoji.0], scope: scope)
+            // MARK: DKX без навязывания: только свои стикеры, без чужих паков
+            return context.engine.stickers.searchStickers(query: nil, emoticon: [query.basicEmoji.0], scope: DkxRuntime.current.hidePremiumPromo ? scope.subtracting(.remote) : scope)
             |> map { items -> [FoundStickerItem] in
                 return items.items
             }

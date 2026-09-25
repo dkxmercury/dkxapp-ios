@@ -186,6 +186,17 @@ public struct PremiumConfiguration {
         )
     }
     
+    // MARK: DKX без навязывания премиума. Выставляется из SharedAccountContext
+    // по тумблеру в настройках Dkx. Работает через тот же флаг, которым
+    // Telegram прячет Premium в странах, где покупка запрещена: покупки и
+    // рекламные экраны исчезают, обычные функции остаются, у кого Premium
+    // уже есть, у тех он работает. Этот модуль настроек Dkx не видит, поэтому
+    // значение кладут снаружи.
+    //
+    // Покупку Stars намеренно не трогаем, она бывает нужна для проверки
+    // платных ботов.
+    public static var dkxHidePromo: Bool = false
+
     public let isPremiumDisabled: Bool
     public let areStarsDisabled: Bool
     public let subscriptionManagementUrl: String
@@ -278,12 +289,13 @@ public struct PremiumConfiguration {
             func get(_ value: Any?) -> Int32? {
                 return (value as? Double).flatMap(Int32.init)
             }
+            let dkxHide = PremiumConfiguration.dkxHidePromo
             return PremiumConfiguration(
-                isPremiumDisabled: data["premium_purchase_blocked"] as? Bool ?? defaultValue.isPremiumDisabled,
+                isPremiumDisabled: dkxHide || (data["premium_purchase_blocked"] as? Bool ?? defaultValue.isPremiumDisabled),
                 areStarsDisabled: data["stars_purchase_blocked"] as? Bool ?? defaultValue.areStarsDisabled,
                 subscriptionManagementUrl: data["premium_manage_subscription_url"] as? String ?? "",
-                showPremiumGiftInAttachMenu: data["premium_gift_attach_menu_icon"] as? Bool ?? defaultValue.showPremiumGiftInAttachMenu,
-                showPremiumGiftInTextField: data["premium_gift_text_field_icon"] as? Bool ?? defaultValue.showPremiumGiftInTextField,
+                showPremiumGiftInAttachMenu: !dkxHide && (data["premium_gift_attach_menu_icon"] as? Bool ?? defaultValue.showPremiumGiftInAttachMenu),
+                showPremiumGiftInTextField: !dkxHide && (data["premium_gift_text_field_icon"] as? Bool ?? defaultValue.showPremiumGiftInTextField),
                 giveawayGiftsPurchaseAvailable: data["giveaway_gifts_purchase_available"] as? Bool ?? defaultValue.giveawayGiftsPurchaseAvailable,
                 starsGiftsPurchaseAvailable: data["stars_gifts_enabled"] as? Bool ?? defaultValue.starsGiftsPurchaseAvailable,
                 starGiftsPurchaseBlocked: data["stargifts_blocked"] as? Bool ?? defaultValue.starGiftsPurchaseBlocked,
