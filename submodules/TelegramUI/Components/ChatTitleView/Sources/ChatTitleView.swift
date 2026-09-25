@@ -650,7 +650,30 @@ public final class ChatTitleView: UIView, NavigationBarTitleView {
                                         }
                                         let (string, activity) = stringAndActivityForUserPresence(strings: self.strings, dateTimeFormat: self.dateTimeFormat, presence: EnginePeer.Presence(userPresence), relativeTo: Int32(timestamp))
                                         let attributedString = NSAttributedString(string: string, font: subtitleFont, textColor: activity ? titleTheme.rootController.navigationBar.accentTextColor : titleTheme.rootController.navigationBar.secondaryTextColor)
-                                        state = .info(attributedString, activity ? .online : .lastSeenTime)
+
+                                        // MARK: DKX записан ли ты в контактах у собеседника.
+                                        //
+                                        // Флаг mutualContact приходит с сервера и означает взаимность.
+                                        // Показываем метку ТОЛЬКО если сам сохранил человека: иначе
+                                        // взаимности заведомо не будет, и "не сохранил" было бы враньём,
+                                        // мы просто не знаем.
+                                        let dkxResult: NSAttributedString
+                                        if peerView.peerIsContact, let dkxUser = peer as? TelegramUser, dkxUser.botInfo == nil {
+                                            let dkxMutual = dkxUser.flags.contains(.mutualContact)
+                                            let dkxBadge = NSMutableAttributedString(attributedString: attributedString)
+                                            if dkxBadge.length != 0 {
+                                                dkxBadge.append(NSAttributedString(string: " · ", font: subtitleFont, textColor: titleTheme.rootController.navigationBar.secondaryTextColor))
+                                            }
+                                            dkxBadge.append(NSAttributedString(
+                                                string: dkxMutual ? "сохранил" : "не сохранил",
+                                                font: subtitleFont,
+                                                textColor: dkxMutual ? UIColor(rgb: 0x4CD964) : UIColor(rgb: 0xFF453A)
+                                            ))
+                                            dkxResult = dkxBadge
+                                        } else {
+                                            dkxResult = attributedString
+                                        }
+                                        state = .info(dkxResult, activity ? .online : .lastSeenTime)
                                     } else {
                                         let string = NSAttributedString(string: "", font: subtitleFont, textColor: titleTheme.rootController.navigationBar.secondaryTextColor)
                                         state = .info(string, .generic)
