@@ -55,6 +55,10 @@ public struct DkxSettings: Codable, Equatable {
     // Face ID на отдельные чаты. Идентификаторы в виде toInt64, логика в
     // DkxChatLock
     public var chatLock: Bool
+
+    // Разделы «Мои дела» и «Пароли» в главных настройках
+    public var todoEnabled: Bool
+    public var passwordsEnabled: Bool
     public var lockedPeers: [Int64]
     public var quickReplyTemplates: [String]
 
@@ -90,6 +94,8 @@ public struct DkxSettings: Codable, Equatable {
         self.chatExport = true
         self.mediaNoCompression = false
         self.chatLock = true
+        self.todoEnabled = true
+        self.passwordsEnabled = true
         self.lockedPeers = []
         self.quickReplyTemplates = []
         self.spoofLocation = false
@@ -146,6 +152,8 @@ public struct DkxSettings: Codable, Equatable {
         self.chatExport = (try container.decodeIfPresent(Int32.self, forKey: "chatExport")).map { $0 != 0 } ?? defaults.chatExport
         self.mediaNoCompression = (try container.decodeIfPresent(Int32.self, forKey: "mediaNoCompression")).map { $0 != 0 } ?? defaults.mediaNoCompression
         self.chatLock = (try container.decodeIfPresent(Int32.self, forKey: "chatLock")).map { $0 != 0 } ?? defaults.chatLock
+        self.todoEnabled = (try container.decodeIfPresent(Int32.self, forKey: "todoEnabled")).map { $0 != 0 } ?? defaults.todoEnabled
+        self.passwordsEnabled = (try container.decodeIfPresent(Int32.self, forKey: "passwordsEnabled")).map { $0 != 0 } ?? defaults.passwordsEnabled
         self.lockedPeers = (try container.decodeIfPresent([Int64].self, forKey: "lockedPeers")) ?? defaults.lockedPeers
         self.quickReplyTemplates = (try container.decodeIfPresent([String].self, forKey: "quickReplyTemplates")) ?? defaults.quickReplyTemplates
         self.spoofLocation = (try container.decodeIfPresent(Int32.self, forKey: "spoofLocation") ?? 0) != 0
@@ -172,6 +180,8 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode((self.chatExport ? 1 : 0) as Int32, forKey: "chatExport")
         try container.encode((self.mediaNoCompression ? 1 : 0) as Int32, forKey: "mediaNoCompression")
         try container.encode((self.chatLock ? 1 : 0) as Int32, forKey: "chatLock")
+        try container.encode((self.todoEnabled ? 1 : 0) as Int32, forKey: "todoEnabled")
+        try container.encode((self.passwordsEnabled ? 1 : 0) as Int32, forKey: "passwordsEnabled")
         try container.encode(self.lockedPeers, forKey: "lockedPeers")
         try container.encode(self.quickReplyTemplates, forKey: "quickReplyTemplates")
         try container.encode((self.spoofLocation ? 1 : 0) as Int32, forKey: "spoofLocation")

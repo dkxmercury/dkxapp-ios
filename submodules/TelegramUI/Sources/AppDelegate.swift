@@ -2846,6 +2846,16 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        // MARK: DKX напоминание из «Моих дел»: открываем список дел
+        if response.notification.request.content.userInfo[DkxTaskReminders.userInfoKey] != nil {
+            let _ = (self.authorizedContext()
+            |> take(1)
+            |> deliverOnMainQueue).start(next: { context in
+                context.rootController.pushViewController(dkxTasksController(context: context.context))
+            })
+            completionHandler()
+            return
+        }
         let _ = (accountIdFromNotification(response.notification, sharedContext: self.sharedContextPromise.get())
         |> deliverOnMainQueue).start(next: { accountId in
             if response.actionIdentifier == UNNotificationDefaultActionIdentifier {
@@ -3034,6 +3044,17 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     
     @available(iOS 10.0, *)
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        // MARK: DKX напоминание из «Моих дел» показываем и при открытом
+        // приложении. Разбор ниже рассчитан на уведомления Telegram и для
+        // наших обработчик завершения не вызвал бы вовсе.
+        if notification.request.content.userInfo[DkxTaskReminders.userInfoKey] != nil {
+            if #available(iOS 14.0, *) {
+                completionHandler([.banner, .list, .sound])
+            } else {
+                completionHandler([.alert, .sound])
+            }
+            return
+        }
         let _ = (accountIdFromNotification(notification, sharedContext: self.sharedContextPromise.get())
         |> deliverOnMainQueue).start(next: { accountId in
             if let context = self.contextValue {

@@ -52,6 +52,7 @@ private enum ApplicationSpecificSharedDataKeyValues: Int32 {
     case updateSettings = 21
     case chatSettings = 22
     case dkxSettings = 23 // MARK: DKX
+    case dkxTasks = 24 // MARK: DKX
 }
 
 public struct ApplicationSpecificSharedDataKeys {
@@ -80,6 +81,7 @@ public struct ApplicationSpecificSharedDataKeys {
     public static let chatSettings: EngineDataBuffer = applicationSpecificPreferencesKey(ApplicationSpecificSharedDataKeyValues.chatSettings.rawValue)
     // MARK: DKX настройки форка
     public static let dkxSettings: EngineDataBuffer = applicationSpecificSharedDataKey(ApplicationSpecificSharedDataKeyValues.dkxSettings.rawValue)
+    public static let dkxTasks: EngineDataBuffer = applicationSpecificSharedDataKey(ApplicationSpecificSharedDataKeyValues.dkxTasks.rawValue)
 }
 
 private enum ApplicationSpecificItemCacheCollectionIdValues: Int8 {

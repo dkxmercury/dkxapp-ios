@@ -184,6 +184,7 @@ enum PeerInfoSettingsSection {
     case profileColor
     case powerSaving
     case dkx // MARK: DKX
+    case dkxTasks // MARK: DKX
     case businessSetup
     case profile
     case premiumManagement

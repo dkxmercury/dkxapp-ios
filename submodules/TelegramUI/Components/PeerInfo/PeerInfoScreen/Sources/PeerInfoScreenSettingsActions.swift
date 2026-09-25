@@ -152,6 +152,8 @@ extension PeerInfoScreenNode {
                     completion(location.latitude, location.longitude)
                 })
             }))
+        case .dkxTasks:
+            push(dkxTasksController(context: self.context))
         case .appearance:
             push(themeSettingsController(context: self.context))
         case .language:

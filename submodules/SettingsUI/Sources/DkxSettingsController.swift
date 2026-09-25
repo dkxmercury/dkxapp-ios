@@ -44,6 +44,7 @@ private enum DkxToggle: Int32 {
     case chatExport
     case mediaNoCompression
     case chatLock
+    case todo
 }
 
 private let dkxUnansweredThresholds: [(hours: Int32, title: String)] = [
@@ -73,6 +74,8 @@ private func dkxToggleValue(_ toggle: DkxToggle, _ settings: DkxSettings) -> Boo
         return settings.mediaNoCompression
     case .chatLock:
         return settings.chatLock
+    case .todo:
+        return settings.todoEnabled
     }
 }
 
@@ -96,6 +99,8 @@ private func dkxToggleUpdate(_ toggle: DkxToggle, _ value: Bool, _ settings: ino
         settings.mediaNoCompression = value
     case .chatLock:
         settings.chatLock = value
+    case .todo:
+        settings.todoEnabled = value
     }
 }
 
@@ -119,6 +124,8 @@ private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
         return "Фото и видео без сжатия"
     case .chatLock:
         return "Face ID на отдельные чаты"
+    case .todo:
+        return "«Мои дела» в настройках"
     }
 }
 
@@ -393,6 +400,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
 
 Face ID на чат: долгое нажатие на чат в списке, «Закрыть Face ID». У закрытого чата скрыт текст последнего сообщения и предпросмотр, открывается он после проверки и снова закрывается, когда приложение уходит в фон. Снять замок или выключить эту настройку можно только после проверки.
 
+«Мои дела» открываются из главных настроек, строка под «Моим профилем». Выключенный тумблер прячет строку, сами дела и напоминания остаются.
+
 Включённое или выключенное применяется при следующем открытии экрана."), sectionId: self.section)
 
         case .unansweredHeader:
@@ -550,7 +559,7 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
     entries.append(.interfaceFooter)
 
     entries.append(.chatsHeader)
-    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies, .authorMessages, .chatExport, .mediaNoCompression, .chatLock] {
+    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies, .authorMessages, .chatExport, .mediaNoCompression, .chatLock, .todo] {
         entries.append(.toggle(toggle, dkxToggleValue(toggle, settings)))
     }
     if settings.quickReplies {

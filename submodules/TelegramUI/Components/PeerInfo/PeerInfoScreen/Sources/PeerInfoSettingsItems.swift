@@ -1,4 +1,5 @@
 import Foundation
+import TelegramUIPreferences
 import UIKit
 import Display
 import AccountContext
@@ -150,6 +151,12 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
         items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_MyProfile, icon: PresentationResourcesSettings.myProfile, action: {
             interaction.openSettings(.profile)
         }))
+        // MARK: DKX «Мои дела» под «Моим профилем», включается тумблером в Dkx
+        if DkxRuntime.current.todoEnabled {
+            items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 50, text: "Мои дела", icon: PresentationResourcesSettings.clock, action: {
+                interaction.openSettings(.dkxTasks)
+            }))
+        }
         
         if !settings.proxySettings.servers.isEmpty {
             let proxyType: String
