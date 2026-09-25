@@ -890,7 +890,11 @@ private func validateBatch(postbox: Postbox, network: Network, transaction: Tran
                                             if currentMessage.localTags.contains(.OutgoingLiveLocation) {
                                                 updatedLocalTags.insert(.OutgoingLiveLocation)
                                             }
-                                            return .update(message.withUpdatedLocalTags(updatedLocalTags))
+                                            // MARK: DKX сюда попадаем, когда сервер применил правку, которую
+                                            // мы не видели. Прежний текст доступен только здесь.
+                                            var dkxAttributes = message.attributes
+                                            DkxEditHistory.appendVersion(previousMessage: currentMessage, newText: message.text, attributes: &dkxAttributes)
+                                            return .update(message.withUpdatedLocalTags(updatedLocalTags).withUpdatedAttributes(dkxAttributes))
                                         } else {
                                             var storeForwardInfo: StoreMessageForwardInfo?
                                             if let forwardInfo = currentMessage.forwardInfo {
@@ -1147,7 +1151,11 @@ private func validateReplyThreadBatch(postbox: Postbox, network: Network, transa
                                         if currentMessage.localTags.contains(.OutgoingLiveLocation) {
                                             updatedLocalTags.insert(.OutgoingLiveLocation)
                                         }
-                                        return .update(message.withUpdatedLocalTags(updatedLocalTags))
+                                        // MARK: DKX сюда попадаем, когда сервер применил правку, которую
+                                        // мы не видели. Прежний текст доступен только здесь.
+                                        var dkxAttributes = message.attributes
+                                        DkxEditHistory.appendVersion(previousMessage: currentMessage, newText: message.text, attributes: &dkxAttributes)
+                                        return .update(message.withUpdatedLocalTags(updatedLocalTags).withUpdatedAttributes(dkxAttributes))
                                     } else {
                                         var storeForwardInfo: StoreMessageForwardInfo?
                                         if let forwardInfo = currentMessage.forwardInfo {

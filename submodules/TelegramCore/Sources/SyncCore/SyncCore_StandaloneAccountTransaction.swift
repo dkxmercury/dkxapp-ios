@@ -176,6 +176,56 @@ public let telegramPostboxSeedConfiguration: SeedConfiguration = {
                     }
                 }
             }
+
+            // MARK: DKX перенос наших атрибутов при перезаписи строки сообщения.
+            //
+            // Это единственное место, через которое проходят все перезаписи в
+            // обоих процессах. addMessages для существующего идентификатора не
+            // пропускает сообщение, а перезаписывает его набором атрибутов с
+            // сервера, и без переноса здесь наши пометки терялись бы при
+            // подгрузке истории, проверке каналов и десятке других путей.
+            //
+            // Апстрим делает ровно то же самое выше для трёх своих атрибутов.
+            //
+            // Важно. Добавляем только если нашего атрибута ещё нет. На пути
+            // применения правки DkxEditHistory уже положил в updated более
+            // свежую историю, и безусловное добавление воскресило бы старую.
+            //
+            // Следствие, о котором надо помнить: после этого атрибуты становятся
+            // несбрасываемыми, ни один путь обновления их больше не снимет. Если
+            // когда-нибудь появится действие "снять пометку" или "очистить
+            // архив", оно должно обходить это слияние особым образом.
+            for attribute in previous {
+                if attribute is DkxDeletedMessageAttribute {
+                    var found = false
+                    for i in 0 ..< updated.count {
+                        if updated[i] is DkxDeletedMessageAttribute {
+                            found = true
+                            break
+                        }
+                    }
+                    if !found {
+                        updated.append(attribute)
+                    }
+                } else if let previousHistory = attribute as? DkxEditHistoryAttribute {
+                    var foundIndex: Int?
+                    for i in 0 ..< updated.count {
+                        if updated[i] is DkxEditHistoryAttribute {
+                            foundIndex = i
+                            break
+                        }
+                    }
+                    if let foundIndex = foundIndex {
+                        // Оба процесса пишут в одну базу. Если проигравший несёт
+                        // более короткую историю, оставляем длинную.
+                        if let current = updated[foundIndex] as? DkxEditHistoryAttribute, current.texts.count < previousHistory.texts.count {
+                            updated[foundIndex] = previousHistory
+                        }
+                    } else {
+                        updated.append(previousHistory)
+                    }
+                }
+            }
         },
         decodeMessageThreadInfo: { entry in
             guard let data = entry.get(MessageHistoryThreadData.self) else {
