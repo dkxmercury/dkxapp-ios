@@ -2333,7 +2333,10 @@ private final class NotificationServiceHandler {
                             Logger.shared.log("NotificationService \(episode)", "Will delete messages \(ids)")
                             let mediaBox = stateManager.postbox.mediaBox
                             let _ = (stateManager.postbox.transaction { transaction -> Void in
-                                _internal_deleteMessages(transaction: transaction, mediaBox: mediaBox, ids: ids, deleteMedia: true)
+                                // MARK: DKX это второй процесс, он удаляет сообщения пока
+                                // приложение выгружено из памяти, то есть почти всегда.
+                                // Без этой правки фича молча не работала бы в фоне.
+                                _internal_deleteMessages(transaction: transaction, mediaBox: mediaBox, ids: ids, deleteMedia: true, dkxReason: .remote)
                             }
                             |> deliverOn(strongSelf.queue)).start(completed: {
                                 UNUserNotificationCenter.current().getDeliveredNotifications(completionHandler: { notifications in

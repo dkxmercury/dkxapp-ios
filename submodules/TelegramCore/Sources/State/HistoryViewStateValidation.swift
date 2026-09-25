@@ -984,8 +984,21 @@ private func validateBatch(postbox: Postbox, network: Network, transaction: Tran
                                         return .update(StoreMessage(id: currentMessage.id, customStableId: nil, globallyUniqueId: currentMessage.globallyUniqueId, groupingKey: currentMessage.groupingKey, threadId: currentMessage.threadId, timestamp: currentMessage.timestamp, flags: StoreMessageFlags(currentMessage.flags), tags: updatedTags, globalTags: currentMessage.globalTags, localTags: currentMessage.localTags, forwardInfo: storeForwardInfo, authorId: currentMessage.author?.id, text: currentMessage.text, attributes: attributes, media: currentMessage.media))
                                     })
                                 } else {
-                                    _internal_deleteMessages(transaction: transaction, mediaBox: postbox.mediaBox, ids: [id])
-                                    Logger.shared.log("HistoryValidation", "deleting message \(id) in \(id.peerId)")
+                                    // MARK: DKX сообщения не стало на сервере. Помечаем вместо
+                                    // удаления и сразу проставляем версию состояния, иначе оно
+                                    // будет попадать в перепроверку на каждой прокрутке.
+                                    let dkxPartitioned = DkxAntiDelete.partition(transaction: transaction, ids: [id])
+                                    if !dkxPartitioned.keep.isEmpty {
+                                        var dkxChannelPts: Int32?
+                                        if case let .channel(_, channelState) = historyState {
+                                            dkxChannelPts = channelState.pts
+                                        }
+                                        DkxAntiDelete.mark(transaction: transaction, ids: dkxPartitioned.keep, channelPts: dkxChannelPts)
+                                    }
+                                    if !dkxPartitioned.drop.isEmpty {
+                                        _internal_deleteMessages(transaction: transaction, mediaBox: postbox.mediaBox, ids: dkxPartitioned.drop)
+                                        Logger.shared.log("HistoryValidation", "deleting message \(id) in \(id.peerId)")
+                                    }
                                 }
                             }
                         }
@@ -1167,7 +1180,8 @@ private func validateReplyThreadBatch(postbox: Postbox, network: Network, transa
                 
                     for id in removedMessageIds {
                         if !validMessageIds.contains(id) {
-                            _internal_deleteMessages(transaction: transaction, mediaBox: postbox.mediaBox, ids: [id])
+                            // MARK: DKX удаление пришло от сервера
+                            _internal_deleteMessages(transaction: transaction, mediaBox: postbox.mediaBox, ids: [id], dkxReason: .remote)
                             Logger.shared.log("HistoryValidation", "deleting thread message \(id) in \(id.peerId)")
                         }
                     }

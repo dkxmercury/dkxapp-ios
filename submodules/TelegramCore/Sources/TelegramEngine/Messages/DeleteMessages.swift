@@ -22,7 +22,21 @@ func addMessageMediaResourceIdsToRemove(message: Message, resourceIds: inout [Me
     }
 }
 
-public func _internal_deleteMessages(transaction: Transaction, mediaBox: MediaBox, ids: [MessageId], deleteMedia: Bool = true, manualAddMessageThreadStatsDifference: ((MessageThreadKey, Int, Int) -> Void)? = nil) {
+// MARK: DKX добавлен параметр dkxReason, по умолчанию .local, поэтому все
+// существующие вызовы ведут себя как раньше. Точки, где удаление пришло от
+// сервера, передают .remote и проходят через перехват ниже.
+public func _internal_deleteMessages(transaction: Transaction, mediaBox: MediaBox, ids: [MessageId], deleteMedia: Bool = true, manualAddMessageThreadStatsDifference: ((MessageThreadKey, Int, Int) -> Void)? = nil, dkxReason: DkxDeleteReason = .local) {
+    // MARK: DKX перехват удалений, пришедших от сервера
+    var ids = ids
+    if dkxReason == .remote {
+        let partitioned = DkxAntiDelete.partition(transaction: transaction, ids: ids)
+        DkxAntiDelete.mark(transaction: transaction, ids: partitioned.keep)
+        ids = partitioned.drop
+        if ids.isEmpty {
+            return
+        }
+    }
+
     var resourceIds: [MediaResourceId] = []
     if deleteMedia {
         for id in ids {

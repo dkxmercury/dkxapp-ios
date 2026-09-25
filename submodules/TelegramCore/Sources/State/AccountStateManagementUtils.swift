@@ -4440,18 +4440,27 @@ func replayFinalState(
                     }
                 }
             case let .DeleteMessagesWithGlobalIds(ids):
+                // MARK: DKX тут удаление шло прямо через Postbox, мимо общей
+                // функции, поэтому разделяем вручную. Чистка медиа сохраняется
+                // для реально удаляемых, у оставленных медиа нужны.
+                let dkxResolvedIds = transaction.messageIdsForGlobalIds(ids)
+                let dkxPartitioned = DkxAntiDelete.partition(transaction: transaction, ids: dkxResolvedIds)
+                DkxAntiDelete.mark(transaction: transaction, ids: dkxPartitioned.keep)
                 var resourceIds: [MediaResourceId] = []
-                transaction.deleteMessagesWithGlobalIds(ids, forEachMedia: { media in
-                    addMessageMediaResourceIdsToRemove(media: media, resourceIds: &resourceIds)
-                })
+                if !dkxPartitioned.drop.isEmpty {
+                    transaction.deleteMessages(dkxPartitioned.drop, forEachMedia: { media in
+                        addMessageMediaResourceIdsToRemove(media: media, resourceIds: &resourceIds)
+                    })
+                }
                 if !resourceIds.isEmpty {
                     let _ = mediaBox.removeCachedResources(Array(Set(resourceIds)), force: true).start()
                 }
                 deletedMessageIds.append(contentsOf: ids.map { .global($0) })
             case let .DeleteMessages(ids):
+                // MARK: DKX удаление пришло от сервера
                 _internal_deleteMessages(transaction: transaction, mediaBox: mediaBox, ids: ids, manualAddMessageThreadStatsDifference: { id, add, remove in
                     addMessageThreadStatsDifference(threadKey: id, remove: remove, addedMessagePeer: nil, addedMessageId: nil, isOutgoing: false)
-                })
+                }, dkxReason: .remote)
                 deletedMessageIds.append(contentsOf: ids.map { .messageId($0) })
             case let .UpdateMinAvailableMessage(id):
                 if let message = transaction.getMessage(id) {
