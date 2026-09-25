@@ -183,6 +183,7 @@ enum PeerInfoSettingsSection {
     case emojiStatus
     case profileColor
     case powerSaving
+    case dkx // MARK: DKX
     case businessSetup
     case profile
     case premiumManagement

@@ -244,6 +244,11 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
         interaction.openSettings(.powerSaving)
     }))
     
+    // MARK: DKX собственные настройки форка
+    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 7, text: "Dkx", icon: PresentationResourcesSettings.appearance, action: {
+        interaction.openSettings(.dkx)
+    }))
+
     let languageName = presentationData.strings.primaryComponent.localizedName
     items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 4, label: .text(languageName.isEmpty ? presentationData.strings.Localization_LanguageName : languageName), text: presentationData.strings.Settings_AppLanguage, icon: PresentationResourcesSettings.language, action: {
         interaction.openSettings(.language)
