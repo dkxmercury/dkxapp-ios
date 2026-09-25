@@ -969,7 +969,9 @@ public final class ChatMessageInteractiveFileNode: ASDisplayNode {
                         hasAutoremove: arguments.message.isSelfExpiring,
                         canViewReactionList: canViewMessageReactionList(message: EngineMessage(arguments.topMessage)),
                         animationCache: arguments.controllerInteraction.presentationContext.animationCache,
-                        animationRenderer: arguments.controllerInteraction.presentationContext.animationRenderer
+                        animationRenderer: arguments.controllerInteraction.presentationContext.animationRenderer,
+                        // MARK: DKX пометка удалённого рядом с "изменено"
+                        dkxDeleted: arguments.message.attributes.contains(where: { $0 is DkxDeletedMessageAttribute })
                     ))
                 }
                 

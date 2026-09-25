@@ -182,6 +182,8 @@ public class ChatMessageDateAndStatusNode: ASDisplayNode {
         var context: AccountContext
         var presentationData: ChatPresentationData
         var edited: Bool
+        // MARK: DKX сообщение удалено собеседником, но оставлено у нас
+        var dkxDeleted: Bool
         var impressionCount: Int?
         var dateText: String
         var type: ChatMessageDateAndStatusType
@@ -228,11 +230,13 @@ public class ChatMessageDateAndStatusNode: ASDisplayNode {
             hasAutoremove: Bool,
             canViewReactionList: Bool,
             animationCache: AnimationCache,
-            animationRenderer: MultiAnimationRenderer
+            animationRenderer: MultiAnimationRenderer,
+            dkxDeleted: Bool = false
         ) {
             self.context = context
             self.presentationData = presentationData
             self.edited = edited
+            self.dkxDeleted = dkxDeleted
             self.impressionCount = impressionCount == 0 ? nil : impressionCount
             self.dateText = dateText
             self.type = type
@@ -538,6 +542,12 @@ public class ChatMessageDateAndStatusNode: ASDisplayNode {
             }
             
             var updatedDateText = arguments.dateText
+            // MARK: DKX пометка удалённого. Строка захардкожена намеренно, свои
+            // ключи в Localizable.strings требуют отдельного шага сборки.
+            // Ставим первой, чтобы читалось как "удалено, изменено 12:30".
+            if arguments.dkxDeleted {
+                updatedDateText = "удалено " + updatedDateText
+            }
             if arguments.edited {
                 if let useEditedTimestamp = arguments.context.getAppConfigValue("message_primary_edited_date") as? Bool, useEditedTimestamp {
                 } else {

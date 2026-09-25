@@ -445,19 +445,6 @@ public class ChatMessageTextBubbleContentNode: ChatMessageBubbleContentNode {
                 }
                 
                 
-                // MARK: DKX пометка удалённого сообщения.
-                //
-                // Дописываем в КОНЕЦ, не в начало. Сущности разметки, ссылки и
-                // упоминания хранят смещения в символах от начала текста, и
-                // вставка спереди сдвинула бы их все, поломав форматирование.
-                //
-                // Правим текст, а не строку статуса, потому что добавить туда
-                // флаг значит поменять API узла статуса, общего для десятков
-                // узлов содержимого. Оформим аккуратно в косметическом заходе.
-                if item.message.attributes.contains(where: { $0 is DkxDeletedMessageAttribute }) {
-                    rawText += " 🗑"
-                }
-
                 if incoming && item.associatedData.isSuspiciousPeer, let entities = messageEntities {
                     messageEntities = entities.filter { entity in
                         switch entity.type {
@@ -762,7 +749,9 @@ public class ChatMessageTextBubbleContentNode: ChatMessageBubbleContentNode {
                         hasAutoremove: item.message.isSelfExpiring,
                         canViewReactionList: canViewMessageReactionList(message: EngineMessage(item.topMessage)),
                         animationCache: item.controllerInteraction.presentationContext.animationCache,
-                        animationRenderer: item.controllerInteraction.presentationContext.animationRenderer
+                        animationRenderer: item.controllerInteraction.presentationContext.animationRenderer,
+                        // MARK: DKX пометка удалённого рядом с "изменено"
+                        dkxDeleted: item.message.attributes.contains(where: { $0 is DkxDeletedMessageAttribute })
                     ))
                 }
                 
