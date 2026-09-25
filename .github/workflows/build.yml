@@ -1,109 +1,162 @@
-name: CI
+name: Build
 
 on:
+  workflow_dispatch:
   push:
     branches: [ master ]
 
-  workflow_dispatch:
+# Раннер даёт 7 ГБ памяти. Две параллельные сборки его убивают, поэтому
+# старую отменяем.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
-    runs-on: macos-13
+    runs-on: macos-26
+    timeout-minutes: 180
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
-          submodules: 'recursive'
-          fetch-depth: '0'
+          submodules: recursive
+          fetch-depth: 1
 
-      - name: Set active Xcode path
+      - name: Что за машина
         run: |
-          XCODE_VERSION=$(cat versions.json | python3 -c 'import json,sys;obj=json.load(sys.stdin);print(obj["xcode"]);')
-          sudo xcode-select -s /Applications/Xcode_$XCODE_VERSION.app/Contents/Developer
+          sw_vers
+          df -h /System/Volumes/Data
+          ls /Applications | grep -i "^Xcode"
 
-      - name: Create canonical source directory
+      - name: Выбрать Xcode из versions.json
         run: |
-          set -x
-          sudo mkdir -p /Users/Shared
-          cp -R $GITHUB_WORKSPACE /Users/Shared/
-          mv /Users/Shared/$(basename $GITHUB_WORKSPACE) /Users/Shared/telegram-ios
+          XCODE_VERSION=$(python3 -c 'import json;print(json.load(open("versions.json"))["xcode"])')
+          echo "versions.json требует Xcode $XCODE_VERSION"
+          # Xcode_26.2.app это симлинк на Xcode_26.2.0.app, удалять "лишние"
+          # версии нельзя, снесёт цель симлинка вместе с тулчейном
+          sudo xcode-select -s "/Applications/Xcode_${XCODE_VERSION}.app/Contents/Developer"
+          xcodebuild -version
 
-      - name: Build the App
+      - name: Metal toolchain
+        run: xcodebuild -downloadComponent MetalToolchain
+
+      - name: rsync из homebrew
+        # macOS 15.4+ идёт с openrsync, он валит копирование фреймворков
+        # с Permission denied на Info.plist, issue 1887
         run: |
-          set -x
+          brew install rsync
+          echo "/opt/homebrew/bin" >> "$GITHUB_PATH"
+          brew unlink bazelisk 2>/dev/null || true
 
-          # source code paths are included in the final binary, so we need to make them stable across builds
-          SOURCE_DIR=/Users/Shared/telegram-ios
+      - name: Кэш Bazel
+        uses: actions/cache@v4
+        with:
+          path: ~/telegram-bazel-cache
+          key: bazel-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-${{ github.run_id }}
+          restore-keys: |
+            bazel-${{ hashFiles('versions.json', 'MODULE.bazel.lock') }}-
+            bazel-
 
-          # use canonical bazel root
-          BAZEL_USER_ROOT="/private/var/tmp/_bazel_containerhost"
+      - name: Конфигурация сборки
+        env:
+          TG_API_ID: ${{ secrets.TG_API_ID }}
+          TG_API_HASH: ${{ secrets.TG_API_HASH }}
+          TG_TEAM_ID: ${{ secrets.TG_TEAM_ID }}
+        run: |
+          set -eu
+          [ -n "$TG_API_ID" ] || { echo "секрет TG_API_ID пуст"; exit 1; }
+          [ -n "$TG_API_HASH" ] || { echo "секрет TG_API_HASH пуст"; exit 1; }
+          [ -n "$TG_TEAM_ID" ] || { echo "секрет TG_TEAM_ID пуст"; exit 1; }
+          mkdir -p build-input
+          python3 - <<'PY'
+          import json, os
+          json.dump({
+              "bundle_id": "uz.dkx.app",
+              "api_id": os.environ["TG_API_ID"],
+              "api_hash": os.environ["TG_API_HASH"],
+              "team_id": os.environ["TG_TEAM_ID"],
+              "app_center_id": "0",
+              "is_internal_build": "true",
+              "is_appstore_build": "false",
+              "appstore_id": "0",
+              # свой url scheme, чтобы не конфликтовать с официальным Telegram
+              # на одном устройстве
+              "app_specific_url_scheme": "dkxtg",
+              "premium_iap_product_id": "",
+              "enable_siri": False,
+              "enable_icloud": False,
+          }, open("build-input/fork-configuration.json", "w"), indent=4)
+          PY
+          python3 -c "import json;d=json.load(open('build-input/fork-configuration.json'));d['api_hash']='***';print(json.dumps(d,indent=2))"
 
-          cd $SOURCE_DIR
+      - name: Сертификат и профили
+        env:
+          P12: ${{ secrets.TG_DISTRIBUTION_P12 }}
+          PROFILE_TELEGRAM: ${{ secrets.TG_PROFILE_TELEGRAM }}
+          PROFILE_SHARE: ${{ secrets.TG_PROFILE_SHARE }}
+          PROFILE_WIDGET: ${{ secrets.TG_PROFILE_WIDGET }}
+          PROFILE_NOTIFSERVICE: ${{ secrets.TG_PROFILE_NOTIFSERVICE }}
+          PROFILE_NOTIFCONTENT: ${{ secrets.TG_PROFILE_NOTIFCONTENT }}
+          PROFILE_INTENTS: ${{ secrets.TG_PROFILE_INTENTS }}
+          PROFILE_BROADCAST: ${{ secrets.TG_PROFILE_BROADCAST }}
+        run: |
+          set -eu
+          mkdir -p build-input/codesigning/certs build-input/codesigning/profiles
+          printf '%s' "$P12" | base64 --decode > build-input/codesigning/certs/distribution.p12
+          for pair in \
+            "Telegram:$PROFILE_TELEGRAM" \
+            "Share:$PROFILE_SHARE" \
+            "Widget:$PROFILE_WIDGET" \
+            "NotificationService:$PROFILE_NOTIFSERVICE" \
+            "NotificationContent:$PROFILE_NOTIFCONTENT" \
+            "Intents:$PROFILE_INTENTS" \
+            "BroadcastUpload:$PROFILE_BROADCAST" ; do
+            name="${pair%%:*}"
+            data="${pair#*:}"
+            [ -n "$data" ] || { echo "секрет для профиля $name пуст"; exit 1; }
+            printf '%s' "$data" | base64 --decode > "build-input/codesigning/profiles/${name}.mobileprovision"
+          done
+          echo "профилей разложено:"
+          ls -1 build-input/codesigning/profiles
 
-          BUILD_NUMBER_OFFSET="$(cat build_number_offset)"
+      - name: Импорт сертификата в keychain
+        # ImportCertificates.py импортирует p12 с пустым паролем, это
+        # захардкожено, поэтому p12 собран без пароля
+        run: python3 build-system/Make/ImportCertificates.py --path build-input/codesigning/certs
 
-          export APP_VERSION=$(cat versions.json | python3 -c 'import json,sys;obj=json.load(sys.stdin);print(obj["app"]);')
-          export COMMIT_COUNT=$(git rev-list --count HEAD)
-          export COMMIT_COUNT="$(($COMMIT_COUNT+$BUILD_NUMBER_OFFSET))"
-          export BUILD_NUMBER="$COMMIT_COUNT"
-          echo "BUILD_NUMBER=$(echo $BUILD_NUMBER)" >> $GITHUB_ENV
-          echo "APP_VERSION=$(echo $APP_VERSION)" >> $GITHUB_ENV
+      - name: Сборка
+        run: |
+          set -eu
+          OFFSET="$(cat build_number_offset)"
+          BUILD_NUMBER="$(( OFFSET + GITHUB_RUN_NUMBER ))"
+          APP_VERSION="$(python3 -c 'import json;print(json.load(open("versions.json"))["app"]) ')"
+          echo "BUILD_NUMBER=$BUILD_NUMBER" >> "$GITHUB_ENV"
+          echo "APP_VERSION=$APP_VERSION" >> "$GITHUB_ENV"
+          echo "собираем $APP_VERSION build $BUILD_NUMBER"
 
-          python3 build-system/Make/ImportCertificates.py --path build-system/fake-codesigning/certs
           python3 -u build-system/Make/Make.py \
-            --bazelUserRoot="$BAZEL_USER_ROOT" \
+            --bazelUserRoot=/private/var/tmp/_bazel_dkx \
+            --cacheDir="$HOME/telegram-bazel-cache" \
             build \
-            --configurationPath="build-system/appstore-configuration.json" \
-            --codesigningInformationPath=build-system/fake-codesigning \
+            --configurationPath=build-input/fork-configuration.json \
+            --codesigningInformationPath=build-input/codesigning \
             --configuration=release_arm64 \
-            --buildNumber="$BUILD_NUMBER"
-
-          # collect ipa
-          OUTPUT_PATH="build/artifacts"
-          rm -rf "$OUTPUT_PATH"
-          mkdir -p "$OUTPUT_PATH"
-          for f in bazel-out/applebin_ios-ios_arm*-opt-ST-*/bin/Telegram/Telegram.ipa; do
-            cp "$f" $OUTPUT_PATH/
-          done
-
-          # collect dsym
-          mkdir -p build/DSYMs
-          for f in bazel-out/applebin_ios-ios_arm*-opt-ST-*/bin/Telegram/*.dSYM; do
-            cp -R "$f" build/DSYMs/
-          done
-          zip -r "./$OUTPUT_PATH/Telegram.DSYMs.zip" build/DSYMs 1>/dev/null
-
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
+            --buildNumber="$BUILD_NUMBER" \
+            --outputBuildArtifactsPath=build/artifacts
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: build-${{ env.BUILD_NUMBER }}
-          release_name: Telegram ${{ env.APP_VERSION }} (${{ env.BUILD_NUMBER }})
-          body: |
-            An unsigned build of Telegram for iOS ${{ env.APP_VERSION }} (${{ env.BUILD_NUMBER }})
-          draft: false
-          prerelease: false
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
 
-      - name: Upload Release IPA
-        id: upload-release-ipa 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /Users/Shared/telegram-ios/build/artifacts/Telegram.ipa
-          asset_name: Telegram.ipa
-          asset_content_type: application/zip
+      - name: Что собралось
+        if: always()
+        run: |
+          ls -la build/artifacts 2>/dev/null || echo "артефактов нет"
+          df -h /System/Volumes/Data
+          du -sh ~/telegram-bazel-cache 2>/dev/null || true
 
-      - name: Upload Release DSYM
-        id: upload-release-dsym 
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        if: success()
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: /Users/Shared/telegram-ios/build/artifacts/Telegram.DSYMs.zip
-          asset_name: Telegram.DSYMs.zip
-          asset_content_type: application/zip
+          name: DkxApp-${{ env.APP_VERSION }}-${{ env.BUILD_NUMBER }}
+          path: build/artifacts/*.ipa
+          retention-days: 30
+          if-no-files-found: error
