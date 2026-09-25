@@ -2163,7 +2163,21 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
             if self.previewing {
                 self.storiesReady.set(.single(true))
             } else {
-                self.storySubscriptionsDisposable = (self.context.engine.messages.storySubscriptions(isHidden: self.location == .chatList(groupId: .archive))
+                // MARK: DKX перехватываем на источнике. Если лента выключена,
+                // отдаём пустые подписки, и shouldDisplayStoriesInChatListHeader
+                // сама вернёт false во всех четырёх местах, где её спрашивают.
+                // Так не приходится трогать ни функцию решения, ни вёрстку.
+                self.storySubscriptionsDisposable = (combineLatest(
+                    self.context.engine.messages.storySubscriptions(isHidden: self.location == .chatList(groupId: .archive)),
+                    self.context.sharedContext.accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.dkxSettings])
+                )
+                |> map { subscriptions, sharedData -> EngineStorySubscriptions in
+                    let dkxSettings = sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
+                    if dkxSettings.hideStories {
+                        return EngineStorySubscriptions(accountItem: nil, items: [], hasMoreToken: nil)
+                    }
+                    return subscriptions
+                }
                 |> deliverOnMainQueue).startStrict(next: { [weak self] rawStorySubscriptions in
                     guard let self else {
                         return
