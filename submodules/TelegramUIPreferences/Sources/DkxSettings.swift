@@ -42,6 +42,11 @@ public struct DkxSettings: Codable, Equatable {
     public var unansweredFilter: Bool
     public var unansweredHours: Int32
 
+    // Шаблоны быстрых ответов. Кнопка в поле ввода открывает список,
+    // выбранный текст вставляется туда, где стоит курсор.
+    public var quickReplies: Bool
+    public var quickReplyTemplates: [String]
+
     // Подмена координат, общий выключатель
     public var spoofLocation: Bool
     public var spoofMode: SpoofMode
@@ -69,6 +74,8 @@ public struct DkxSettings: Codable, Equatable {
         self.showPeerId = true
         self.unansweredFilter = true
         self.unansweredHours = 0
+        self.quickReplies = true
+        self.quickReplyTemplates = []
         self.spoofLocation = false
         self.spoofMode = .point
         self.spoofCoordinate = ""
@@ -118,6 +125,8 @@ public struct DkxSettings: Codable, Equatable {
         self.showPeerId = (try container.decodeIfPresent(Int32.self, forKey: "showPeerId")).map { $0 != 0 } ?? defaults.showPeerId
         self.unansweredFilter = (try container.decodeIfPresent(Int32.self, forKey: "unansweredFilter")).map { $0 != 0 } ?? defaults.unansweredFilter
         self.unansweredHours = (try container.decodeIfPresent(Int32.self, forKey: "unansweredHours")) ?? defaults.unansweredHours
+        self.quickReplies = (try container.decodeIfPresent(Int32.self, forKey: "quickReplies")).map { $0 != 0 } ?? defaults.quickReplies
+        self.quickReplyTemplates = (try container.decodeIfPresent([String].self, forKey: "quickReplyTemplates")) ?? defaults.quickReplyTemplates
         self.spoofLocation = (try container.decodeIfPresent(Int32.self, forKey: "spoofLocation") ?? 0) != 0
         self.spoofMode = SpoofMode(rawValue: (try container.decodeIfPresent(Int32.self, forKey: "spoofMode")) ?? defaults.spoofMode.rawValue) ?? defaults.spoofMode
         self.spoofCoordinate = (try container.decodeIfPresent(String.self, forKey: "spoofCoordinate")) ?? defaults.spoofCoordinate
@@ -137,6 +146,8 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode((self.showPeerId ? 1 : 0) as Int32, forKey: "showPeerId")
         try container.encode((self.unansweredFilter ? 1 : 0) as Int32, forKey: "unansweredFilter")
         try container.encode(self.unansweredHours, forKey: "unansweredHours")
+        try container.encode((self.quickReplies ? 1 : 0) as Int32, forKey: "quickReplies")
+        try container.encode(self.quickReplyTemplates, forKey: "quickReplyTemplates")
         try container.encode((self.spoofLocation ? 1 : 0) as Int32, forKey: "spoofLocation")
         try container.encode(self.spoofMode.rawValue, forKey: "spoofMode")
         try container.encode(self.spoofCoordinate, forKey: "spoofCoordinate")

@@ -1,4 +1,5 @@
 import Foundation
+import TelegramUIPreferences
 import UIKit
 import TelegramCore
 import Display
@@ -217,6 +218,13 @@ func inputTextPanelStateForChatPresentationInterfaceState(_ chatPresentationInte
                    
                 if isTextEmpty && chatPresentationInterfaceState.hasScheduledMessages && !hasForward {
                     accessoryItems.append(.scheduledMessages)
+                }
+                
+                // MARK: DKX шаблоны быстрых ответов. Кнопка видна, только когда
+                // тумблер включён и есть хотя бы один шаблон, иначе она мешала бы
+                // во всех чатах.
+                if DkxRuntime.current.quickReplies && !DkxRuntime.current.quickReplyTemplates.isEmpty && !hasForward {
+                    accessoryItems.append(.dkxTemplates)
                 }
                     
                 var stickersEnabled = true

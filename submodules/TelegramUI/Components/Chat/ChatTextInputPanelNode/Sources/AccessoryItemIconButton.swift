@@ -171,12 +171,16 @@ final class AccessoryItemIconButton: HighlightTrackingButton, GlassBackgroundVie
                 return (PresentationResourcesChat.chatInputTextFieldScheduleImage(theme), nil, strings.VoiceOver_ScheduledMessages, 1.0, UIEdgeInsets())
             case .gift:
                 return (PresentationResourcesChat.chatInputTextFieldGiftImage(theme), nil, strings.VoiceOver_GiftPremium, 1.0, UIEdgeInsets())
+            case .dkxTemplates:
+                // MARK: DKX своей картинки для шаблонов в проекте нет, берём системную
+                let configuration = UIImage.SymbolConfiguration(pointSize: 19.0, weight: .regular)
+                return (UIImage(systemName: "text.bubble", withConfiguration: configuration)?.withRenderingMode(.alwaysTemplate), nil, "Шаблоны ответов", 1.0, UIEdgeInsets())
         }
     }
     
     private static func calculateWidth(item: ChatTextInputAccessoryItem, image: UIImage?, text: String?, strings: PresentationStrings) -> CGFloat {
         switch item {
-        case .input, .botInput, .silentPost, .commands, .scheduledMessages, .gift, .suggestPost:
+        case .input, .botInput, .silentPost, .commands, .scheduledMessages, .gift, .suggestPost, .dkxTemplates:
             return 32.0
         case let .messageAutoremoveTimeout(timeout):
             var imageWidth = (image?.size.width ?? 0.0) + CGFloat(8.0)

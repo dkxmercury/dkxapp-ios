@@ -1,4 +1,5 @@
 import Foundation
+import TelegramUIPreferences
 import UniformTypeIdentifiers
 import UIKit
 import Display
@@ -539,6 +540,8 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                     if itemAndButton == nil {
                         let button = AccessoryItemIconButton(item: item, theme: currentState.theme, strings: currentState.strings)
                         button.addTarget(self, action: #selector(self.accessoryItemButtonPressed(_:)), for: .touchUpInside)
+                        // MARK: DKX
+                        self.dkxConfigureTemplatesButton(button, item: item)
                         itemAndButton = (item, button)
                     }
                     updatedButtons.append(itemAndButton!)
@@ -2406,6 +2409,8 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                 if itemAndButton == nil {
                     let button = AccessoryItemIconButton(item: item, theme: interfaceState.theme, strings: interfaceState.strings)
                     button.addTarget(self, action: #selector(self.accessoryItemButtonPressed(_:)), for: .touchUpInside)
+                    // MARK: DKX
+                    self.dkxConfigureTemplatesButton(button, item: item)
                     itemAndButton = (item, button)
                 }
                 updatedButtons.append(itemAndButton!)
@@ -5728,6 +5733,37 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
         self.toggleExpandMediaInput?()
     }
     
+    // MARK: DKX шаблоны быстрых ответов. Меню собирается в момент нажатия,
+    // поэтому всегда показывает актуальный список из настроек Dkx. Выбранный
+    // шаблон вставляется туда, где стоит курсор.
+    private func dkxConfigureTemplatesButton(_ button: AccessoryItemIconButton, item: ChatTextInputAccessoryItem) {
+        guard case .dkxTemplates = item else {
+            return
+        }
+        if #available(iOS 15.0, *) {
+            button.menu = UIMenu(children: [
+                UIDeferredMenuElement.uncached { [weak self] completion in
+                    let templates = DkxRuntime.current.quickReplyTemplates
+                    if templates.isEmpty {
+                        completion([UIAction(title: "Шаблонов нет, добавьте в настройках Dkx", attributes: .disabled, handler: { _ in })])
+                        return
+                    }
+                    completion(templates.map { text in
+                        var title = text.replacingOccurrences(of: "
+", with: " ")
+                        if title.count > 60 {
+                            title = String(title.prefix(60)) + "…"
+                        }
+                        return UIAction(title: title, handler: { _ in
+                            self?.insertText(text: NSAttributedString(string: text))
+                        })
+                    })
+                }
+            ])
+            button.showsMenuAsPrimaryAction = true
+        }
+    }
+    
     @objc func accessoryItemButtonPressed(_ button: UIView) {
         for (item, currentButton) in self.accessoryItemButtons {
             if currentButton === button {
@@ -5767,6 +5803,13 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                     self.interfaceInteraction?.openPremiumGift()
                 case .suggestPost:
                     self.interfaceInteraction?.openSuggestPost(nil, .default)
+                case .dkxTemplates:
+                    // MARK: DKX на iOS 15 и новее меню открывает сама кнопка. На
+                    // старых системах меню нет, вставляем первый шаблон.
+                    if #available(iOS 15.0, *) {
+                    } else if let first = DkxRuntime.current.quickReplyTemplates.first {
+                        self.insertText(text: NSAttributedString(string: first))
+                    }
                 }
                 break
             }

@@ -39,6 +39,7 @@ private enum DkxToggle: Int32 {
     case noteInHeader
     case peerId
     case unanswered
+    case quickReplies
 }
 
 private let dkxUnansweredThresholds: [(hours: Int32, title: String)] = [
@@ -58,6 +59,8 @@ private func dkxToggleValue(_ toggle: DkxToggle, _ settings: DkxSettings) -> Boo
         return settings.showPeerId
     case .unanswered:
         return settings.unansweredFilter
+    case .quickReplies:
+        return settings.quickReplies
     }
 }
 
@@ -71,6 +74,8 @@ private func dkxToggleUpdate(_ toggle: DkxToggle, _ value: Bool, _ settings: ino
         settings.showPeerId = value
     case .unanswered:
         settings.unansweredFilter = value
+    case .quickReplies:
+        settings.quickReplies = value
     }
 }
 
@@ -84,6 +89,8 @@ private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
         return "Telegram ID в профиле"
     case .unanswered:
         return "Список «Без ответа»"
+    case .quickReplies:
+        return "Шаблоны быстрых ответов"
     }
 }
 
@@ -92,6 +99,7 @@ private final class DkxSettingsControllerArguments {
     let updateHidePremiumPromo: (Bool) -> Void
     let updateToggle: (DkxToggle, Bool) -> Void
     let updateUnansweredHours: (Int32) -> Void
+    let openQuickReplies: () -> Void
     let updateSpoofLocation: (Bool) -> Void
     let updateSpoofMode: (DkxSettings.SpoofMode) -> Void
     let updateSpoofCoordinate: (String) -> Void
@@ -110,6 +118,7 @@ private final class DkxSettingsControllerArguments {
         updateHidePremiumPromo: @escaping (Bool) -> Void,
         updateToggle: @escaping (DkxToggle, Bool) -> Void,
         updateUnansweredHours: @escaping (Int32) -> Void,
+        openQuickReplies: @escaping () -> Void,
         updateSpoofLocation: @escaping (Bool) -> Void,
         updateSpoofMode: @escaping (DkxSettings.SpoofMode) -> Void,
         updateSpoofCoordinate: @escaping (String) -> Void,
@@ -127,6 +136,7 @@ private final class DkxSettingsControllerArguments {
         self.updateHidePremiumPromo = updateHidePremiumPromo
         self.updateToggle = updateToggle
         self.updateUnansweredHours = updateUnansweredHours
+        self.openQuickReplies = openQuickReplies
         self.updateSpoofLocation = updateSpoofLocation
         self.updateSpoofMode = updateSpoofMode
         self.updateSpoofCoordinate = updateSpoofCoordinate
@@ -164,6 +174,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
 
     case chatsHeader
     case toggle(DkxToggle, Bool)
+    case openQuickReplies(Int32)
     case chatsFooter
 
     case unansweredHeader
@@ -207,7 +218,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         switch self {
         case .interfaceHeader, .hideStories, .hidePremiumPromo, .interfaceFooter:
             return DkxSettingsSection.interface.rawValue
-        case .chatsHeader, .toggle, .chatsFooter:
+        case .chatsHeader, .toggle, .openQuickReplies, .chatsFooter:
             return DkxSettingsSection.chats.rawValue
         case .unansweredHeader, .unansweredThreshold, .unansweredFooter:
             return DkxSettingsSection.unanswered.rawValue
@@ -246,6 +257,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 100
         case let .toggle(toggle, _):
             return 101 + toggle.rawValue
+        case .openQuickReplies:
+            return 150
         case .chatsFooter:
             return 199
         case .unansweredHeader:
@@ -334,6 +347,10 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         case let .toggle(toggle, value):
             return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: dkxToggleTitle(toggle), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateToggle(toggle, value)
+            })
+        case let .openQuickReplies(count):
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Шаблоны", label: count == 0 ? "нет" : "\(count)", sectionId: self.section, style: .blocks, action: {
+                arguments.openQuickReplies()
             })
         case .chatsFooter:
             return ItemListTextItem(presentationData: presentationData, text: .plain("Метка «сохранил» или «не сохранил» видна в шапке чата и в списке контактов, только для тех, кого вы сами сохранили.
@@ -497,8 +514,11 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
     entries.append(.interfaceFooter)
 
     entries.append(.chatsHeader)
-    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered] {
+    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies] {
         entries.append(.toggle(toggle, dkxToggleValue(toggle, settings)))
+    }
+    if settings.quickReplies {
+        entries.append(.openQuickReplies(Int32(settings.quickReplyTemplates.count)))
     }
     entries.append(.chatsFooter)
 
@@ -610,6 +630,9 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
         },
         updateUnansweredHours: { value in
             update { $0.unansweredHours = value }
+        },
+        openQuickReplies: {
+            pushControllerImpl?(dkxQuickRepliesController(context: context))
         },
         updateSpoofLocation: { value in
             update { settings in
