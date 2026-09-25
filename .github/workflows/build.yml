@@ -170,6 +170,7 @@ jobs:
             --codesigningInformationPath=build-input/codesigning \
             --configuration=release_arm64 \
             --buildNumber="$BUILD_NUMBER" \
+            --continueOnError \
             --outputBuildArtifactsPath=build/artifacts
         env:
           GITHUB_RUN_NUMBER: ${{ github.run_number }}
