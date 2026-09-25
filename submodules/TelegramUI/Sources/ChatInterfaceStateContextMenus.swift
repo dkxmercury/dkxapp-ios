@@ -1593,6 +1593,18 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             }
         }
         
+        // MARK: DKX выгрузка медиа в Google Drive
+        if dkxDriveMenuApplicable(message: message) {
+            actions.append(.action(ContextMenuActionItem(text: "В Google Drive", icon: { theme in
+                return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Download"), color: theme.actionSheet.primaryTextColor)
+            }, action: { _, f in
+                f(.default)
+                dkxUploadMessageToDrive(context: context, message: message, present: { c, a in
+                    controllerInteraction.presentControllerInCurrent(c, a)
+                })
+            })))
+        }
+        
         if (loggingSettings.logToFile || loggingSettings.logToConsole) && !downloadableMediaResourceInfos.isEmpty {
             actions.append(.action(ContextMenuActionItem(text: "Send Logs", icon: { theme in
                 return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Message"), color: theme.actionSheet.primaryTextColor)

@@ -52,6 +52,7 @@ load(
     "telegram_team_id",
     "telegram_enable_icloud",
     "telegram_enable_siri",
+    "telegram_google_client_id",
 )
 
 load("@build_bazel_rules_apple//apple:resources.bzl",
@@ -1728,8 +1729,11 @@ plist_fragment(
     <true/>
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true/>
+    <key>DkxGoogleClientID</key>
+    <string>{telegram_google_client_id}</string>
     """.format(
         telegram_bundle_id = telegram_bundle_id,
+        telegram_google_client_id = telegram_google_client_id,
     )
 )
 

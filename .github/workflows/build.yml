@@ -62,6 +62,7 @@ jobs:
           TG_API_ID: ${{ secrets.TG_API_ID }}
           TG_API_HASH: ${{ secrets.TG_API_HASH }}
           TG_TEAM_ID: ${{ secrets.TG_TEAM_ID }}
+          GOOGLE_IOS_CLIENT_ID: ${{ secrets.GOOGLE_IOS_CLIENT_ID }}
         run: |
           set -eu
           [ -n "$TG_API_ID" ] || { echo "секрет TG_API_ID пуст"; exit 1; }
@@ -85,6 +86,7 @@ jobs:
               "premium_iap_product_id": "",
               "enable_siri": False,
               "enable_icloud": False,
+              "google_ios_client_id": os.environ.get("GOOGLE_IOS_CLIENT_ID", ""),
           }, open("build-input/fork-configuration.json", "w"), indent=4)
           PY
           python3 -c "import json;d=json.load(open('build-input/fork-configuration.json'));d['api_hash']='***';print(json.dumps(d,indent=2))"

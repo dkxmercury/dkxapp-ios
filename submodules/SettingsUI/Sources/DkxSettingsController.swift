@@ -1,5 +1,6 @@
 import Foundation
 import CoreLocation
+import AuthenticationServices
 import UIKit
 import Display
 import SwiftSignalKit
@@ -158,6 +159,9 @@ private final class DkxSettingsControllerArguments {
     let disableSpoof: () -> Void
     let openLog: () -> Void
     let openDebug: () -> Void
+    let updateDriveEnabled: (Bool) -> Void
+    let connectDrive: () -> Void
+    let disconnectDrive: () -> Void
 
     init(
         updateHideStories: @escaping (Bool) -> Void,
@@ -179,7 +183,10 @@ private final class DkxSettingsControllerArguments {
         startRoute: @escaping () -> Void,
         disableSpoof: @escaping () -> Void,
         openLog: @escaping () -> Void,
-        openDebug: @escaping () -> Void
+        openDebug: @escaping () -> Void,
+        updateDriveEnabled: @escaping (Bool) -> Void,
+        connectDrive: @escaping () -> Void,
+        disconnectDrive: @escaping () -> Void
     ) {
         self.updateHideStories = updateHideStories
         self.updateHidePremiumPromo = updateHidePremiumPromo
@@ -201,6 +208,9 @@ private final class DkxSettingsControllerArguments {
         self.disableSpoof = disableSpoof
         self.openLog = openLog
         self.openDebug = openDebug
+        self.updateDriveEnabled = updateDriveEnabled
+        self.connectDrive = connectDrive
+        self.disconnectDrive = disconnectDrive
     }
 }
 
@@ -215,6 +225,7 @@ private enum DkxSettingsSection: Int32 {
     case routeControl
     case disable
     case features
+    case drive
     case debug
 }
 
@@ -264,6 +275,11 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case editHistory(Bool)
     case featuresFooter
 
+    case driveHeader
+    case driveToggle(Bool)
+    case driveAccount(String, Bool)
+    case driveDisconnect
+    case driveFooter(String)
     case debugHeader
     case openLog
     case openDebug
@@ -291,6 +307,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return DkxSettingsSection.disable.rawValue
         case .featuresHeader, .antiDelete, .editHistory, .featuresFooter:
             return DkxSettingsSection.features.rawValue
+        case .driveHeader, .driveToggle, .driveAccount, .driveDisconnect, .driveFooter:
+            return DkxSettingsSection.drive.rawValue
         case .debugHeader, .openLog, .openDebug, .debugFooter:
             return DkxSettingsSection.debug.rawValue
         }
@@ -372,6 +390,16 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 2002
         case .featuresFooter:
             return 2003
+        case .driveHeader:
+            return 2500
+        case .driveToggle:
+            return 2501
+        case .driveAccount:
+            return 2502
+        case .driveDisconnect:
+            return 2503
+        case .driveFooter:
+            return 2504
         case .debugHeader:
             return 3000
         case .openLog:
@@ -512,6 +540,24 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         case .featuresFooter:
             return ItemListTextItem(presentationData: presentationData, text: .plain("Удалённые собеседником сообщения остаются в чате с пометкой «удалено». У отредактированных в контекстном меню доступна история правок.\n\nСекретные чаты и самоуничтожающиеся сообщения не затрагиваются."), sectionId: self.section)
 
+        case .driveHeader:
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: "GOOGLE DRIVE", sectionId: self.section)
+        case let .driveToggle(value):
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Выгрузка в Google Drive", value: value, sectionId: self.section, style: .blocks, updated: { value in
+                arguments.updateDriveEnabled(value)
+            })
+        case let .driveAccount(text, isConnected):
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: isConnected ? "Аккаунт" : "Войти в Google", label: text, sectionId: self.section, style: .blocks, disclosureStyle: isConnected ? .none : .arrow, action: {
+                if !isConnected {
+                    arguments.connectDrive()
+                }
+            })
+        case .driveDisconnect:
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Отвязать аккаунт", kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+                arguments.disconnectDrive()
+            })
+        case let .driveFooter(text):
+            return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case .debugHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: "ОТЛАДКА", sectionId: self.section)
         case .openLog:
@@ -662,6 +708,23 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
     entries.append(.editHistory(settings.editHistory))
     entries.append(.featuresFooter)
 
+    entries.append(.driveHeader)
+    entries.append(.driveToggle(settings.driveEnabled))
+    if settings.driveEnabled {
+        if !DkxGoogleDrive.isConfigured {
+            entries.append(.driveFooter("Client ID не задан в сборке. Выгрузка недоступна."))
+        } else if DkxGoogleDrive.isConnected {
+            entries.append(.driveAccount(DkxGoogleDrive.connectedEmail ?? "подключён", true))
+            entries.append(.driveDisconnect)
+            entries.append(.driveFooter("У любого фото, видео, голосового или файла в меню долгого нажатия появится пункт «В Google Drive». Файлы уходят в папку Dkx, внутри по чатам, только на ваш диск. Права ограничены файлами, которые загрузило это приложение."))
+        } else {
+            entries.append(.driveAccount("не подключён", false))
+            entries.append(.driveFooter("Войдите в свой Google-аккаунт, чтобы выгружать медиа на Google Drive. В тестовом режиме Google вход нужно повторять раз в 7 дней."))
+        }
+    } else {
+        entries.append(.driveFooter("Пункт «В Google Drive» в меню медиа. Файлы уходят только на ваш диск, в папку Dkx."))
+    }
+
     entries.append(.debugHeader)
     entries.append(.openLog)
     entries.append(.openDebug)
@@ -678,6 +741,7 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
     }
 
     var pushControllerImpl: ((ViewController) -> Void)?
+    var driveAnchorImpl: (() -> ASPresentationAnchor?)?
 
     let accountManager = context.sharedContext.accountManager
     let update: (@escaping (inout DkxSettings) -> Void) -> Void = { f in
@@ -884,6 +948,18 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
             if let controller = context.sharedContext.makeDebugSettingsController(context: context) {
                 pushControllerImpl?(controller)
             }
+        },
+        updateDriveEnabled: { value in
+            update { $0.driveEnabled = value }
+        },
+        connectDrive: {
+            guard let anchor = driveAnchorImpl?() else {
+                return
+            }
+            let _ = DkxGoogleDrive.connect(presentationAnchor: { anchor }).start()
+        },
+        disconnectDrive: {
+            DkxGoogleDrive.disconnect()
         }
     )
 
@@ -921,6 +997,9 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
         if let controller = controller {
             (controller.navigationController as? NavigationController)?.pushViewController(c)
         }
+    }
+    driveAnchorImpl = { [weak controller] in
+        return controller?.view.window
     }
     return controller
 }

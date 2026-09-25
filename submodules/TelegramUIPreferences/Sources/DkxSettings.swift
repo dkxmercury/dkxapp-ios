@@ -62,6 +62,8 @@ public struct DkxSettings: Codable, Equatable {
     // Разделы «Мои дела» и «Пароли» в главных настройках
     public var todoEnabled: Bool
     public var passwordsEnabled: Bool
+    // Пункт «В Google Drive» в меню медиа
+    public var driveEnabled: Bool
     public var lockedPeers: [Int64]
     public var quickReplyTemplates: [String]
 
@@ -107,6 +109,7 @@ public struct DkxSettings: Codable, Equatable {
         self.chatLock = true
         self.todoEnabled = true
         self.passwordsEnabled = true
+        self.driveEnabled = false
         self.lockedPeers = []
         self.quickReplyTemplates = []
         self.spoofLocation = false
@@ -182,6 +185,7 @@ public struct DkxSettings: Codable, Equatable {
         self.chatLock = (try container.decodeIfPresent(Int32.self, forKey: "chatLock")).map { $0 != 0 } ?? defaults.chatLock
         self.todoEnabled = (try container.decodeIfPresent(Int32.self, forKey: "todoEnabled")).map { $0 != 0 } ?? defaults.todoEnabled
         self.passwordsEnabled = (try container.decodeIfPresent(Int32.self, forKey: "passwordsEnabled")).map { $0 != 0 } ?? defaults.passwordsEnabled
+        self.driveEnabled = (try container.decodeIfPresent(Int32.self, forKey: "driveEnabled")).map { $0 != 0 } ?? defaults.driveEnabled
         self.lockedPeers = (try container.decodeIfPresent([Int64].self, forKey: "lockedPeers")) ?? defaults.lockedPeers
         self.quickReplyTemplates = (try container.decodeIfPresent([String].self, forKey: "quickReplyTemplates")) ?? defaults.quickReplyTemplates
         self.spoofLocation = (try container.decodeIfPresent(Int32.self, forKey: "spoofLocation") ?? 0) != 0
@@ -215,6 +219,7 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode((self.chatLock ? 1 : 0) as Int32, forKey: "chatLock")
         try container.encode((self.todoEnabled ? 1 : 0) as Int32, forKey: "todoEnabled")
         try container.encode((self.passwordsEnabled ? 1 : 0) as Int32, forKey: "passwordsEnabled")
+        try container.encode((self.driveEnabled ? 1 : 0) as Int32, forKey: "driveEnabled")
         try container.encode(self.lockedPeers, forKey: "lockedPeers")
         try container.encode(self.quickReplyTemplates, forKey: "quickReplyTemplates")
         try container.encode((self.spoofLocation ? 1 : 0) as Int32, forKey: "spoofLocation")
