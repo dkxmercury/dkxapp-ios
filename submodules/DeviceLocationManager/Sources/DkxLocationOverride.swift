@@ -5,9 +5,11 @@ import CoreLocation
 // геопозиции, запросы местоположения от веб-ботов, экран выбора точки.
 //
 // Два режима. Точка: координата стоит на месте. Маршрут: координата едет
-// по прямой из А в Б с заданной скоростью, от момента старта. Положение
-// считается от настенных часов, а не накапливается по тикам, поэтому
-// перезапуск приложения посреди маршрута ничего не сбивает.
+// по ломаной от первой точки к последней с заданной скоростью, от момента
+// старта. Прямая из А в Б это ломаная из двух точек, маршрут по дорогам
+// это ломаная из маршрутизатора. Положение считается от настенных часов, а
+// не накапливается по тикам, поэтому перезапуск приложения посреди
+// маршрута ничего не сбивает.
 //
 // Значение держится в памяти. Перезапуск оно переживает за счёт настроек
 // форка, но обращения к настройкам тут намеренно нет: этот модуль лежит
@@ -30,13 +32,14 @@ public final class DkxLocationOverride {
 
     private enum State {
         case point(latitude: Double, longitude: Double)
-        // startedAt в секундах от 1970. nil значит, что старт не нажат и
-        // координата стоит в точке А.
-        case route(fromLatitude: Double, fromLongitude: Double, toLatitude: Double, toLongitude: Double, metersPerSecond: Double, startedAt: Double?)
+        // path: широта и долгота подряд, не меньше двух точек. startedAt в
+        // секундах от 1970, nil значит, что старт не нажат и координата
+        // стоит в первой точке.
+        case route(path: [Double], metersPerSecond: Double, startedAt: Double?)
     }
 
     // Сколько секунд после прибытия ещё слать синтетические обновления,
-    // чтобы последним ушло ровно Б, а не точка за шаг до неё.
+    // чтобы последней ушла ровно конечная точка, а не точка за шаг до неё.
     private static let arrivalGrace: Double = 10.0
 
     private static let lock = NSLock()
@@ -52,11 +55,15 @@ public final class DkxLocationOverride {
     }
 
     public static func setRoute(fromLatitude: Double, fromLongitude: Double, toLatitude: Double, toLongitude: Double, metersPerSecond: Double, startedAt: Double?) {
-        guard isValid(fromLatitude, fromLongitude), isValid(toLatitude, toLongitude), metersPerSecond > 0.0 else {
+        self.setRoute(path: [fromLatitude, fromLongitude, toLatitude, toLongitude], metersPerSecond: metersPerSecond, startedAt: startedAt)
+    }
+
+    public static func setRoute(path: [Double], metersPerSecond: Double, startedAt: Double?) {
+        guard self.isValidPath(path), metersPerSecond > 0.0 else {
             return
         }
         lock.lock()
-        state = .route(fromLatitude: fromLatitude, fromLongitude: fromLongitude, toLatitude: toLatitude, toLongitude: toLongitude, metersPerSecond: metersPerSecond, startedAt: startedAt)
+        state = .route(path: path, metersPerSecond: metersPerSecond, startedAt: startedAt)
         lock.unlock()
     }
 
@@ -77,30 +84,69 @@ public final class DkxLocationOverride {
         switch current {
         case let .point(latitude, longitude):
             return Sample(latitude: latitude, longitude: longitude, course: -1.0, speed: -1.0, fraction: 1.0, distance: 0.0)
-        case let .route(fromLatitude, fromLongitude, toLatitude, toLongitude, metersPerSecond, startedAt):
-            return routeSample(fromLatitude: fromLatitude, fromLongitude: fromLongitude, toLatitude: toLatitude, toLongitude: toLongitude, metersPerSecond: metersPerSecond, startedAt: startedAt, now: date.timeIntervalSince1970)
+        case let .route(path, metersPerSecond, startedAt):
+            return self.routeSample(path: path, metersPerSecond: metersPerSecond, startedAt: startedAt, now: date.timeIntervalSince1970)
         }
     }
 
-    // Чистая функция, её же зовёт экран настроек, чтобы показать прогресс
+    // Прямая из А в Б. Оставлено для экрана настроек и старых вызовов.
     public static func routeSample(fromLatitude: Double, fromLongitude: Double, toLatitude: Double, toLongitude: Double, metersPerSecond: Double, startedAt: Double?, now: Double) -> Sample {
-        let from = CLLocation(latitude: fromLatitude, longitude: fromLongitude)
-        let to = CLLocation(latitude: toLatitude, longitude: toLongitude)
-        let distance = from.distance(from: to)
-        let course = bearing(fromLatitude: fromLatitude, fromLongitude: fromLongitude, toLatitude: toLatitude, toLongitude: toLongitude)
+        return self.routeSample(path: [fromLatitude, fromLongitude, toLatitude, toLongitude], metersPerSecond: metersPerSecond, startedAt: startedAt, now: now)
+    }
 
+    // Длина ломаной в метрах
+    public static func pathLength(_ path: [Double]) -> Double {
+        var total = 0.0
+        var i = 2
+        while i + 1 < path.count {
+            total += CLLocation(latitude: path[i - 2], longitude: path[i - 1]).distance(from: CLLocation(latitude: path[i], longitude: path[i + 1]))
+            i += 2
+        }
+        return total
+    }
+
+    // Чистая функция, её же зовёт экран настроек, чтобы показать прогресс
+    public static func routeSample(path: [Double], metersPerSecond: Double, startedAt: Double?, now: Double) -> Sample {
+        guard self.isValidPath(path) else {
+            return Sample(latitude: path.first ?? 0.0, longitude: path.count > 1 ? path[1] : 0.0, course: -1.0, speed: -1.0, fraction: 1.0, distance: 0.0)
+        }
+        let pointCount = path.count / 2
+        var segmentLengths: [Double] = []
+        segmentLengths.reserveCapacity(pointCount - 1)
+        for index in 0 ..< pointCount - 1 {
+            let a = CLLocation(latitude: path[index * 2], longitude: path[index * 2 + 1])
+            let b = CLLocation(latitude: path[index * 2 + 2], longitude: path[index * 2 + 3])
+            segmentLengths.append(a.distance(from: b))
+        }
+        let distance = segmentLengths.reduce(0.0, +)
+
+        let firstCourse = self.bearing(fromLatitude: path[0], fromLongitude: path[1], toLatitude: path[2], toLongitude: path[3])
         guard let startedAt = startedAt else {
-            return Sample(latitude: fromLatitude, longitude: fromLongitude, course: course, speed: -1.0, fraction: 0.0, distance: distance)
+            return Sample(latitude: path[0], longitude: path[1], course: firstCourse, speed: -1.0, fraction: 0.0, distance: distance)
         }
         let elapsed = max(0.0, now - startedAt)
         let travelled = min(distance, elapsed * metersPerSecond)
         let fraction = distance > 0.0 ? travelled / distance : 1.0
 
-        // Линейная интерполяция по широте и долготе. На городских и
-        // межгородских расстояниях отличие от дуги большого круга меньше
-        // точности GPS. Переход через 180-й меридиан не учитывается.
-        let latitude = fromLatitude + (toLatitude - fromLatitude) * fraction
-        let longitude = fromLongitude + (toLongitude - fromLongitude) * fraction
+        // Ищем участок, на котором сейчас точка. Внутри участка линейная
+        // интерполяция по широте и долготе: участки короткие, отличие от
+        // дуги большого круга меньше точности GPS. Переход через 180-й
+        // меридиан не учитывается.
+        var remaining = travelled
+        var segment = 0
+        while segment < segmentLengths.count - 1 && remaining > segmentLengths[segment] {
+            remaining -= segmentLengths[segment]
+            segment += 1
+        }
+        let length = segmentLengths[segment]
+        let t = length > 0.0 ? min(1.0, remaining / length) : 1.0
+        let fromLatitude = path[segment * 2]
+        let fromLongitude = path[segment * 2 + 1]
+        let toLatitude = path[segment * 2 + 2]
+        let toLongitude = path[segment * 2 + 3]
+        let latitude = fromLatitude + (toLatitude - fromLatitude) * t
+        let longitude = fromLongitude + (toLongitude - fromLongitude) * t
+        let course = self.bearing(fromLatitude: fromLatitude, fromLongitude: fromLongitude, toLatitude: toLatitude, toLongitude: toLongitude)
         let speed = fraction < 1.0 ? metersPerSecond : -1.0
         return Sample(latitude: latitude, longitude: longitude, course: course, speed: speed, fraction: fraction, distance: distance)
     }
@@ -112,11 +158,10 @@ public final class DkxLocationOverride {
         let snapshot = state
         lock.unlock()
 
-        guard let current = snapshot, case let .route(fromLatitude, fromLongitude, toLatitude, toLongitude, metersPerSecond, startedAtValue) = current, let startedAt = startedAtValue else {
+        guard let current = snapshot, case let .route(path, metersPerSecond, startedAtValue) = current, let startedAt = startedAtValue else {
             return false
         }
-        let distance = CLLocation(latitude: fromLatitude, longitude: fromLongitude).distance(from: CLLocation(latitude: toLatitude, longitude: toLongitude))
-        let duration = distance / metersPerSecond
+        let duration = self.pathLength(path) / metersPerSecond
         return date.timeIntervalSince1970 - startedAt < duration + arrivalGrace
     }
 
@@ -151,6 +196,20 @@ public final class DkxLocationOverride {
 
     private static func isValid(_ latitude: Double, _ longitude: Double) -> Bool {
         return CLLocationCoordinate2DIsValid(CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+    }
+
+    private static func isValidPath(_ path: [Double]) -> Bool {
+        guard path.count >= 4, path.count % 2 == 0 else {
+            return false
+        }
+        var i = 0
+        while i + 1 < path.count {
+            if !self.isValid(path[i], path[i + 1]) {
+                return false
+            }
+            i += 2
+        }
+        return true
     }
 
     private static func bearing(fromLatitude: Double, fromLongitude: Double, toLatitude: Double, toLongitude: Double) -> Double {

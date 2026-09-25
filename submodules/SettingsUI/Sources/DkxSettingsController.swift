@@ -1,4 +1,5 @@
 import Foundation
+import CoreLocation
 import UIKit
 import Display
 import SwiftSignalKit
@@ -149,6 +150,7 @@ private final class DkxSettingsControllerArguments {
     let pickRouteFrom: () -> Void
     let pickRouteTo: () -> Void
     let swapRoute: () -> Void
+    let updateRouteByRoads: (Bool) -> Void
     let updateRouteSpeed: (Int32) -> Void
     let startRoute: () -> Void
     let disableSpoof: () -> Void
@@ -169,6 +171,7 @@ private final class DkxSettingsControllerArguments {
         pickRouteTo: @escaping () -> Void,
         swapRoute: @escaping () -> Void,
         updateRouteSpeed: @escaping (Int32) -> Void,
+        updateRouteByRoads: @escaping (Bool) -> Void,
         startRoute: @escaping () -> Void,
         disableSpoof: @escaping () -> Void,
         openLog: @escaping () -> Void,
@@ -186,6 +189,7 @@ private final class DkxSettingsControllerArguments {
         self.pickRouteFrom = pickRouteFrom
         self.pickRouteTo = pickRouteTo
         self.swapRoute = swapRoute
+        self.updateRouteByRoads = updateRouteByRoads
         self.updateRouteSpeed = updateRouteSpeed
         self.startRoute = startRoute
         self.disableSpoof = disableSpoof
@@ -238,6 +242,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case routeFrom(String)
     case routeTo(String)
     case routeSwap(Bool)
+    case routeByRoads(Bool)
 
     case speedHeader
     case speed(index: Int32, title: String, checked: Bool)
@@ -268,7 +273,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return DkxSettingsSection.location.rawValue
         case .pointHeader, .spoofCoordinate, .pickPoint, .pointFooter:
             return DkxSettingsSection.point.rawValue
-        case .routeHeader, .routeFrom, .routeTo, .routeSwap:
+        case .routeHeader, .routeFrom, .routeTo, .routeSwap, .routeByRoads:
             return DkxSettingsSection.route.rawValue
         case .speedHeader, .speed:
             return DkxSettingsSection.speed.rawValue
@@ -337,6 +342,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 1202
         case .routeSwap:
             return 1203
+        case .routeByRoads:
+            return 1204
         case .speedHeader:
             return 1300
         case let .speed(index, _, _):
@@ -453,6 +460,10 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
                 }
             })
 
+        case let .routeByRoads(value):
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "По дорогам", value: value, sectionId: self.section, style: .blocks, updated: { value in
+                arguments.updateRouteByRoads(value)
+            })
         case .speedHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: "СКОРОСТЬ", sectionId: self.section)
         case let .speed(index, title, checked):
@@ -525,22 +536,32 @@ private func dkxFormatDuration(_ seconds: Double) -> String {
 }
 
 private func dkxRouteStatus(settings: DkxSettings, now: Int32) -> String {
-    guard let from = DkxSettings.parseCoordinate(settings.routeFrom), let to = DkxSettings.parseCoordinate(settings.routeTo) else {
+    guard let path = settings.effectiveRoutePath else {
         return "Выберите на карте обе точки. Пока маршрут не задан, отдаётся настоящая координата."
     }
     let metersPerSecond = Double(max(1, settings.routeSpeed)) / 3.6
     let startedAt: Double? = settings.routeStartedAt > 0 ? Double(settings.routeStartedAt) : nil
-    let sample = DkxLocationOverride.routeSample(fromLatitude: from.latitude, fromLongitude: from.longitude, toLatitude: to.latitude, toLongitude: to.longitude, metersPerSecond: metersPerSecond, startedAt: startedAt, now: Double(now))
+    let sample = DkxLocationOverride.routeSample(path: path, metersPerSecond: metersPerSecond, startedAt: startedAt, now: Double(now))
+    let roadStatus: String
+    if !settings.routeByRoads {
+        roadStatus = "По прямой."
+    } else if settings.routePath.count >= 4 {
+        roadStatus = "По дорогам, маршрут проложил \(settings.routePathSource)."
+    } else if settings.routePathSource == "…" {
+        roadStatus = "Прокладываю маршрут по дорогам…"
+    } else {
+        roadStatus = "Дорогу найти не удалось, точка поедет по прямой."
+    }
 
     if startedAt == nil {
-        return "Координата стоит в точке А. Расстояние \(dkxFormatDistance(sample.distance)), в пути около \(dkxFormatDuration(sample.distance / metersPerSecond))."
+        return "Координата стоит в точке А. Расстояние \(dkxFormatDistance(sample.distance)), в пути около \(dkxFormatDuration(sample.distance / metersPerSecond)).\n\n" + roadStatus
     }
     if sample.fraction >= 1.0 {
         return "Прибыли в точку Б. Координата стоит там, пока вы не выключите подмену или не начнёте заново."
     }
     let travelled = sample.distance * sample.fraction
     let remaining = sample.distance - travelled
-    return "В пути: \(dkxFormatDistance(travelled)) из \(dkxFormatDistance(sample.distance)), до точки Б около \(dkxFormatDuration(remaining / metersPerSecond)).\n\nТрансляция геопозиции обновляется раз в несколько секунд, стрелка у получателя смотрит по ходу движения."
+    return "В пути: \(dkxFormatDistance(travelled)) из \(dkxFormatDistance(sample.distance)), до точки Б около \(dkxFormatDuration(remaining / metersPerSecond)). " + roadStatus + "\n\nТрансляция геопозиции обновляется раз в несколько секунд, стрелка у получателя смотрит по ходу движения."
 }
 
 private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSettingsControllerState, now: Int32) -> [DkxSettingsControllerEntry] {
@@ -601,6 +622,7 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
             entries.append(.routeFrom(hasFrom ? settings.routeFrom : "выбрать"))
             entries.append(.routeTo(hasTo ? settings.routeTo : "выбрать"))
             entries.append(.routeSwap(hasFrom && hasTo))
+            entries.append(.routeByRoads(settings.routeByRoads))
 
             entries.append(.speedHeader)
             for i in 0 ..< dkxRouteSpeeds.count {
@@ -647,6 +669,54 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
     // Текущие настройки нужны синхронно, чтобы открыть карту на уже
     // выбранной точке
     let currentSettings = Atomic<DkxSettings>(value: DkxSettings.defaultSettings)
+
+    // Маршрут по дорогам. Считается после любой правки, которая меняет
+    // путь, и кладётся в настройки, только если точки за время расчёта не
+    // поменялись. Пока считается, точка едет по прямой.
+    let routeDisposable = MetaDisposable()
+    let recomputeRoute: () -> Void = {
+        routeDisposable.set((accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.dkxSettings])
+        |> take(1)
+        |> map { sharedData -> DkxSettings in
+            return sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
+        }
+        |> mapToSignal { settings -> Signal<(DkxSettings, DkxRoadRoute?), NoError> in
+            guard settings.routeByRoads, let from = DkxSettings.parseCoordinate(settings.routeFrom), let to = DkxSettings.parseCoordinate(settings.routeTo) else {
+                return .single((settings, nil))
+            }
+            return dkxComputeRoadRoute(from: CLLocationCoordinate2D(latitude: from.latitude, longitude: from.longitude), to: CLLocationCoordinate2D(latitude: to.latitude, longitude: to.longitude), walking: settings.routeSpeed <= 5)
+            |> map { route -> (DkxSettings, DkxRoadRoute?) in
+                return (settings, route)
+            }
+        }
+        |> deliverOnMainQueue).start(next: { requested, route in
+            update { current in
+                guard current.routeFrom == requested.routeFrom, current.routeTo == requested.routeTo, current.routeByRoads == requested.routeByRoads else {
+                    return
+                }
+                if !current.routeByRoads {
+                    current.routePath = []
+                    current.routePathSource = ""
+                    return
+                }
+                current.routePath = route?.path ?? []
+                current.routePathSource = route?.source ?? "нет"
+            }
+        }))
+    }
+    // Правка, после которой прежний путь больше не годится
+    let updateRoute: (@escaping (inout DkxSettings) -> Void) -> Void = { f in
+        let _ = (updateDkxSettingsInteractively(accountManager: accountManager, { current in
+            var updated = current
+            f(&updated)
+            updated.routePath = []
+            updated.routePathSource = updated.routeByRoads ? "…" : ""
+            return updated
+        })
+        |> deliverOnMainQueue).start(completed: {
+            recomputeRoute()
+        })
+    }
 
     let openPicker: (String, @escaping (String) -> Void) -> Void = { current, completion in
         let initial = DkxSettings.parseCoordinate(current)
@@ -717,7 +787,7 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
         },
         pickRouteFrom: {
             openPicker(currentSettings.with { $0.routeFrom }, { value in
-                update { settings in
+                updateRoute { settings in
                     settings.routeFrom = value
                     settings.routeStartedAt = 0
                 }
@@ -727,14 +797,14 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
             // Если Б ещё нет, карта открывается в точке А, так удобнее
             let current = currentSettings.with { $0.routeTo.isEmpty ? $0.routeFrom : $0.routeTo }
             openPicker(current, { value in
-                update { settings in
+                updateRoute { settings in
                     settings.routeTo = value
                     settings.routeStartedAt = 0
                 }
             })
         },
         swapRoute: {
-            update { settings in
+            updateRoute { settings in
                 let from = settings.routeFrom
                 settings.routeFrom = settings.routeTo
                 settings.routeTo = from
@@ -742,17 +812,32 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
             }
         },
         updateRouteSpeed: { value in
+            // Пешком и на колёсах дороги разные: при переходе через эту
+            // границу маршрут пересчитывается
+            let wasWalking = currentSettings.with { $0.routeSpeed <= 5 }
+            if wasWalking != (value <= 5) {
+                updateRoute { settings in
+                    settings.routeSpeed = value
+                    settings.routeStartedAt = 0
+                }
+                return
+            }
             update { settings in
                 // Смена скорости на ходу не должна телепортировать точку.
                 // Сдвигаем момент старта так, чтобы пройденное расстояние
                 // осталось прежним, а дальше точка шла с новой скоростью.
-                if settings.routeStartedAt > 0, value > 0, let from = DkxSettings.parseCoordinate(settings.routeFrom), let to = DkxSettings.parseCoordinate(settings.routeTo) {
+                if settings.routeStartedAt > 0, value > 0, let path = settings.effectiveRoutePath {
                     let now = Date().timeIntervalSince1970
-                    let sample = DkxLocationOverride.routeSample(fromLatitude: from.latitude, fromLongitude: from.longitude, toLatitude: to.latitude, toLongitude: to.longitude, metersPerSecond: Double(max(1, settings.routeSpeed)) / 3.6, startedAt: Double(settings.routeStartedAt), now: now)
+                    let sample = DkxLocationOverride.routeSample(path: path, metersPerSecond: Double(max(1, settings.routeSpeed)) / 3.6, startedAt: Double(settings.routeStartedAt), now: now)
                     let travelled = sample.distance * sample.fraction
                     settings.routeStartedAt = Int32(max(1.0, now - travelled / (Double(value) / 3.6)))
                 }
                 settings.routeSpeed = value
+            }
+        },
+        updateRouteByRoads: { value in
+            updateRoute { settings in
+                settings.routeByRoads = value
             }
         },
         startRoute: {

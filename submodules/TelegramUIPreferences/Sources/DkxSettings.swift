@@ -75,6 +75,12 @@ public struct DkxSettings: Codable, Equatable {
     // Момент нажатия «Поехали», секунды от 1970. Ноль значит, что движение
     // не запущено и координата стоит в точке А.
     public var routeStartedAt: Int32
+    // Ехать по дорогам. Путь из маршрутизатора, широта и долгота подряд.
+    // Пустой путь значит прямую из А в Б. routePathSource для показа, кто
+    // проложил маршрут.
+    public var routeByRoads: Bool
+    public var routePath: [Double]
+    public var routePathSource: String
 
     public static var defaultSettings: DkxSettings {
         return DkxSettings()
@@ -105,6 +111,9 @@ public struct DkxSettings: Codable, Equatable {
         self.routeTo = ""
         self.routeSpeed = 15
         self.routeStartedAt = 0
+        self.routeByRoads = true
+        self.routePath = []
+        self.routePathSource = ""
     }
 
     public func note(for peerId: Int64) -> String? {
@@ -130,6 +139,18 @@ public struct DkxSettings: Codable, Equatable {
             return nil
         }
         return (latitude, longitude)
+    }
+
+    // Путь, по которому едет маршрут: по дорогам, если он проложен, иначе
+    // прямая из А в Б. nil, если какой-то из точек нет.
+    public var effectiveRoutePath: [Double]? {
+        guard let from = DkxSettings.parseCoordinate(self.routeFrom), let to = DkxSettings.parseCoordinate(self.routeTo) else {
+            return nil
+        }
+        if self.routeByRoads && self.routePath.count >= 4 {
+            return self.routePath
+        }
+        return [from.latitude, from.longitude, to.latitude, to.longitude]
     }
 
     public static func formatCoordinate(latitude: Double, longitude: Double) -> String {
@@ -163,6 +184,9 @@ public struct DkxSettings: Codable, Equatable {
         self.routeTo = (try container.decodeIfPresent(String.self, forKey: "routeTo")) ?? defaults.routeTo
         self.routeSpeed = (try container.decodeIfPresent(Int32.self, forKey: "routeSpeed")) ?? defaults.routeSpeed
         self.routeStartedAt = (try container.decodeIfPresent(Int32.self, forKey: "routeStartedAt")) ?? defaults.routeStartedAt
+        self.routeByRoads = (try container.decodeIfPresent(Int32.self, forKey: "routeByRoads")).map { $0 != 0 } ?? defaults.routeByRoads
+        self.routePath = (try container.decodeIfPresent([Double].self, forKey: "routePath")) ?? defaults.routePath
+        self.routePathSource = (try container.decodeIfPresent(String.self, forKey: "routePathSource")) ?? defaults.routePathSource
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -191,6 +215,9 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode(self.routeTo, forKey: "routeTo")
         try container.encode(self.routeSpeed, forKey: "routeSpeed")
         try container.encode(self.routeStartedAt, forKey: "routeStartedAt")
+        try container.encode((self.routeByRoads ? 1 : 0) as Int32, forKey: "routeByRoads")
+        try container.encode(self.routePath, forKey: "routePath")
+        try container.encode(self.routePathSource, forKey: "routePathSource")
     }
 }
 

@@ -577,9 +577,11 @@ public final class SharedAccountContextImpl: SharedAccountContext {
                             description = "точка не задана, отдаём настоящую"
                         }
                     case .route:
-                        if let from = DkxSettings.parseCoordinate(settings.routeFrom), let to = DkxSettings.parseCoordinate(settings.routeTo), settings.routeSpeed > 0 {
-                            DkxLocationOverride.setRoute(fromLatitude: from.latitude, fromLongitude: from.longitude, toLatitude: to.latitude, toLongitude: to.longitude, metersPerSecond: Double(settings.routeSpeed) / 3.6, startedAt: settings.routeStartedAt > 0 ? Double(settings.routeStartedAt) : nil)
-                            description = "маршрут, \(settings.routeSpeed) км/ч, " + (settings.routeStartedAt > 0 ? "в пути" : "ждём старта в точке А")
+                        if let path = settings.effectiveRoutePath, settings.routeSpeed > 0 {
+                            DkxLocationOverride.setRoute(path: path, metersPerSecond: Double(settings.routeSpeed) / 3.6, startedAt: settings.routeStartedAt > 0 ? Double(settings.routeStartedAt) : nil)
+                            let dkxRouteKind = path.count > 4 ? "по дорогам" : "по прямой"
+                            let dkxRouteStage = settings.routeStartedAt > 0 ? "в пути" : "ждём старта в точке А"
+                            description = "маршрут \(dkxRouteKind), \(settings.routeSpeed) км/ч, \(dkxRouteStage)"
                         } else {
                             DkxLocationOverride.clear()
                             description = "маршрут не задан, отдаём настоящую"
