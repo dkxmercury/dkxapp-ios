@@ -658,7 +658,7 @@ public final class ChatTitleView: UIView, NavigationBarTitleView {
                                         // взаимности заведомо не будет, и "не сохранил" было бы враньём,
                                         // мы просто не знаем.
                                         let dkxResult: NSAttributedString
-                                        if DkxRuntime.current.showContactBadge, peerView.peerIsContact, let dkxUser = peer as? TelegramUser, dkxUser.botInfo == nil {
+                                        if DkxRuntime.current.showContactBadge, peerView.isContact, let dkxUser = peer as? TelegramUser, dkxUser.botInfo == nil {
                                             let dkxMutual = dkxUser.flags.contains(.mutualContact)
                                             let dkxBadge = NSMutableAttributedString(attributedString: attributedString)
                                             if dkxBadge.length != 0 {
