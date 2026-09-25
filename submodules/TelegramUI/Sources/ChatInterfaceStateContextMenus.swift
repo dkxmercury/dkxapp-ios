@@ -1348,7 +1348,7 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
                     return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Search"), color: theme.actionSheet.primaryTextColor)
                 }, action: { c, _ in
                     c?.dismiss(completion: {
-                        interfaceInteraction?.beginMessageSearch(.member(dkxAuthor), "")
+                        interfaceInteraction.beginMessageSearch(.member(dkxAuthor), "")
                     })
                 })))
             }
