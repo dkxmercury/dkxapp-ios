@@ -36,6 +36,12 @@ public struct DkxSettings: Codable, Equatable {
     public var showNoteInHeader: Bool
     public var showPeerId: Bool
 
+    // Список «Без ответа»: личные чаты, где последним написал собеседник.
+    // Порог в часах, сколько он должен ждать, чтобы попасть в список. Ноль
+    // значит сразу.
+    public var unansweredFilter: Bool
+    public var unansweredHours: Int32
+
     // Подмена координат, общий выключатель
     public var spoofLocation: Bool
     public var spoofMode: SpoofMode
@@ -61,6 +67,8 @@ public struct DkxSettings: Codable, Equatable {
         self.showContactBadge = true
         self.showNoteInHeader = true
         self.showPeerId = true
+        self.unansweredFilter = true
+        self.unansweredHours = 0
         self.spoofLocation = false
         self.spoofMode = .point
         self.spoofCoordinate = ""
@@ -108,6 +116,8 @@ public struct DkxSettings: Codable, Equatable {
         self.showContactBadge = (try container.decodeIfPresent(Int32.self, forKey: "showContactBadge")).map { $0 != 0 } ?? defaults.showContactBadge
         self.showNoteInHeader = (try container.decodeIfPresent(Int32.self, forKey: "showNoteInHeader")).map { $0 != 0 } ?? defaults.showNoteInHeader
         self.showPeerId = (try container.decodeIfPresent(Int32.self, forKey: "showPeerId")).map { $0 != 0 } ?? defaults.showPeerId
+        self.unansweredFilter = (try container.decodeIfPresent(Int32.self, forKey: "unansweredFilter")).map { $0 != 0 } ?? defaults.unansweredFilter
+        self.unansweredHours = (try container.decodeIfPresent(Int32.self, forKey: "unansweredHours")) ?? defaults.unansweredHours
         self.spoofLocation = (try container.decodeIfPresent(Int32.self, forKey: "spoofLocation") ?? 0) != 0
         self.spoofMode = SpoofMode(rawValue: (try container.decodeIfPresent(Int32.self, forKey: "spoofMode")) ?? defaults.spoofMode.rawValue) ?? defaults.spoofMode
         self.spoofCoordinate = (try container.decodeIfPresent(String.self, forKey: "spoofCoordinate")) ?? defaults.spoofCoordinate
@@ -125,6 +135,8 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode((self.showContactBadge ? 1 : 0) as Int32, forKey: "showContactBadge")
         try container.encode((self.showNoteInHeader ? 1 : 0) as Int32, forKey: "showNoteInHeader")
         try container.encode((self.showPeerId ? 1 : 0) as Int32, forKey: "showPeerId")
+        try container.encode((self.unansweredFilter ? 1 : 0) as Int32, forKey: "unansweredFilter")
+        try container.encode(self.unansweredHours, forKey: "unansweredHours")
         try container.encode((self.spoofLocation ? 1 : 0) as Int32, forKey: "spoofLocation")
         try container.encode(self.spoofMode.rawValue, forKey: "spoofMode")
         try container.encode(self.spoofCoordinate, forKey: "spoofCoordinate")

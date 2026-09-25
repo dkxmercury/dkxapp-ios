@@ -38,7 +38,15 @@ private enum DkxToggle: Int32 {
     case contactBadge
     case noteInHeader
     case peerId
+    case unanswered
 }
+
+private let dkxUnansweredThresholds: [(hours: Int32, title: String)] = [
+    (0, "Сразу"),
+    (1, "Ждёт больше часа"),
+    (3, "Ждёт больше 3 часов"),
+    (24, "Ждёт больше суток")
+]
 
 private func dkxToggleValue(_ toggle: DkxToggle, _ settings: DkxSettings) -> Bool {
     switch toggle {
@@ -48,6 +56,8 @@ private func dkxToggleValue(_ toggle: DkxToggle, _ settings: DkxSettings) -> Boo
         return settings.showNoteInHeader
     case .peerId:
         return settings.showPeerId
+    case .unanswered:
+        return settings.unansweredFilter
     }
 }
 
@@ -59,6 +69,8 @@ private func dkxToggleUpdate(_ toggle: DkxToggle, _ value: Bool, _ settings: ino
         settings.showNoteInHeader = value
     case .peerId:
         settings.showPeerId = value
+    case .unanswered:
+        settings.unansweredFilter = value
     }
 }
 
@@ -70,6 +82,8 @@ private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
         return "Заметка в шапке чата"
     case .peerId:
         return "Telegram ID в профиле"
+    case .unanswered:
+        return "Список «Без ответа»"
     }
 }
 
@@ -77,6 +91,7 @@ private final class DkxSettingsControllerArguments {
     let updateHideStories: (Bool) -> Void
     let updateHidePremiumPromo: (Bool) -> Void
     let updateToggle: (DkxToggle, Bool) -> Void
+    let updateUnansweredHours: (Int32) -> Void
     let updateSpoofLocation: (Bool) -> Void
     let updateSpoofMode: (DkxSettings.SpoofMode) -> Void
     let updateSpoofCoordinate: (String) -> Void
@@ -94,6 +109,7 @@ private final class DkxSettingsControllerArguments {
         updateHideStories: @escaping (Bool) -> Void,
         updateHidePremiumPromo: @escaping (Bool) -> Void,
         updateToggle: @escaping (DkxToggle, Bool) -> Void,
+        updateUnansweredHours: @escaping (Int32) -> Void,
         updateSpoofLocation: @escaping (Bool) -> Void,
         updateSpoofMode: @escaping (DkxSettings.SpoofMode) -> Void,
         updateSpoofCoordinate: @escaping (String) -> Void,
@@ -110,6 +126,7 @@ private final class DkxSettingsControllerArguments {
         self.updateHideStories = updateHideStories
         self.updateHidePremiumPromo = updateHidePremiumPromo
         self.updateToggle = updateToggle
+        self.updateUnansweredHours = updateUnansweredHours
         self.updateSpoofLocation = updateSpoofLocation
         self.updateSpoofMode = updateSpoofMode
         self.updateSpoofCoordinate = updateSpoofCoordinate
@@ -128,6 +145,7 @@ private final class DkxSettingsControllerArguments {
 private enum DkxSettingsSection: Int32 {
     case interface
     case chats
+    case unanswered
     case location
     case point
     case route
@@ -147,6 +165,10 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case chatsHeader
     case toggle(DkxToggle, Bool)
     case chatsFooter
+
+    case unansweredHeader
+    case unansweredThreshold(index: Int32, title: String, checked: Bool)
+    case unansweredFooter
 
     case locationHeader
     case spoofLocation(Bool)
@@ -187,6 +209,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return DkxSettingsSection.interface.rawValue
         case .chatsHeader, .toggle, .chatsFooter:
             return DkxSettingsSection.chats.rawValue
+        case .unansweredHeader, .unansweredThreshold, .unansweredFooter:
+            return DkxSettingsSection.unanswered.rawValue
         case .locationHeader, .spoofLocation, .modePoint, .modeRoute, .locationFooter:
             return DkxSettingsSection.location.rawValue
         case .pointHeader, .spoofCoordinate, .pickPoint, .pointFooter:
@@ -224,6 +248,12 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 101 + toggle.rawValue
         case .chatsFooter:
             return 199
+        case .unansweredHeader:
+            return 200
+        case let .unansweredThreshold(index, _, _):
+            return 201 + index
+        case .unansweredFooter:
+            return 299
         case .locationHeader:
             return 1000
         case .spoofLocation:
@@ -311,6 +341,15 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
 Заметка в шапке чата это первая строка вашей заметки из профиля собеседника. Правится в профиле через «Изменить».
 
 Включённое или выключенное применяется при следующем открытии экрана."), sectionId: self.section)
+
+        case .unansweredHeader:
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: "БЕЗ ОТВЕТА", sectionId: self.section)
+        case let .unansweredThreshold(index, title, checked):
+            return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
+                arguments.updateUnansweredHours(dkxUnansweredThresholds[Int(index)].hours)
+            })
+        case .unansweredFooter:
+            return ItemListTextItem(presentationData: presentationData, text: .plain("Список открывается долгим нажатием на вкладку «Чаты». В нём личные чаты, где последним написал собеседник, без ботов и архива. Сверху те, кто ждёт дольше всех."), sectionId: self.section)
 
         case .locationHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: "ГЕОЛОКАЦИЯ", sectionId: self.section)
@@ -458,10 +497,18 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
     entries.append(.interfaceFooter)
 
     entries.append(.chatsHeader)
-    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId] {
+    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered] {
         entries.append(.toggle(toggle, dkxToggleValue(toggle, settings)))
     }
     entries.append(.chatsFooter)
+
+    if settings.unansweredFilter {
+        entries.append(.unansweredHeader)
+        for i in 0 ..< dkxUnansweredThresholds.count {
+            entries.append(.unansweredThreshold(index: Int32(i), title: dkxUnansweredThresholds[i].title, checked: dkxUnansweredThresholds[i].hours == settings.unansweredHours))
+        }
+        entries.append(.unansweredFooter)
+    }
 
     entries.append(.locationHeader)
     entries.append(.spoofLocation(settings.spoofLocation))
@@ -560,6 +607,9 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
         },
         updateToggle: { toggle, value in
             update { dkxToggleUpdate(toggle, value, &$0) }
+        },
+        updateUnansweredHours: { value in
+            update { $0.unansweredHours = value }
         },
         updateSpoofLocation: { value in
             update { settings in

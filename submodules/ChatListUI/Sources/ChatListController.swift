@@ -6325,6 +6325,20 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
                 })
             })))
             
+            // MARK: DKX список «Без ответа», включается тумблером в настройках Dkx
+            if DkxRuntime.current.unansweredFilter {
+                items.append(.action(ContextMenuActionItem(text: "Без ответа", icon: { theme in
+                    return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Time"), color: theme.contextMenu.primaryColor)
+                }, action: { c, _ in
+                    c?.dismiss(completion: {
+                        guard let strongSelf = self, let navigationController = strongSelf.navigationController as? NavigationController else {
+                            return
+                        }
+                        navigationController.pushViewController(dkxUnansweredController(context: strongSelf.context))
+                    })
+                })))
+            }
+            
             if strongSelf.chatListDisplayNode.effectiveContainerNode.currentItemNode.chatListFilter != nil {
                 items.append(.action(ContextMenuActionItem(text: strongSelf.presentationData.strings.ChatList_FolderAllChats, icon: { theme in
                     return nil
