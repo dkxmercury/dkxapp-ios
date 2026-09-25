@@ -157,6 +157,12 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
                 interaction.openSettings(.dkxTasks)
             }))
         }
+        // MARK: DKX «Пароли» под «Моими делами», тумблер в Dkx
+        if DkxRuntime.current.passwordsEnabled {
+            items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 51, text: "Пароли", icon: PresentationResourcesSettings.passkeys, action: {
+                interaction.openSettings(.dkxPasswords)
+            }))
+        }
         
         if !settings.proxySettings.servers.isEmpty {
             let proxyType: String

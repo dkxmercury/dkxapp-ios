@@ -154,6 +154,9 @@ extension PeerInfoScreenNode {
             }))
         case .dkxTasks:
             push(dkxTasksController(context: self.context))
+        case .dkxPasswords:
+            // Face ID до показа списка
+            dkxOpenPasswords(context: self.context, push: push)
         case .appearance:
             push(themeSettingsController(context: self.context))
         case .language:
