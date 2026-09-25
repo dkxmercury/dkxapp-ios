@@ -597,8 +597,25 @@ public final class SharedAccountContextImpl: SharedAccountContext {
             
             // MARK: DKX Face ID на чат. Фон, а не потеря фокуса: окно Face ID
             // само снимает фокус, и замок захлопывался бы сразу после проверки
-            self.dkxBackgroundObserver = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: OperationQueue.main, using: { _ in
+            self.dkxBackgroundObserver = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: OperationQueue.main, using: { [weak self] _ in
                 DkxChatLock.lockAll()
+                // Открытый закрытый чат убираем с экрана. Иначе после возврата
+                // он был бы виден без проверки, и попал бы в снимок
+                // переключателя приложений: система делает его после этого
+                // события.
+                guard let self, let navigationController = self.mainWindow?.viewController as? NavigationController else {
+                    return
+                }
+                let controllers = navigationController.viewControllers
+                let filtered = controllers.filter { controller in
+                    if let chatController = controller as? ChatController, let peerId = chatController.chatLocation.peerId, DkxChatLock.isLocked(peerId) {
+                        return false
+                    }
+                    return true
+                }
+                if filtered.count != controllers.count && !filtered.isEmpty {
+                    navigationController.setViewControllers(filtered, animated: false)
+                }
             })
         }
         
