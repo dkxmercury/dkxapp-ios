@@ -20,6 +20,9 @@ public enum DkxAntiDelete {
                 drop.append(id)
             }
         }
+        if !ids.isEmpty {
+            DkxLog.write("удаление", "пришло \(ids.count), оставляю \(keep.count), отпускаю \(drop.count)")
+        }
         return (keep, drop)
     }
 
@@ -63,6 +66,10 @@ public enum DkxAntiDelete {
     // в перепроверку снова и снова и тянуть запись в базу на каждой прокрутке.
     public static func mark(transaction: Transaction, ids: [MessageId], channelPts: Int32? = nil) {
         let timestamp = Int32(CFAbsoluteTimeGetCurrent() + NSTimeIntervalSince1970)
+        if let first = ids.first {
+            let ptsText = channelPts.flatMap { String($0) } ?? "нет"
+            DkxLog.write("удаление", "помечаю \(ids.count), первое \(first), pts \(ptsText)")
+        }
         for id in ids {
             transaction.updateMessage(id, update: { currentMessage in
                 var alreadyMarked = false

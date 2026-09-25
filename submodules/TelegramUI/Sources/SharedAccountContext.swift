@@ -546,6 +546,8 @@ public final class SharedAccountContextImpl: SharedAccountContext {
         // созданием менеджера, потому что до конца инициализации всех полей
         // трогать self нельзя.
         if applicationBindings.isMainApp {
+            // В журнал уходит только режим, координаты туда не пишутся
+            var dkxLastDescription: String?
             self.dkxLocationOverrideDisposable.set((accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.dkxSettings])
             |> map { sharedData -> DkxSettings in
                 return sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
@@ -554,23 +556,33 @@ public final class SharedAccountContextImpl: SharedAccountContext {
             |> deliverOnMainQueue).start(next: { settings in
                 // Любая неполная настройка, будь то пустая точка или маршрут
                 // без одного конца, означает настоящую координату.
-                guard settings.spoofLocation else {
+                let description: String
+                if !settings.spoofLocation {
                     DkxLocationOverride.clear()
-                    return
+                    description = "подмена выключена"
+                } else {
+                    switch settings.spoofMode {
+                    case .point:
+                        if let point = DkxSettings.parseCoordinate(settings.spoofCoordinate) {
+                            DkxLocationOverride.setPoint(latitude: point.latitude, longitude: point.longitude)
+                            description = "стоим в точке"
+                        } else {
+                            DkxLocationOverride.clear()
+                            description = "точка не задана, отдаём настоящую"
+                        }
+                    case .route:
+                        if let from = DkxSettings.parseCoordinate(settings.routeFrom), let to = DkxSettings.parseCoordinate(settings.routeTo), settings.routeSpeed > 0 {
+                            DkxLocationOverride.setRoute(fromLatitude: from.latitude, fromLongitude: from.longitude, toLatitude: to.latitude, toLongitude: to.longitude, metersPerSecond: Double(settings.routeSpeed) / 3.6, startedAt: settings.routeStartedAt > 0 ? Double(settings.routeStartedAt) : nil)
+                            description = "маршрут, \(settings.routeSpeed) км/ч, " + (settings.routeStartedAt > 0 ? "в пути" : "ждём старта в точке А")
+                        } else {
+                            DkxLocationOverride.clear()
+                            description = "маршрут не задан, отдаём настоящую"
+                        }
+                    }
                 }
-                switch settings.spoofMode {
-                case .point:
-                    if let point = DkxSettings.parseCoordinate(settings.spoofCoordinate) {
-                        DkxLocationOverride.setPoint(latitude: point.latitude, longitude: point.longitude)
-                    } else {
-                        DkxLocationOverride.clear()
-                    }
-                case .route:
-                    if let from = DkxSettings.parseCoordinate(settings.routeFrom), let to = DkxSettings.parseCoordinate(settings.routeTo), settings.routeSpeed > 0 {
-                        DkxLocationOverride.setRoute(fromLatitude: from.latitude, fromLongitude: from.longitude, toLatitude: to.latitude, toLongitude: to.longitude, metersPerSecond: Double(settings.routeSpeed) / 3.6, startedAt: settings.routeStartedAt > 0 ? Double(settings.routeStartedAt) : nil)
-                    } else {
-                        DkxLocationOverride.clear()
-                    }
+                if description != dkxLastDescription {
+                    dkxLastDescription = description
+                    DkxLog.write("гео", description)
                 }
             }))
         }

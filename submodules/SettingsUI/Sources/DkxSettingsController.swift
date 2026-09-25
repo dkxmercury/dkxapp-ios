@@ -45,6 +45,8 @@ private final class DkxSettingsControllerArguments {
     let updateRouteSpeed: (Int32) -> Void
     let startRoute: () -> Void
     let disableSpoof: () -> Void
+    let openLog: () -> Void
+    let openDebug: () -> Void
 
     init(
         updateHideStories: @escaping (Bool) -> Void,
@@ -58,7 +60,9 @@ private final class DkxSettingsControllerArguments {
         swapRoute: @escaping () -> Void,
         updateRouteSpeed: @escaping (Int32) -> Void,
         startRoute: @escaping () -> Void,
-        disableSpoof: @escaping () -> Void
+        disableSpoof: @escaping () -> Void,
+        openLog: @escaping () -> Void,
+        openDebug: @escaping () -> Void
     ) {
         self.updateHideStories = updateHideStories
         self.updateHidePremiumPromo = updateHidePremiumPromo
@@ -72,6 +76,8 @@ private final class DkxSettingsControllerArguments {
         self.updateRouteSpeed = updateRouteSpeed
         self.startRoute = startRoute
         self.disableSpoof = disableSpoof
+        self.openLog = openLog
+        self.openDebug = openDebug
     }
 }
 
@@ -84,6 +90,7 @@ private enum DkxSettingsSection: Int32 {
     case routeControl
     case disable
     case features
+    case debug
 }
 
 private enum DkxSettingsControllerEntry: ItemListNodeEntry {
@@ -120,6 +127,11 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case featuresHeader
     case featuresFooter
 
+    case debugHeader
+    case openLog
+    case openDebug
+    case debugFooter
+
     var section: ItemListSectionId {
         switch self {
         case .interfaceHeader, .hideStories, .hidePremiumPromo, .interfaceFooter:
@@ -138,6 +150,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return DkxSettingsSection.disable.rawValue
         case .featuresHeader, .featuresFooter:
             return DkxSettingsSection.features.rawValue
+        case .debugHeader, .openLog, .openDebug, .debugFooter:
+            return DkxSettingsSection.debug.rawValue
         }
     }
 
@@ -193,6 +207,14 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 80
         case .featuresFooter:
             return 81
+        case .debugHeader:
+            return 90
+        case .openLog:
+            return 91
+        case .openDebug:
+            return 92
+        case .debugFooter:
+            return 93
         }
     }
 
@@ -290,6 +312,19 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return ItemListSectionHeaderItem(presentationData: presentationData, text: "СООБЩЕНИЯ", sectionId: self.section)
         case .featuresFooter:
             return ItemListTextItem(presentationData: presentationData, text: .plain("Удалённые собеседником сообщения остаются в чате с пометкой «удалено». У отредактированных в контекстном меню доступна история правок.\n\nСекретные чаты и самоуничтожающиеся сообщения не затрагиваются."), sectionId: self.section)
+
+        case .debugHeader:
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ОТЛАДКА", sectionId: self.section)
+        case .openLog:
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Журнал Dkx", label: "", sectionId: self.section, style: .blocks, action: {
+                arguments.openLog()
+            })
+        case .openDebug:
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Отладочное меню Telegram", label: "", sectionId: self.section, style: .blocks, action: {
+                arguments.openDebug()
+            })
+        case .debugFooter:
+            return ItemListTextItem(presentationData: presentationData, text: .plain("Журнал Dkx пишется всегда и показывает, что делали правки форка, плюс отчёты о падениях.\n\nПолные логи Telegram пишутся только по запросу: в отладочном меню включите Log to File, повторите проблему и нажмите Send Logs."), sectionId: self.section)
         }
     }
 }
@@ -398,6 +433,11 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
 
     entries.append(.featuresHeader)
     entries.append(.featuresFooter)
+
+    entries.append(.debugHeader)
+    entries.append(.openLog)
+    entries.append(.openDebug)
+    entries.append(.debugFooter)
 
     return entries
 }
@@ -518,6 +558,14 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
             update { settings in
                 settings.spoofLocation = false
                 settings.routeStartedAt = 0
+            }
+        },
+        openLog: {
+            pushControllerImpl?(dkxLogController(context: context))
+        },
+        openDebug: {
+            if let controller = context.sharedContext.makeDebugSettingsController(context: context) {
+                pushControllerImpl?(controller)
             }
         }
     )

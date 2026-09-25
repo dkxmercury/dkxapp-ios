@@ -206,6 +206,7 @@ public let telegramPostboxSeedConfiguration: SeedConfiguration = {
                     }
                     if !found {
                         updated.append(attribute)
+                        DkxLog.write("слияние", "перезапись сняла бы пометку удалённого, вернул")
                     }
                 } else if let previousHistory = attribute as? DkxEditHistoryAttribute {
                     var foundIndex: Int?
@@ -220,9 +221,11 @@ public let telegramPostboxSeedConfiguration: SeedConfiguration = {
                         // более короткую историю, оставляем длинную.
                         if let current = updated[foundIndex] as? DkxEditHistoryAttribute, current.texts.count < previousHistory.texts.count {
                             updated[foundIndex] = previousHistory
+                            DkxLog.write("слияние", "гонка процессов: история \(current.texts.count) против \(previousHistory.texts.count), оставил длинную")
                         }
                     } else {
                         updated.append(previousHistory)
+                        DkxLog.write("слияние", "перезапись сняла бы историю правок, вернул")
                     }
                 }
             }

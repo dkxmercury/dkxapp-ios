@@ -729,6 +729,14 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
         let _ = try? FileManager.default.createDirectory(atPath: logsPath, withIntermediateDirectories: true, attributes: nil)
         Logger.setSharedLogger(Logger(rootPath: rootPath, basePath: logsPath))
 
+        // MARK: DKX журнал форка и отчёты о падениях
+        let dkxVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"
+        let dkxBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "?"
+        DkxLog.write("запуск", "версия \(dkxVersion), сборка \(dkxBuild)")
+        if #available(iOS 14.0, *) {
+            DkxCrashReporter.shared.start()
+        }
+
         setManagedAudioSessionLogger({ s in
             Logger.shared.log("ManagedAudioSession", s)
             Logger.shared.shortLog("ManagedAudioSession", s)

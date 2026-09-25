@@ -61,6 +61,7 @@ public enum DkxEditHistory {
         // не получить два.
         attributes.removeAll(where: { $0 is DkxEditHistoryAttribute })
         attributes.append(DkxEditHistoryAttribute(texts: texts, dates: dates))
+        DkxLog.write("правка", "сохранена версия \(texts.count) для \(previousMessage.id)")
     }
 
     // Переносит наши атрибуты из прежнего сообщения в новый набор с сервера.

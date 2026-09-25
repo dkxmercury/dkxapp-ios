@@ -78,7 +78,8 @@ public final class Logger {
     private let maxShortLength: Int = 1 * 1024 * 1024
     private let maxFiles: Int = 20
     
-    private let rootPath: String
+    // MARK: DKX открыто для DkxLog, чтобы журнал форка лежал рядом с логами
+    let rootPath: String
     private let basePath: String
     private var file: (ManagedFile, Int)?
     private var shortFile: (ManagedFile, Int)?
