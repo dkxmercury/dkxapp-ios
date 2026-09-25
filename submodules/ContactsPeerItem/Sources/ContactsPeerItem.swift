@@ -232,6 +232,12 @@ public class ContactsPeerItem: ItemListItem, ListViewItemWithHeader {
     
     public let header: ListViewItemHeader?
     
+    // MARK: DKX метка «сохранил» или «не сохранил» в строке статуса. Включает
+    // только список контактов: там все люди заведомо сохранены владельцем, и
+    // флаг взаимности значит ровно то, что написано. В поиске, у участников
+    // групп и в выборе получателя выключено.
+    public var dkxShowSavedBadge: Bool = false
+    
     public init(
         presentationData: ItemListPresentationData,
         style: ItemListStyle = .plain,
@@ -998,6 +1004,14 @@ public class ContactsPeerItemNode: ItemListRevealOptionsItemNode {
                             let timestamp = CFAbsoluteTimeGetCurrent() + NSTimeIntervalSince1970
                             let (string, activity) = stringAndActivityForUserPresence(strings: item.presentationData.strings, dateTimeFormat: dateTimeFormat, presence: presence, relativeTo: Int32(timestamp))
                             statusAttributedString = NSAttributedString(string: string, font: statusFont, textColor: activity ? item.presentationData.theme.list.itemAccentColor : item.presentationData.theme.list.itemSecondaryTextColor)
+                            // MARK: DKX
+                            if item.dkxShowSavedBadge, case let .peer(dkxPeer, _) = item.peer, let dkxPeer, case let .user(dkxUser) = dkxPeer, dkxUser.botInfo == nil, let dkxBase = statusAttributedString {
+                                let dkxMutual = dkxUser.flags.contains(.mutualContact)
+                                let dkxStatus = NSMutableAttributedString(attributedString: dkxBase)
+                                dkxStatus.append(NSAttributedString(string: " · ", font: statusFont, textColor: item.presentationData.theme.list.itemSecondaryTextColor))
+                                dkxStatus.append(NSAttributedString(string: dkxMutual ? "сохранил" : "не сохранил", font: statusFont, textColor: dkxMutual ? UIColor(rgb: 0x4CD964) : UIColor(rgb: 0xFF453A)))
+                                statusAttributedString = dkxStatus
+                            }
                         }
                     case let .addressName(suffix):
                         var addressName = peer.addressName

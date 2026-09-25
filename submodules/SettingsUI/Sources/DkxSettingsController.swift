@@ -32,9 +32,51 @@ private let dkxRouteSpeeds: [DkxRouteSpeed] = [
     DkxRouteSpeed(kmh: 90, title: "Машина по трассе, 90 км/ч")
 ]
 
+// Тумблеры фич форка. Каждая новая фича с выключателем добавляется сюда,
+// в dkxToggleValue и dkxToggleUpdate ниже и строкой в список экрана.
+private enum DkxToggle: Int32 {
+    case contactBadge
+    case noteInHeader
+    case peerId
+}
+
+private func dkxToggleValue(_ toggle: DkxToggle, _ settings: DkxSettings) -> Bool {
+    switch toggle {
+    case .contactBadge:
+        return settings.showContactBadge
+    case .noteInHeader:
+        return settings.showNoteInHeader
+    case .peerId:
+        return settings.showPeerId
+    }
+}
+
+private func dkxToggleUpdate(_ toggle: DkxToggle, _ value: Bool, _ settings: inout DkxSettings) {
+    switch toggle {
+    case .contactBadge:
+        settings.showContactBadge = value
+    case .noteInHeader:
+        settings.showNoteInHeader = value
+    case .peerId:
+        settings.showPeerId = value
+    }
+}
+
+private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
+    switch toggle {
+    case .contactBadge:
+        return "Метка «сохранил»"
+    case .noteInHeader:
+        return "Заметка в шапке чата"
+    case .peerId:
+        return "Telegram ID в профиле"
+    }
+}
+
 private final class DkxSettingsControllerArguments {
     let updateHideStories: (Bool) -> Void
     let updateHidePremiumPromo: (Bool) -> Void
+    let updateToggle: (DkxToggle, Bool) -> Void
     let updateSpoofLocation: (Bool) -> Void
     let updateSpoofMode: (DkxSettings.SpoofMode) -> Void
     let updateSpoofCoordinate: (String) -> Void
@@ -51,6 +93,7 @@ private final class DkxSettingsControllerArguments {
     init(
         updateHideStories: @escaping (Bool) -> Void,
         updateHidePremiumPromo: @escaping (Bool) -> Void,
+        updateToggle: @escaping (DkxToggle, Bool) -> Void,
         updateSpoofLocation: @escaping (Bool) -> Void,
         updateSpoofMode: @escaping (DkxSettings.SpoofMode) -> Void,
         updateSpoofCoordinate: @escaping (String) -> Void,
@@ -66,6 +109,7 @@ private final class DkxSettingsControllerArguments {
     ) {
         self.updateHideStories = updateHideStories
         self.updateHidePremiumPromo = updateHidePremiumPromo
+        self.updateToggle = updateToggle
         self.updateSpoofLocation = updateSpoofLocation
         self.updateSpoofMode = updateSpoofMode
         self.updateSpoofCoordinate = updateSpoofCoordinate
@@ -83,6 +127,7 @@ private final class DkxSettingsControllerArguments {
 
 private enum DkxSettingsSection: Int32 {
     case interface
+    case chats
     case location
     case point
     case route
@@ -98,6 +143,10 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case hideStories(Bool)
     case hidePremiumPromo(Bool)
     case interfaceFooter
+
+    case chatsHeader
+    case toggle(DkxToggle, Bool)
+    case chatsFooter
 
     case locationHeader
     case spoofLocation(Bool)
@@ -136,6 +185,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         switch self {
         case .interfaceHeader, .hideStories, .hidePremiumPromo, .interfaceFooter:
             return DkxSettingsSection.interface.rawValue
+        case .chatsHeader, .toggle, .chatsFooter:
+            return DkxSettingsSection.chats.rawValue
         case .locationHeader, .spoofLocation, .modePoint, .modeRoute, .locationFooter:
             return DkxSettingsSection.location.rawValue
         case .pointHeader, .spoofCoordinate, .pickPoint, .pointFooter:
@@ -155,6 +206,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         }
     }
 
+    // Номера с запасом, по сотне на раздел, чтобы новые строки вставлялись
+    // без перенумерации. Порядок на экране задаётся именно ими.
     var stableId: Int32 {
         switch self {
         case .interfaceHeader:
@@ -164,57 +217,63 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         case .hidePremiumPromo:
             return 2
         case .interfaceFooter:
-            return 3
+            return 99
+        case .chatsHeader:
+            return 100
+        case let .toggle(toggle, _):
+            return 101 + toggle.rawValue
+        case .chatsFooter:
+            return 199
         case .locationHeader:
-            return 10
+            return 1000
         case .spoofLocation:
-            return 11
+            return 1001
         case .modePoint:
-            return 12
+            return 1002
         case .modeRoute:
-            return 13
+            return 1003
         case .locationFooter:
-            return 14
+            return 1099
         case .pointHeader:
-            return 20
+            return 1100
         case .spoofCoordinate:
-            return 21
+            return 1101
         case .pickPoint:
-            return 22
+            return 1102
         case .pointFooter:
-            return 23
+            return 1199
         case .routeHeader:
-            return 30
+            return 1200
         case .routeFrom:
-            return 31
+            return 1201
         case .routeTo:
-            return 32
+            return 1202
         case .routeSwap:
-            return 33
+            return 1203
         case .speedHeader:
-            return 40
+            return 1300
         case let .speed(index, _, _):
-            return 41 + index
+            return 1301 + index
         case .routeStart:
-            return 60
+            return 1400
         case .routeStatus:
-            return 61
+            return 1401
         case .disableSpoof:
-            return 70
+            return 1500
         case .disableFooter:
-            return 71
+            return 1501
         case .featuresHeader:
-            return 80
+            return 2000
         case .featuresFooter:
-            return 81
+            return 2001
         case .debugHeader:
-            return 90
+            return 3000
         case .openLog:
-            return 91
+            return 3001
         case .openDebug:
-            return 92
+            return 3002
         case .debugFooter:
-            return 93
+            return 3003
         }
     }
 
@@ -237,6 +296,19 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             })
         case .interfaceFooter:
             return ItemListTextItem(presentationData: presentationData, text: .plain("Лента историй над списком чатов исчезнет полностью. Сами истории останутся доступны в профилях."), sectionId: self.section)
+
+        case .chatsHeader:
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: "КОНТАКТЫ И ЧАТЫ", sectionId: self.section)
+        case let .toggle(toggle, value):
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: dkxToggleTitle(toggle), value: value, sectionId: self.section, style: .blocks, updated: { value in
+                arguments.updateToggle(toggle, value)
+            })
+        case .chatsFooter:
+            return ItemListTextItem(presentationData: presentationData, text: .plain("Метка «сохранил» или «не сохранил» видна в шапке чата и в списке контактов, только для тех, кого вы сами сохранили.
+
+Заметка в шапке чата это первая строка вашей заметки из профиля собеседника. Правится в профиле через «Изменить».
+
+Включённое или выключенное применяется при следующем открытии экрана."), sectionId: self.section)
 
         case .locationHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: "ГЕОЛОКАЦИЯ", sectionId: self.section)
@@ -384,6 +456,12 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
     // это 58 разных мест, отдельная работа. Поле в настройках уже заведено.
     entries.append(.interfaceFooter)
 
+    entries.append(.chatsHeader)
+    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId] {
+        entries.append(.toggle(toggle, dkxToggleValue(toggle, settings)))
+    }
+    entries.append(.chatsFooter)
+
     entries.append(.locationHeader)
     entries.append(.spoofLocation(settings.spoofLocation))
     if settings.spoofLocation {
@@ -478,6 +556,9 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
         },
         updateHidePremiumPromo: { value in
             update { $0.hidePremiumPromo = value }
+        },
+        updateToggle: { toggle, value in
+            update { dkxToggleUpdate(toggle, value, &$0) }
         },
         updateSpoofLocation: { value in
             update { settings in

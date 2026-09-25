@@ -5,6 +5,7 @@ import AccountContext
 import TelegramCore
 import TelegramPresentationData
 import UndoUI
+import TelegramUIPreferences
 
 // MARK: DKX. Числовой Telegram ID в профиле, по нажатию копируется.
 //
@@ -30,7 +31,7 @@ func dkxBotApiId(_ peerId: EnginePeer.Id) -> String? {
 }
 
 func dkxPeerIdItem(id: AnyHashable, peerId: EnginePeer.Id, presentationData: PresentationData, interaction: PeerInfoInteraction) -> PeerInfoScreenItem? {
-    guard let text = dkxBotApiId(peerId) else {
+    guard DkxRuntime.current.showPeerId, let text = dkxBotApiId(peerId) else {
         return nil
     }
     let copy: () -> Void = { [weak interaction] in

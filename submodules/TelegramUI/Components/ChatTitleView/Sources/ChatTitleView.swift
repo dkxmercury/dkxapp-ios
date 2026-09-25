@@ -658,7 +658,7 @@ public final class ChatTitleView: UIView, NavigationBarTitleView {
                                         // взаимности заведомо не будет, и "не сохранил" было бы враньём,
                                         // мы просто не знаем.
                                         let dkxResult: NSAttributedString
-                                        if peerView.peerIsContact, let dkxUser = peer as? TelegramUser, dkxUser.botInfo == nil {
+                                        if DkxRuntime.current.showContactBadge, peerView.peerIsContact, let dkxUser = peer as? TelegramUser, dkxUser.botInfo == nil {
                                             let dkxMutual = dkxUser.flags.contains(.mutualContact)
                                             let dkxBadge = NSMutableAttributedString(attributedString: attributedString)
                                             if dkxBadge.length != 0 {
@@ -679,7 +679,7 @@ public final class ChatTitleView: UIView, NavigationBarTitleView {
                                         // однострочная, поэтому берём первую строку заметки, хвост
                                         // обрежется многоточием, целиком она видна в профиле.
                                         var dkxFinal = dkxResult
-                                        if let dkxNoteText = (peerView.cachedData as? CachedUserData)?.note?.text {
+                                        if DkxRuntime.current.showNoteInHeader, let dkxNoteText = (peerView.cachedData as? CachedUserData)?.note?.text {
                                             let dkxNoteLine = (dkxNoteText.split(separator: "
 ").first.map(String.init) ?? "").trimmingCharacters(in: .whitespaces)
                                             if !dkxNoteLine.isEmpty {

@@ -54,6 +54,8 @@ private enum ContactListNodeEntryId: Hashable {
 }
 
 private final class ContactListNodeInteraction {
+    // MARK: DKX метка «сохранил» нужна только на основной вкладке «Контакты»
+    fileprivate var dkxShowSavedBadges = false
     fileprivate let activateSearch: () -> Void
     fileprivate let authorize: () -> Void
     fileprivate let suppressWarning: () -> Void
@@ -245,7 +247,7 @@ private enum ContactListNodeEntry: Comparable, Identifiable {
                 if case .blocks = listStyle, let id = header?.id.id.base as? Int64 {
                     sectionId = Int32(clamping: id)
                 }
-                return ContactsPeerItem(presentationData: ItemListPresentationData(presentationData), style: listStyle, systemStyle: .glass, sectionId: listStyle == .blocks ? sectionId : 0, sortOrder: nameSortOrder, displayOrder: nameDisplayOrder, context: context, peerMode: isSearch ? .generalSearch(isSavedMessages: false) : .peer, peer: itemPeer, status: status, requiresPremiumForMessaging: requiresPremiumForMessaging, enabled: enabled, selection: selection, selectionPosition: .left, editing: ContactsPeerItemEditing(editable: false, editing: false, revealed: false), additionalActions: additionalActions, index: nil, header: listStyle == .blocks ? nil : header, action: { _ in
+                let dkxItem = ContactsPeerItem(presentationData: ItemListPresentationData(presentationData), style: listStyle, systemStyle: .glass, sectionId: listStyle == .blocks ? sectionId : 0, sortOrder: nameSortOrder, displayOrder: nameDisplayOrder, context: context, peerMode: isSearch ? .generalSearch(isSavedMessages: false) : .peer, peer: itemPeer, status: status, requiresPremiumForMessaging: requiresPremiumForMessaging, enabled: enabled, selection: selection, selectionPosition: .left, editing: ContactsPeerItemEditing(editable: false, editing: false, revealed: false), additionalActions: additionalActions, index: nil, header: listStyle == .blocks ? nil : header, action: { _ in
                         interaction.openPeer(peer, .generic, nil, nil)
                 }, disabledAction: { _ in
                     if case let .peer(peer, _, _) = peer {
@@ -256,6 +258,9 @@ private enum ContactListNodeEntry: Comparable, Identifiable {
                         interaction.openStories(peerValue, sourceNode)
                     }
                 })
+                // MARK: DKX метка «сохранил» только в самом списке, не в поиске
+                dkxItem.dkxShowSavedBadge = !isSearch && interaction.dkxShowSavedBadges && DkxRuntime.current.showContactBadge
+                return dkxItem
         }
     }
 
@@ -1413,6 +1418,10 @@ public final class ContactListNode: ASDisplayNode {
             }
         }
         
+        // MARK: DKX основная вкладка «Контакты» единственная, кто показывает
+        // кнопку сортировки. В окнах выбора получателя бывают частые
+        // собеседники не из контактов, там метка соврала бы.
+        interaction.dkxShowSavedBadges = displaySortOptions
         self.interaction = interaction
         
         let context = self.context

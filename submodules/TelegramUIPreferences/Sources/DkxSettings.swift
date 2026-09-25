@@ -31,6 +31,11 @@ public struct DkxSettings: Codable, Equatable {
     // Заметка видна только владельцу и на сервер не уходит.
     public var chatNotes: [String: String]
 
+    // Мелкие добавки в интерфейс, у каждой свой тумблер
+    public var showContactBadge: Bool
+    public var showNoteInHeader: Bool
+    public var showPeerId: Bool
+
     // Подмена координат, общий выключатель
     public var spoofLocation: Bool
     public var spoofMode: SpoofMode
@@ -53,6 +58,9 @@ public struct DkxSettings: Codable, Equatable {
         self.hideStories = false
         self.hidePremiumPromo = false
         self.chatNotes = [:]
+        self.showContactBadge = true
+        self.showNoteInHeader = true
+        self.showPeerId = true
         self.spoofLocation = false
         self.spoofMode = .point
         self.spoofCoordinate = ""
@@ -97,6 +105,9 @@ public struct DkxSettings: Codable, Equatable {
         self.hideStories = (try container.decodeIfPresent(Int32.self, forKey: "hideStories") ?? 0) != 0
         self.hidePremiumPromo = (try container.decodeIfPresent(Int32.self, forKey: "hidePremiumPromo") ?? 0) != 0
         self.chatNotes = (try container.decodeIfPresent([String: String].self, forKey: "chatNotes")) ?? defaults.chatNotes
+        self.showContactBadge = (try container.decodeIfPresent(Int32.self, forKey: "showContactBadge")).map { $0 != 0 } ?? defaults.showContactBadge
+        self.showNoteInHeader = (try container.decodeIfPresent(Int32.self, forKey: "showNoteInHeader")).map { $0 != 0 } ?? defaults.showNoteInHeader
+        self.showPeerId = (try container.decodeIfPresent(Int32.self, forKey: "showPeerId")).map { $0 != 0 } ?? defaults.showPeerId
         self.spoofLocation = (try container.decodeIfPresent(Int32.self, forKey: "spoofLocation") ?? 0) != 0
         self.spoofMode = SpoofMode(rawValue: (try container.decodeIfPresent(Int32.self, forKey: "spoofMode")) ?? defaults.spoofMode.rawValue) ?? defaults.spoofMode
         self.spoofCoordinate = (try container.decodeIfPresent(String.self, forKey: "spoofCoordinate")) ?? defaults.spoofCoordinate
@@ -111,6 +122,9 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode((self.hideStories ? 1 : 0) as Int32, forKey: "hideStories")
         try container.encode((self.hidePremiumPromo ? 1 : 0) as Int32, forKey: "hidePremiumPromo")
         try container.encode(self.chatNotes, forKey: "chatNotes")
+        try container.encode((self.showContactBadge ? 1 : 0) as Int32, forKey: "showContactBadge")
+        try container.encode((self.showNoteInHeader ? 1 : 0) as Int32, forKey: "showNoteInHeader")
+        try container.encode((self.showPeerId ? 1 : 0) as Int32, forKey: "showPeerId")
         try container.encode((self.spoofLocation ? 1 : 0) as Int32, forKey: "spoofLocation")
         try container.encode(self.spoofMode.rawValue, forKey: "spoofMode")
         try container.encode(self.spoofCoordinate, forKey: "spoofCoordinate")
@@ -118,6 +132,31 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode(self.routeTo, forKey: "routeTo")
         try container.encode(self.routeSpeed, forKey: "routeSpeed")
         try container.encode(self.routeStartedAt, forKey: "routeStartedAt")
+    }
+}
+
+// Снимок настроек для мест, где подписаться на сигнал неудобно: ячейки
+// списков, шапка чата, строки профиля. Обновляет его SharedAccountContext при
+// запуске и при каждой правке настроек. Экран, открытый в момент правки,
+// увидит новое значение при следующей перерисовке.
+//
+// До первой загрузки настроек тут значения по умолчанию, это доли секунды
+// после запуска.
+public final class DkxRuntime {
+    private static let lock = NSLock()
+    private static var value = DkxSettings.defaultSettings
+
+    public static var current: DkxSettings {
+        lock.lock()
+        let result = value
+        lock.unlock()
+        return result
+    }
+
+    public static func update(_ settings: DkxSettings) {
+        lock.lock()
+        value = settings
+        lock.unlock()
     }
 }
 
