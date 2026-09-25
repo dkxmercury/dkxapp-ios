@@ -42,6 +42,7 @@ private enum DkxToggle: Int32 {
     case quickReplies
     case authorMessages
     case chatExport
+    case mediaNoCompression
 }
 
 private let dkxUnansweredThresholds: [(hours: Int32, title: String)] = [
@@ -67,6 +68,8 @@ private func dkxToggleValue(_ toggle: DkxToggle, _ settings: DkxSettings) -> Boo
         return settings.authorMessages
     case .chatExport:
         return settings.chatExport
+    case .mediaNoCompression:
+        return settings.mediaNoCompression
     }
 }
 
@@ -86,6 +89,8 @@ private func dkxToggleUpdate(_ toggle: DkxToggle, _ value: Bool, _ settings: ino
         settings.authorMessages = value
     case .chatExport:
         settings.chatExport = value
+    case .mediaNoCompression:
+        settings.mediaNoCompression = value
     }
 }
 
@@ -105,6 +110,8 @@ private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
         return "Все сообщения автора в группе"
     case .chatExport:
         return "Выгрузка чата в файл"
+    case .mediaNoCompression:
+        return "Фото и видео без сжатия"
     }
 }
 
@@ -375,6 +382,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
 
 Шаблоны вставляются кнопкой в поле ввода, она появляется после добавления первого шаблона. «Все сообщения автора» есть в меню долгого нажатия на сообщение в группе. «Выгрузить чат в файл» в профиле собеседника, группы или канала: вся история текстом, с пометками удалённых и прежними версиями изменённых.
 
+Без сжатия фото и видео из галереи уходят оригиналом, файлом, как через «Отправить файлом». Получатель увидит файл, а не картинку в ленте. Предел размера 2 ГБ держит сервер Telegram, его не поднять.
+
 Включённое или выключенное применяется при следующем открытии экрана."), sectionId: self.section)
 
         case .unansweredHeader:
@@ -532,7 +541,7 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
     entries.append(.interfaceFooter)
 
     entries.append(.chatsHeader)
-    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies, .authorMessages, .chatExport] {
+    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies, .authorMessages, .chatExport, .mediaNoCompression] {
         entries.append(.toggle(toggle, dkxToggleValue(toggle, settings)))
     }
     if settings.quickReplies {

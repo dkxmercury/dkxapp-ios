@@ -49,6 +49,8 @@ public struct DkxSettings: Codable, Equatable {
     public var authorMessages: Bool
     // Пункт «Выгрузить чат в файл» в профиле
     public var chatExport: Bool
+    // Фото и видео из галереи уходят оригиналом, файлом
+    public var mediaNoCompression: Bool
     public var quickReplyTemplates: [String]
 
     // Подмена координат, общий выключатель
@@ -81,6 +83,7 @@ public struct DkxSettings: Codable, Equatable {
         self.quickReplies = true
         self.authorMessages = true
         self.chatExport = true
+        self.mediaNoCompression = false
         self.quickReplyTemplates = []
         self.spoofLocation = false
         self.spoofMode = .point
@@ -134,6 +137,7 @@ public struct DkxSettings: Codable, Equatable {
         self.quickReplies = (try container.decodeIfPresent(Int32.self, forKey: "quickReplies")).map { $0 != 0 } ?? defaults.quickReplies
         self.authorMessages = (try container.decodeIfPresent(Int32.self, forKey: "authorMessages")).map { $0 != 0 } ?? defaults.authorMessages
         self.chatExport = (try container.decodeIfPresent(Int32.self, forKey: "chatExport")).map { $0 != 0 } ?? defaults.chatExport
+        self.mediaNoCompression = (try container.decodeIfPresent(Int32.self, forKey: "mediaNoCompression")).map { $0 != 0 } ?? defaults.mediaNoCompression
         self.quickReplyTemplates = (try container.decodeIfPresent([String].self, forKey: "quickReplyTemplates")) ?? defaults.quickReplyTemplates
         self.spoofLocation = (try container.decodeIfPresent(Int32.self, forKey: "spoofLocation") ?? 0) != 0
         self.spoofMode = SpoofMode(rawValue: (try container.decodeIfPresent(Int32.self, forKey: "spoofMode")) ?? defaults.spoofMode.rawValue) ?? defaults.spoofMode
@@ -157,6 +161,7 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode((self.quickReplies ? 1 : 0) as Int32, forKey: "quickReplies")
         try container.encode((self.authorMessages ? 1 : 0) as Int32, forKey: "authorMessages")
         try container.encode((self.chatExport ? 1 : 0) as Int32, forKey: "chatExport")
+        try container.encode((self.mediaNoCompression ? 1 : 0) as Int32, forKey: "mediaNoCompression")
         try container.encode(self.quickReplyTemplates, forKey: "quickReplyTemplates")
         try container.encode((self.spoofLocation ? 1 : 0) as Int32, forKey: "spoofLocation")
         try container.encode(self.spoofMode.rawValue, forKey: "spoofMode")
