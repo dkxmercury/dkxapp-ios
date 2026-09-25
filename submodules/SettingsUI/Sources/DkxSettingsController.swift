@@ -41,6 +41,7 @@ private enum DkxToggle: Int32 {
     case unanswered
     case quickReplies
     case authorMessages
+    case chatExport
 }
 
 private let dkxUnansweredThresholds: [(hours: Int32, title: String)] = [
@@ -64,6 +65,8 @@ private func dkxToggleValue(_ toggle: DkxToggle, _ settings: DkxSettings) -> Boo
         return settings.quickReplies
     case .authorMessages:
         return settings.authorMessages
+    case .chatExport:
+        return settings.chatExport
     }
 }
 
@@ -81,6 +84,8 @@ private func dkxToggleUpdate(_ toggle: DkxToggle, _ value: Bool, _ settings: ino
         settings.quickReplies = value
     case .authorMessages:
         settings.authorMessages = value
+    case .chatExport:
+        settings.chatExport = value
     }
 }
 
@@ -98,6 +103,8 @@ private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
         return "Шаблоны быстрых ответов"
     case .authorMessages:
         return "Все сообщения автора в группе"
+    case .chatExport:
+        return "Выгрузка чата в файл"
     }
 }
 
@@ -366,7 +373,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
 
 Заметка в шапке чата это первая строка вашей заметки из профиля собеседника. Правится в профиле через «Изменить».
 
-Шаблоны вставляются кнопкой в поле ввода, она появляется после добавления первого шаблона. «Все сообщения автора» есть в меню долгого нажатия на сообщение в группе.
+Шаблоны вставляются кнопкой в поле ввода, она появляется после добавления первого шаблона. «Все сообщения автора» есть в меню долгого нажатия на сообщение в группе. «Выгрузить чат в файл» в профиле собеседника, группы или канала: вся история текстом, с пометками удалённых и прежними версиями изменённых.
 
 Включённое или выключенное применяется при следующем открытии экрана."), sectionId: self.section)
 
@@ -525,7 +532,7 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
     entries.append(.interfaceFooter)
 
     entries.append(.chatsHeader)
-    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies, .authorMessages] {
+    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies, .authorMessages, .chatExport] {
         entries.append(.toggle(toggle, dkxToggleValue(toggle, settings)))
     }
     if settings.quickReplies {

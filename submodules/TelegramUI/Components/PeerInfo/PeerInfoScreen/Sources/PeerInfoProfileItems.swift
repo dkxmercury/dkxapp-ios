@@ -388,6 +388,11 @@ func infoItems(
         }
         
         if !isMyProfile {
+            // MARK: DKX выгрузка чата в файл
+            if let dkxExportItem = dkxExportChatItem(id: 6098, peerId: user.id, context: context, interaction: interaction) {
+                items[currentPeerInfoSection]!.append(dkxExportItem)
+            }
+            
             if !data.isContact, user.botInfo == nil {
                 items[currentPeerInfoSection]!.append(PeerInfoScreenActionItem(id: ItemAddToContacts, text: presentationData.strings.PeerInfo_AddToContacts, action: {
                     interaction.openAddContact()
@@ -834,6 +839,9 @@ func infoItems(
         if let dkxIdItem = dkxPeerIdItem(id: 99, peerId: channel.id, presentationData: presentationData, interaction: interaction) {
             items[.peerInfo]!.append(dkxIdItem)
         }
+        if let dkxExportItem = dkxExportChatItem(id: 98, peerId: channel.id, context: context, interaction: interaction) {
+            items[.peerInfo]!.append(dkxExportItem)
+        }
     } else if case let .legacyGroup(group) = data.peer {
         if let cachedData = data.cachedData as? CachedGroupData {
             let aboutText: String?
@@ -858,6 +866,9 @@ func infoItems(
         // MARK: DKX Telegram ID
         if let dkxIdItem = dkxPeerIdItem(id: 99, peerId: group.id, presentationData: presentationData, interaction: interaction) {
             items[.peerInfo]!.append(dkxIdItem)
+        }
+        if let dkxExportItem = dkxExportChatItem(id: 98, peerId: group.id, context: context, interaction: interaction) {
+            items[.peerInfo]!.append(dkxExportItem)
         }
     }
     
