@@ -574,6 +574,17 @@ func chatContextMenuItems(context: AccountContext, peerId: EnginePeer.Id, promoI
                             })))
                         }
                         
+                        // MARK: DKX «Напомнить позже» про этот чат
+                        if DkxRuntime.current.remindLater, case .chatList = source {
+                            let dkxTitle = peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
+                            items.append(.action(ContextMenuActionItem(text: "Напомнить позже", icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Schedule"), color: theme.contextMenu.primaryColor) }, action: { _, f in
+                                f(.default)
+                                dkxPresentRemindLater(context: context, peerId: peerId, messageId: nil, title: dkxTitle, note: "", present: { c in
+                                    chatListController?.present(c, in: .window(.root))
+                                })
+                            })))
+                        }
+                        
                         let appendDeleteOrUngroupItem = {
                             if case .community = peer {
                                 items.append(.action(ContextMenuActionItem(text: strings.ChatList_Context_Ungroup, textColor: .destructive, icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Ungroup"), color: theme.contextMenu.destructiveColor) }, action: { _, f in

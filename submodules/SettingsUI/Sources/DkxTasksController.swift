@@ -1011,11 +1011,12 @@ private final class DkxTaskEditArguments {
     let toggleTimeSelection: () -> Void
     let updateAllDay: (Bool) -> Void
     let updateRemind: (DkxTask.Remind) -> Void
+    let openChat: () -> Void
     let complete: () -> Void
     let reopen: () -> Void
     let delete: () -> Void
 
-    init(updateTitle: @escaping (String) -> Void, updateNote: @escaping (String) -> Void, updateDate: @escaping (Int32) -> Void, toggleDateSelection: @escaping () -> Void, toggleTimeSelection: @escaping () -> Void, updateAllDay: @escaping (Bool) -> Void, updateRemind: @escaping (DkxTask.Remind) -> Void, complete: @escaping () -> Void, reopen: @escaping () -> Void, delete: @escaping () -> Void) {
+    init(updateTitle: @escaping (String) -> Void, updateNote: @escaping (String) -> Void, updateDate: @escaping (Int32) -> Void, toggleDateSelection: @escaping () -> Void, toggleTimeSelection: @escaping () -> Void, updateAllDay: @escaping (Bool) -> Void, updateRemind: @escaping (DkxTask.Remind) -> Void, openChat: @escaping () -> Void, complete: @escaping () -> Void, reopen: @escaping () -> Void, delete: @escaping () -> Void) {
         self.updateTitle = updateTitle
         self.updateNote = updateNote
         self.updateDate = updateDate
@@ -1023,6 +1024,7 @@ private final class DkxTaskEditArguments {
         self.toggleTimeSelection = toggleTimeSelection
         self.updateAllDay = updateAllDay
         self.updateRemind = updateRemind
+        self.openChat = openChat
         self.complete = complete
         self.reopen = reopen
         self.delete = delete
@@ -1039,6 +1041,7 @@ private enum DkxTaskEditEntry: ItemListNodeEntry {
     case date(PresentationDateTimeFormat, Int32, Bool, Bool, Bool)
     case remindHeader
     case remind(Int32, String, Bool)
+    case openChat
     case complete
     case reopen
     case delete
@@ -1051,7 +1054,7 @@ private enum DkxTaskEditEntry: ItemListNodeEntry {
             return 1
         case .remindHeader, .remind:
             return 2
-        case .complete, .reopen:
+        case .openChat, .complete, .reopen:
             return 3
         case .delete:
             return 4
@@ -1074,6 +1077,8 @@ private enum DkxTaskEditEntry: ItemListNodeEntry {
             return 20
         case let .remind(index, _, _):
             return 21 + index
+        case .openChat:
+            return 35
         case .complete:
             return 40
         case .reopen:
@@ -1122,6 +1127,10 @@ private enum DkxTaskEditEntry: ItemListNodeEntry {
         case let .remind(index, title, checked):
             return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.updateRemind(dkxRemindOptions[Int(index)])
+            })
+        case .openChat:
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Открыть чат", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+                arguments.openChat()
             })
         case .complete:
             return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Завершить дело", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
@@ -1179,6 +1188,7 @@ private func dkxTaskEditController(context: AccountContext, task: DkxTask?, sugg
 
     var dismissImpl: (() -> Void)?
     var presentControllerImpl: ((ViewController) -> Void)?
+    var navigationControllerImpl: (() -> NavigationController?)?
     let accountManager = context.sharedContext.accountManager
 
     let store: (DkxTask) -> Void = { task in
@@ -1234,6 +1244,23 @@ private func dkxTaskEditController(context: AccountContext, task: DkxTask?, sugg
         }
     }, updateRemind: { value in
         updateTask { $0.remind = value }
+    }, openChat: {
+        let task = stateValue.with { $0 }.task
+        guard task.isLinked else {
+            return
+        }
+        let peerId = EnginePeer.Id(task.peerId)
+        let _ = (context.engine.data.get(TelegramEngine.EngineData.Item.Peer.Peer(id: peerId))
+        |> deliverOnMainQueue).start(next: { peer in
+            guard let peer = peer, let navigationController = navigationControllerImpl?() else {
+                return
+            }
+            var subject: ChatControllerSubject?
+            if task.messageId != 0 {
+                subject = .message(id: .id(EngineMessage.Id(peerId: peerId, namespace: task.messageNamespace, id: task.messageId)), highlight: ChatControllerSubject.MessageHighlight(quote: nil), timecode: nil, setupReply: false)
+            }
+            context.sharedContext.navigateToChatController(NavigateToChatControllerParams(navigationController: navigationController, context: context, chatLocation: .peer(peer), subject: subject, keepStack: .always))
+        })
     }, complete: {
         // Подтверждение перед завершением, как просил владелец
         let title = stateValue.with { $0 }.task.title
@@ -1280,6 +1307,10 @@ private func dkxTaskEditController(context: AccountContext, task: DkxTask?, sugg
         for (index, option) in dkxRemindOptions.enumerated() {
             entries.append(.remind(Int32(index), dkxRemindTitle(option), option == state.task.remind))
         }
+        // Чат открываем только из того аккаунта, где ставили напоминание
+        if state.task.isLinked && (state.task.accountId == 0 || state.task.accountId == context.account.id.int64) {
+            entries.append(.openChat)
+        }
         if !isNew {
             entries.append(state.task.done ? .reopen : .complete)
             entries.append(.delete)
@@ -1304,6 +1335,9 @@ private func dkxTaskEditController(context: AccountContext, task: DkxTask?, sugg
     }
     presentControllerImpl = { [weak controller] c in
         controller?.present(c, in: .window(.root))
+    }
+    navigationControllerImpl = { [weak controller] in
+        return controller?.navigationController as? NavigationController
     }
     return controller
 }

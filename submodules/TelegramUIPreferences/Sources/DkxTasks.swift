@@ -30,8 +30,18 @@ public struct DkxTask: Codable, Equatable {
     public var done: Bool
     public var doneAt: Int32
     public var createdAt: Int32
+    // Ссылка для «Напомнить позже». Ноль значит, что дело ни к чему не
+    // привязано. Аккаунт нужен, потому что аккаунтов в приложении несколько.
+    public var accountId: Int64
+    public var peerId: Int64
+    public var messageNamespace: Int32
+    public var messageId: Int32
 
-    public init(id: Int64, title: String, note: String, date: Int32, hasTime: Bool, remind: Remind, done: Bool, doneAt: Int32, createdAt: Int32) {
+    public var isLinked: Bool {
+        return self.peerId != 0
+    }
+
+    public init(id: Int64, title: String, note: String, date: Int32, hasTime: Bool, remind: Remind, done: Bool, doneAt: Int32, createdAt: Int32, accountId: Int64 = 0, peerId: Int64 = 0, messageNamespace: Int32 = 0, messageId: Int32 = 0) {
         self.id = id
         self.title = title
         self.note = note
@@ -41,6 +51,10 @@ public struct DkxTask: Codable, Equatable {
         self.done = done
         self.doneAt = doneAt
         self.createdAt = createdAt
+        self.accountId = accountId
+        self.peerId = peerId
+        self.messageNamespace = messageNamespace
+        self.messageId = messageId
     }
 
     public static func newId() -> Int64 {
@@ -60,6 +74,10 @@ public struct DkxTask: Codable, Equatable {
         self.done = ((try container.decodeIfPresent(Int32.self, forKey: "done")) ?? 0) != 0
         self.doneAt = (try container.decodeIfPresent(Int32.self, forKey: "doneAt")) ?? 0
         self.createdAt = (try container.decodeIfPresent(Int32.self, forKey: "createdAt")) ?? 0
+        self.accountId = (try container.decodeIfPresent(Int64.self, forKey: "accountId")) ?? 0
+        self.peerId = (try container.decodeIfPresent(Int64.self, forKey: "peerId")) ?? 0
+        self.messageNamespace = (try container.decodeIfPresent(Int32.self, forKey: "messageNamespace")) ?? 0
+        self.messageId = (try container.decodeIfPresent(Int32.self, forKey: "messageId")) ?? 0
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -73,6 +91,10 @@ public struct DkxTask: Codable, Equatable {
         try container.encode((self.done ? 1 : 0) as Int32, forKey: "done")
         try container.encode(self.doneAt, forKey: "doneAt")
         try container.encode(self.createdAt, forKey: "createdAt")
+        try container.encode(self.accountId, forKey: "accountId")
+        try container.encode(self.peerId, forKey: "peerId")
+        try container.encode(self.messageNamespace, forKey: "messageNamespace")
+        try container.encode(self.messageId, forKey: "messageId")
     }
 }
 
@@ -125,6 +147,10 @@ public func updateDkxTasksInteractively(accountManager: AccountManager<TelegramA
 
 public enum DkxTaskReminders {
     public static let userInfoKey = "dkxTask"
+    public static let accountKey = "dkxAccountId"
+    public static let peerKey = "dkxPeerId"
+    public static let messageNamespaceKey = "dkxMessageNamespace"
+    public static let messageKey = "dkxMessageId"
 
     private static func identifier(_ task: DkxTask) -> String {
         return "dkx-task-\(task.id)"
@@ -170,10 +196,21 @@ public enum DkxTaskReminders {
                 continue
             }
             let content = UNMutableNotificationContent()
-            content.title = "Мои дела"
-            content.body = task.title
             content.sound = .default
-            content.userInfo = [self.userInfoKey: String(task.id)]
+            var userInfo: [String: String] = [self.userInfoKey: String(task.id)]
+            if task.isLinked {
+                content.title = "Напоминание"
+                let note = task.note.trimmingCharacters(in: .whitespacesAndNewlines)
+                content.body = note.isEmpty ? task.title : task.title + ". " + note
+                userInfo[self.accountKey] = String(task.accountId)
+                userInfo[self.peerKey] = String(task.peerId)
+                userInfo[self.messageNamespaceKey] = String(task.messageNamespace)
+                userInfo[self.messageKey] = String(task.messageId)
+            } else {
+                content.title = "Мои дела"
+                content.body = task.title
+            }
+            content.userInfo = userInfo
             let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: fire)
             let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
             center.add(UNNotificationRequest(identifier: self.identifier(task), content: content, trigger: trigger), withCompletionHandler: nil)

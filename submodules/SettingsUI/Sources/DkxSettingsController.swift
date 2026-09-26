@@ -48,6 +48,7 @@ private enum DkxToggle: Int32 {
     case chatLock
     case todo
     case passwords
+    case remindLater
 }
 
 private let dkxUnansweredThresholds: [(hours: Int32, title: String)] = [
@@ -81,6 +82,8 @@ private func dkxToggleValue(_ toggle: DkxToggle, _ settings: DkxSettings) -> Boo
         return settings.todoEnabled
     case .passwords:
         return settings.passwordsEnabled
+    case .remindLater:
+        return settings.remindLater
     }
 }
 
@@ -108,6 +111,8 @@ private func dkxToggleUpdate(_ toggle: DkxToggle, _ value: Bool, _ settings: ino
         settings.todoEnabled = value
     case .passwords:
         settings.passwordsEnabled = value
+    case .remindLater:
+        settings.remindLater = value
     }
 }
 
@@ -135,6 +140,8 @@ private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
         return "«Мои дела» в настройках"
     case .passwords:
         return "«Пароли» в настройках"
+    case .remindLater:
+        return "«Напомнить позже» у чатов и сообщений"
     }
 }
 
@@ -639,7 +646,7 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
     entries.append(.interfaceFooter)
 
     entries.append(.chatsHeader)
-    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies, .authorMessages, .chatExport, .mediaNoCompression, .chatLock, .todo, .passwords] {
+    for toggle in [DkxToggle.contactBadge, .noteInHeader, .peerId, .unanswered, .quickReplies, .authorMessages, .chatExport, .mediaNoCompression, .chatLock, .todo, .passwords, .remindLater] {
         entries.append(.toggle(toggle, dkxToggleValue(toggle, settings)))
     }
     if settings.quickReplies {

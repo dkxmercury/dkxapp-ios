@@ -2846,13 +2846,28 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        // MARK: DKX напоминание из «Моих дел» открывает список дел
-        if response.notification.request.content.userInfo[DkxTaskReminders.userInfoKey] != nil {
-            let _ = (self.authorizedContext()
-            |> take(1)
-            |> deliverOnMainQueue).start(next: { context in
-                context.rootController.pushViewController(dkxTasksController(context: context.context))
-            })
+        // MARK: DKX напоминание из «Моих дел». Привязанное к чату открывает
+        // этот чат на нужном сообщении, остальные открывают список дел
+        let dkxUserInfo = response.notification.request.content.userInfo
+        if dkxUserInfo[DkxTaskReminders.userInfoKey] != nil {
+            if let peerString = dkxUserInfo[DkxTaskReminders.peerKey] as? String, let peerValue = Int64(peerString), peerValue != 0 {
+                let peerId = PeerId(peerValue)
+                var messageId: MessageId?
+                if let namespaceString = dkxUserInfo[DkxTaskReminders.messageNamespaceKey] as? String, let namespace = Int32(namespaceString), let idString = dkxUserInfo[DkxTaskReminders.messageKey] as? String, let id = Int32(idString), id != 0 {
+                    messageId = MessageId(peerId: peerId, namespace: namespace, id: id)
+                }
+                var accountId: AccountRecordId?
+                if let accountString = dkxUserInfo[DkxTaskReminders.accountKey] as? String, let accountValue = Int64(accountString), accountValue != 0 {
+                    accountId = AccountRecordId(rawValue: accountValue)
+                }
+                self.openChatWhenReady(accountId: accountId, peerId: peerId, threadId: nil, messageId: messageId, storyId: nil, alwaysKeepMessageId: true)
+            } else {
+                let _ = (self.authorizedContext()
+                |> take(1)
+                |> deliverOnMainQueue).start(next: { context in
+                    context.rootController.pushViewController(dkxTasksController(context: context.context))
+                })
+            }
             completionHandler()
             return
         }

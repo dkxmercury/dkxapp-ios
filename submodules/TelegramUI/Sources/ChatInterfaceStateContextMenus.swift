@@ -1605,6 +1605,18 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             })))
         }
         
+        // MARK: DKX «Напомнить позже» про это сообщение
+        if dkxRemindLaterApplicable(message: message) {
+            actions.append(.action(ContextMenuActionItem(text: "Напомнить позже", icon: { theme in
+                return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Schedule"), color: theme.actionSheet.primaryTextColor)
+            }, action: { _, f in
+                f(.default)
+                dkxRemindLaterForMessage(context: context, message: message, present: { c in
+                    controllerInteraction.presentController(c, nil)
+                })
+            })))
+        }
+        
         if (loggingSettings.logToFile || loggingSettings.logToConsole) && !downloadableMediaResourceInfos.isEmpty {
             actions.append(.action(ContextMenuActionItem(text: "Send Logs", icon: { theme in
                 return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Message"), color: theme.actionSheet.primaryTextColor)
