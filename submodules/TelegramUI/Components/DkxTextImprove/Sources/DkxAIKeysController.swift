@@ -146,6 +146,7 @@ private struct DkxAIProviderState: Equatable {
     var draftModel = ""
     var draftBase = ""
     var busy = false
+    var checkingModel: String?
     var keyMessage: String?
     var modelMessage: String?
     var models: [DkxAIModel]?
@@ -363,7 +364,9 @@ private func dkxAIProviderEntries(provider: DkxAIKeys.Provider, state: DkxAIProv
     entries.append(.keyFooter(keyFooter))
 
     entries.append(.modelHeader)
-    if let model = DkxAIKeys.model(provider) {
+    if let checking = state.checkingModel {
+        entries.append(.modelCurrent(DkxStrings.tr("Проверяю модель {}…", checking)))
+    } else if let model = DkxAIKeys.model(provider) {
         entries.append(.modelCurrent(DkxStrings.tr("Выбрана модель {}", model)))
     } else {
         entries.append(.modelCurrent(DkxStrings.tr("Модель не выбрана, сервис пока не работает")))
@@ -371,7 +374,7 @@ private func dkxAIProviderEntries(provider: DkxAIKeys.Provider, state: DkxAIProv
     entries.append(.modelPick(hasKey))
     entries.append(.modelInput(state.draftModel))
     entries.append(.modelSave(state.busy))
-    var modelFooter = DkxStrings.tr("Список моделей приходит от самого сервиса по вашему ключу. Если сервис список не отдаёт, впишите название модели с его сайта. Перед выбором модель проверяется коротким запросом.")
+    var modelFooter = DkxStrings.tr("Список моделей приходит от самого сервиса по вашему ключу. Модели для картинок, звука и эмбеддингов в нём скрыты, текст они не пишут. Если сервис список не отдаёт, впишите название модели с его сайта. Перед выбором модель проверяется коротким запросом.")
     if let message = state.modelMessage {
         modelFooter = message + "\n\n" + modelFooter
     }
@@ -418,10 +421,20 @@ private func dkxAIProviderController(context: AccountContext, provider: DkxAIKey
         return draft.isEmpty ? DkxAIKeys.key(provider) : draft
     }
 
-    // Модель проверяется запросом, ключ из черновика сохраняется только вместе с рабочей моделью
-    let chooseModel: (String) -> Void = { model in
-        guard let key = currentKey(), !model.isEmpty else {
-            updateState { $0.modelMessage = DkxStrings.tr("Сначала вставьте ключ.") }
+    // Модель проверяется запросом, ключ из черновика сохраняется только вместе с моделью.
+    // Перегрузка и лимит не мешают выбору, у бесплатных моделей они бывают постоянно.
+    // done получает, выбрана ли модель, и текст для списка моделей
+    let chooseModel: (String, ((Bool, String?) -> Void)?) -> Void = { model, done in
+        if model.isEmpty {
+            let message = DkxStrings.tr("Впишите название модели.")
+            updateState { $0.modelMessage = message }
+            done?(false, message)
+            return
+        }
+        guard let key = currentKey() else {
+            let message = DkxStrings.tr("Сначала вставьте ключ.")
+            updateState { $0.modelMessage = message }
+            done?(false, message)
             return
         }
         if provider.needsAccount {
@@ -429,15 +442,10 @@ private func dkxAIProviderController(context: AccountContext, provider: DkxAIKey
         }
         updateState { state in
             state.busy = true
+            state.checkingModel = model
             state.modelMessage = nil
         }
-        requestDisposable.set((dkxAICheckModel(provider: provider, key: key, model: model)
-        |> deliverOnMainQueue).start(error: { error in
-            updateState { state in
-                state.busy = false
-                state.modelMessage = DkxStrings.tr("Модель {} не ответила, {}.", model, reasonText(error))
-            }
-        }, completed: {
+        let select: (String) -> Void = { message in
             DkxAIKeys.setKey(provider, key)
             DkxAIKeys.setModel(provider, model)
             if DkxAIKeys.main == nil {
@@ -445,17 +453,37 @@ private func dkxAIProviderController(context: AccountContext, provider: DkxAIKey
             }
             updateState { state in
                 state.busy = false
+                state.checkingModel = nil
                 state.draftKey = ""
                 state.draftModel = ""
-                state.modelMessage = DkxStrings.tr("Модель {} отвечает и выбрана.", model)
+                state.modelMessage = message
                 state.revision += 1
             }
+            done?(true, nil)
+        }
+        requestDisposable.set((dkxAICheckModel(provider: provider, key: key, model: model)
+        |> deliverOnMainQueue).start(error: { failure in
+            if failure.status == 200 {
+                select(DkxStrings.tr("Модель {} отвечает и выбрана.", model))
+            } else if failure.isTemporary {
+                select(DkxStrings.tr("Модель {} выбрана, но сейчас не ответила, {}. У бесплатных моделей так бывает, при сбое запрос уйдёт в другой подключённый сервис.", model, failure.text))
+            } else {
+                let message = DkxStrings.tr("Модель {} не подходит, {}.", model, failure.text)
+                updateState { state in
+                    state.busy = false
+                    state.checkingModel = nil
+                    state.modelMessage = message
+                }
+                done?(false, message)
+            }
+        }, completed: {
+            select(DkxStrings.tr("Модель {} отвечает и выбрана.", model))
         }))
     }
 
     let openPicker: ([DkxAIModel]) -> Void = { models in
-        pushControllerImpl?(dkxAIModelPickerController(context: context, provider: provider, models: models, select: { model in
-            chooseModel(model)
+        pushControllerImpl?(dkxAIModelPickerController(context: context, provider: provider, models: models, select: { model, done in
+            chooseModel(model, done)
         }))
     }
 
@@ -522,6 +550,7 @@ private func dkxAIProviderController(context: AccountContext, provider: DkxAIKey
         DkxAIKeys.setKey(provider, nil)
         updateState { state in
             state.busy = false
+            state.checkingModel = nil
             state.models = nil
             state.keyMessage = DkxStrings.tr("Ключ удалён.")
             state.revision += 1
@@ -539,7 +568,7 @@ private func dkxAIProviderController(context: AccountContext, provider: DkxAIKey
         if stateValue.with({ $0.busy }) {
             return
         }
-        chooseModel(stateValue.with { $0.draftModel }.trimmingCharacters(in: .whitespacesAndNewlines))
+        chooseModel(stateValue.with { $0.draftModel }.trimmingCharacters(in: .whitespacesAndNewlines), nil)
     }, makeMain: {
         guard DkxAIKeys.isReady(provider) else {
             return
@@ -578,6 +607,8 @@ private let dkxAIModelsPerPage = 50
 private struct DkxAIPickerState: Equatable {
     var query = ""
     var page = 0
+    var checking: String?
+    var message: String?
 }
 
 private final class DkxAIPickerArguments {
@@ -594,6 +625,7 @@ private final class DkxAIPickerArguments {
 
 private enum DkxAIPickerEntry: ItemListNodeEntry {
     case search(String)
+    case status(String)
     case model(Int32, DkxAIModel, Bool)
     case previous
     case next
@@ -601,7 +633,7 @@ private enum DkxAIPickerEntry: ItemListNodeEntry {
 
     var section: ItemListSectionId {
         switch self {
-        case .search:
+        case .search, .status:
             return 0
         case .model:
             return 1
@@ -614,6 +646,8 @@ private enum DkxAIPickerEntry: ItemListNodeEntry {
         switch self {
         case .search:
             return 0
+        case .status:
+            return 1
         case let .model(index, _, _):
             return 10 + index
         case .previous:
@@ -637,6 +671,8 @@ private enum DkxAIPickerEntry: ItemListNodeEntry {
                 arguments.updateQuery(value)
             }, action: {
             })
+        case let .status(text):
+            return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case let .model(_, model, checked):
             return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: model.name, subtitle: model.name == model.id ? nil : model.id, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.select(model.id)
@@ -655,7 +691,7 @@ private enum DkxAIPickerEntry: ItemListNodeEntry {
     }
 }
 
-private func dkxAIModelPickerController(context: AccountContext, provider: DkxAIKeys.Provider, models: [DkxAIModel], select: @escaping (String) -> Void) -> ViewController {
+private func dkxAIModelPickerController(context: AccountContext, provider: DkxAIKeys.Provider, models: [DkxAIModel], select: @escaping (String, ((Bool, String?) -> Void)?) -> Void) -> ViewController {
     let statePromise = ValuePromise(DkxAIPickerState(), ignoreRepeated: true)
     let stateValue = Atomic(value: DkxAIPickerState())
     let updateState: ((inout DkxAIPickerState) -> Void) -> Void = { f in
@@ -666,6 +702,7 @@ private func dkxAIModelPickerController(context: AccountContext, provider: DkxAI
         })
     }
     var dismissImpl: (() -> Void)?
+    var presentImpl: ((ViewController) -> Void)?
 
     let arguments = DkxAIPickerArguments(updateQuery: { value in
         updateState { state in
@@ -673,8 +710,28 @@ private func dkxAIModelPickerController(context: AccountContext, provider: DkxAI
             state.page = 0
         }
     }, select: { id in
-        select(id)
-        dismissImpl?()
+        if stateValue.with({ $0.checking }) != nil {
+            return
+        }
+        updateState { state in
+            state.checking = id
+            state.message = nil
+        }
+        // Экран не закрываем, пока модель не проверена, иначе не видно, что происходит
+        select(id, { selected, message in
+            if selected {
+                dismissImpl?()
+            } else {
+                updateState { state in
+                    state.checking = nil
+                    state.message = message
+                }
+                // Строка статуса вверху списка может быть за краем экрана
+                if let message {
+                    presentImpl?(textAlertController(context: context, title: nil, text: message, actions: [TextAlertAction(type: .defaultAction, title: DkxStrings.tr("Понятно"), action: {})]))
+                }
+            }
+        })
     }, page: { delta in
         updateState { $0.page = max(0, $0.page + delta) }
     })
@@ -687,9 +744,14 @@ private func dkxAIModelPickerController(context: AccountContext, provider: DkxAI
         let page = min(state.page, pages - 1)
         let current = DkxAIKeys.model(provider)
         var entries: [DkxAIPickerEntry] = [.search(state.query)]
+        if let checking = state.checking {
+            entries.append(.status(DkxStrings.tr("Проверяю модель {}, это до минуты…", checking)))
+        } else if let message = state.message {
+            entries.append(.status(message))
+        }
         let start = page * dkxAIModelsPerPage
         for (offset, model) in filtered.dropFirst(start).prefix(dkxAIModelsPerPage).enumerated() {
-            entries.append(.model(Int32(offset), model, model.id == current))
+            entries.append(.model(Int32(offset), model, model.id == (state.checking ?? current)))
         }
         if page > 0 {
             entries.append(.previous)
@@ -700,7 +762,7 @@ private func dkxAIModelPickerController(context: AccountContext, provider: DkxAI
         if filtered.isEmpty {
             entries.append(.footer(DkxStrings.tr("Ничего не нашлось. Название модели можно вписать вручную на прошлом экране.")))
         } else {
-            entries.append(.footer(DkxStrings.tr("Страница {} из {}, моделей {}. Нажмите на модель, она проверится и станет рабочей.", page + 1, pages, filtered.count)))
+            entries.append(.footer(DkxStrings.tr("Страница {} из {}, моделей {}. Нажмите на модель, она проверится и станет рабочей. Экран закроется сам, когда модель выбрана.", page + 1, pages, filtered.count)))
         }
         let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Модели {}", provider.title)), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: false)
@@ -708,8 +770,12 @@ private func dkxAIModelPickerController(context: AccountContext, provider: DkxAI
     }
 
     let controller = ItemListController(context: context, state: signal)
+    // Закрываем именно список, даже если сверху уже что-то открыли
     dismissImpl = { [weak controller] in
-        let _ = (controller?.navigationController as? NavigationController)?.popViewController(animated: true)
+        controller?.dismiss()
+    }
+    presentImpl = { [weak controller] c in
+        controller?.present(c, in: .window(.root))
     }
     return controller
 }
