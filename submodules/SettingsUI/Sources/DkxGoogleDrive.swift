@@ -92,8 +92,10 @@ public enum DkxGoogleDrive {
         return keychainGet("email")
     }
 
+    // Вход привязан к клиенту, который его выдал. После смены Client ID в
+    // сборке старый вход не работает, и считаем его отвязанным.
     public static var isConnected: Bool {
-        return keychainGet("refresh_token") != nil
+        return keychainGet("refresh_token") != nil && keychainGet("client_id") == clientId
     }
 
     public static func disconnect() {
@@ -101,6 +103,7 @@ public enum DkxGoogleDrive {
         keychainSet("email", nil)
         keychainSet("access_token", nil)
         keychainSet("access_expiry", nil)
+        keychainSet("client_id", nil)
         DkxLog.write("drive", "аккаунт отвязан")
     }
 
@@ -207,6 +210,7 @@ public enum DkxGoogleDrive {
                 return
             }
             keychainSet("refresh_token", refreshToken)
+            keychainSet("client_id", clientId)
             storeAccessToken(accessToken, expiresIn: json["expires_in"] as? Double ?? 3600.0)
             if let idToken = json["id_token"] as? String, let email = emailFromIdToken(idToken) {
                 keychainSet("email", email)
@@ -260,9 +264,16 @@ public enum DkxGoogleDrive {
         ].joined(separator: "&")
         request.httpBody = body.data(using: .utf8)
         URLSession.shared.dataTask(with: request, completionHandler: { data, _, _ in
-            guard let data = data, let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any], let token = json["access_token"] as? String else {
-                // Refresh протух, в Testing это раз в 7 дней. Просим войти заново.
-                DkxLog.write("drive", "refresh не сработал, нужен повторный вход")
+            let json = data.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] }
+            guard let token = json?["access_token"] as? String else {
+                // Вход отозван, протух или выдан другим клиентом. Такой уже не
+                // оживить, стираем его, и экран покажет «не подключён».
+                if let error = json?["error"] as? String, ["invalid_grant", "invalid_client", "unauthorized_client"].contains(error) {
+                    disconnect()
+                    DkxLog.write("drive", "вход недействителен, \(error), отвязан")
+                } else {
+                    DkxLog.write("drive", "обновить вход не вышло, нет сети или ответа")
+                }
                 completion(nil)
                 return
             }

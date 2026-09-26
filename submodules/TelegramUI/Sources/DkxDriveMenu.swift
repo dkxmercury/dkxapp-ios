@@ -7,7 +7,6 @@ import Display
 import AccountContext
 import TelegramPresentationData
 import PresentationDataUtils
-import OverlayStatusController
 import UndoUI
 import SettingsUI
 import TelegramUIPreferences
@@ -16,14 +15,12 @@ import TelegramUIPreferences
 // загрузки живёт в SettingsUI, тут только достаём файл сообщения и показываем
 // ход и результат.
 
-func dkxDriveMenuApplicable(message: Message) -> Bool {
+// У альбома в меню приходят все его сообщения, пункт выгружает их разом
+func dkxDriveMenuApplicable(messages: [Message]) -> Bool {
     guard DkxRuntime.current.driveEnabled, DkxGoogleDrive.isConfigured, DkxGoogleDrive.isConnected else {
         return false
     }
-    if message.containsSecretMedia {
-        return false
-    }
-    return dkxDrivePickMedia(message: message) != nil
+    return messages.contains(where: { !$0.containsSecretMedia && dkxDrivePickMedia(message: $0) != nil })
 }
 
 private struct DkxDriveMedia {
@@ -56,65 +53,88 @@ private func dkxDrivePickMedia(message: Message) -> DkxDriveMedia? {
     return nil
 }
 
-func dkxUploadMessageToDrive(context: AccountContext, message: Message, present: @escaping (ViewController, Any?) -> Void) {
-    guard let media = dkxDrivePickMedia(message: message) else {
-        return
-    }
+func dkxUploadMessagesToDrive(context: AccountContext, messages: [Message], present: @escaping (ViewController, Any?) -> Void) {
     let presentationData = context.sharedContext.currentPresentationData.with { $0 }
-    let disposable = MetaDisposable()
-
-    var dismissStatus: (() -> Void)?
-    let statusController = OverlayStatusController(theme: presentationData.theme, type: .loading(cancelled: {
-        disposable.dispose()
-        dismissStatus?()
-    }))
-    dismissStatus = { [weak statusController] in
-        statusController?.dismiss()
-    }
-    present(statusController, nil)
-
-    let account = context.account
-    let userLocation: MediaResourceUserLocation = .peer(message.id.peerId)
-
-    let fetch: Signal<Never, NoError>
-    if let fileReference = media.fileReference {
-        fetch = freeMediaFileInteractiveFetched(account: account, userLocation: userLocation, fileReference: fileReference)
-        |> ignoreValues
-        |> `catch` { _ -> Signal<Never, NoError> in return .complete() }
-    } else {
-        fetch = fetchedMediaResource(mediaBox: account.postbox.mediaBox, userLocation: userLocation, userContentType: .image, reference: media.imageReference!.resourceReference(media.resource))
-        |> ignoreValues
-        |> `catch` { _ -> Signal<Never, NoError> in return .complete() }
-    }
-
-    let path = account.postbox.mediaBox.resourceData(media.resource)
-    |> filter { $0.complete }
-    |> take(1)
-    |> map { $0.path }
-
-    let chatTitle = (message.peers[message.id.peerId].flatMap { EnginePeer($0).displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder) }) ?? ""
-
-    let signal = fetch
-    |> map { _ -> String in }
-    |> then(path)
-    |> mapToSignal { filePath -> Signal<DkxGoogleDriveUploadResult, NoError> in
-        return DkxGoogleDriveUpload.upload(filePath: filePath, fileName: media.fileName, mimeType: media.mimeType, chatId: message.id.peerId.toInt64(), chatTitle: chatTitle, messageId: message.id.id)
-    }
-    |> deliverOnMainQueue
-
-    disposable.set(signal.start(next: { result in
-        dismissStatus?()
-        let text: String
-        switch result {
-        case .uploaded:
-            text = "Загружено в Google Drive"
-        case .duplicate:
-            text = "Уже было в Google Drive"
-        case .notConnected:
-            text = "Сначала войдите в Google в настройках Dkx"
-        case let .failed(reason):
-            text = "Не удалось. \(reason)"
-        }
+    let showToast: (String) -> Void = { text in
+        let presentationData = context.sharedContext.currentPresentationData.with { $0 }
         present(UndoOverlayController(presentationData: presentationData, content: .info(title: nil, text: text, timeout: nil, customUndoText: nil), elevatedLayout: false, animateInAsReplacement: false, action: { _ in return false }), nil)
-    }))
+    }
+
+    var count = 0
+    for message in messages where !message.containsSecretMedia {
+        guard let media = dkxDrivePickMedia(message: message) else {
+            continue
+        }
+        count += 1
+        let account = context.account
+        let userLocation: MediaResourceUserLocation = .peer(message.id.peerId)
+
+        let fetch: Signal<Never, NoError>
+        if let fileReference = media.fileReference {
+            fetch = freeMediaFileInteractiveFetched(account: account, userLocation: userLocation, fileReference: fileReference)
+            |> ignoreValues
+            |> `catch` { _ -> Signal<Never, NoError> in return .complete() }
+        } else if let imageReference = media.imageReference {
+            fetch = fetchedMediaResource(mediaBox: account.postbox.mediaBox, userLocation: userLocation, userContentType: .image, reference: imageReference.resourceReference(media.resource))
+            |> ignoreValues
+            |> `catch` { _ -> Signal<Never, NoError> in return .complete() }
+        } else {
+            fetch = .complete()
+        }
+
+        let path = account.postbox.mediaBox.resourceData(media.resource)
+        |> filter { $0.complete }
+        |> take(1)
+        |> map { $0.path }
+
+        let prepare = fetch
+        |> map { _ -> String in }
+        |> then(path)
+
+        let chatTitle = (message.peers[message.id.peerId].flatMap { EnginePeer($0).displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder) }) ?? ""
+        let fileName = media.fileName
+
+        // Загрузка идёт фоном, ход виден в полосе под шапкой. Экран не держим.
+        // По отдельному файлу говорим только об ошибке, остальное одним итогом.
+        DkxGoogleDriveUploadQueue.enqueue(DkxGoogleDriveUploadJob(fileName: fileName, mimeType: media.mimeType, chatId: message.id.peerId.toInt64(), chatTitle: chatTitle, messageId: message.id.id, prepare: prepare, completion: { result, summary in
+            if case let .failed(reason) = result {
+                showToast("Не удалось загрузить \(fileName). \(reason)")
+            } else if case .notConnected = result, summary != nil {
+                showToast("Сначала войдите в Google в настройках Dkx")
+            }
+            if let summary = summary, let text = dkxDriveSummaryText(summary) {
+                showToast(text)
+            }
+        }))
+    }
+    if count == 1 {
+        showToast("Файл в очереди на Google Drive, ход загрузки вверху экрана")
+    } else if count > 1 {
+        showToast("Файлов в очереди на Google Drive \(count), ход загрузки вверху экрана")
+    }
+}
+
+private func dkxDriveSummaryText(_ summary: DkxGoogleDriveBatchSummary) -> String? {
+    if summary.failed == 0 && summary.duplicates == 0 {
+        if summary.uploaded == 1 {
+            return "Загружено в Google Drive"
+        } else if summary.uploaded > 1 {
+            return "Загружено в Google Drive, файлов \(summary.uploaded)"
+        }
+        return nil
+    }
+    if summary.uploaded == 0 && summary.failed == 0 {
+        return summary.duplicates == 1 ? "Уже было в Google Drive" : "Всё это уже было в Google Drive"
+    }
+    var parts: [String] = []
+    if summary.uploaded > 0 {
+        parts.append("загружено \(summary.uploaded)")
+    }
+    if summary.duplicates > 0 {
+        parts.append("уже были \(summary.duplicates)")
+    }
+    if summary.failed > 0 {
+        parts.append("не удалось \(summary.failed)")
+    }
+    return "Google Drive, " + parts.joined(separator: ", ")
 }

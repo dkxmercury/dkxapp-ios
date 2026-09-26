@@ -1510,6 +1510,17 @@ final class ChatListControllerNode: ASDisplayNode, ASGestureRecognizerDelegate {
                 )))
             )
         }
+        // MARK: DKX ход выгрузки в Google Drive
+        if let dkxDriveUpload = self.controller?.globalControlPanelsContextState?.dkxDriveUpload {
+            panels.append(HeaderPanelContainerComponent.Panel(
+                key: "dkxDriveUpload",
+                orderIndex: 3,
+                component: AnyComponent(DkxDriveUploadHeaderPanelComponent(
+                    theme: self.presentationData.theme,
+                    data: dkxDriveUpload
+                )))
+            )
+        }
         
         var navigationHeaderPanels: AnyComponent<Empty>?
         if self.controller?.tabContainerData != nil || !panels.isEmpty {

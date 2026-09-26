@@ -1483,6 +1483,17 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
                 )))
             )
         }
+        // MARK: DKX ход выгрузки в Google Drive
+        if !hideTopPanels, self.chatPresentationInterfaceState.search == nil, let dkxDriveUpload = self.controller?.globalControlPanelsContextState?.dkxDriveUpload {
+            headerPanels.append(HeaderPanelContainerComponent.Panel(
+                key: "dkxDriveUpload",
+                orderIndex: 3,
+                component: AnyComponent(DkxDriveUploadHeaderPanelComponent(
+                    theme: self.chatPresentationInterfaceState.theme,
+                    data: dkxDriveUpload
+                )))
+            )
+        }
         if !hideTopPanels, self.chatPresentationInterfaceState.search == nil, let groupCall = self.controller?.globalControlPanelsContextState?.groupCall {
             headerPanels.append(HeaderPanelContainerComponent.Panel(
                 key: "groupCall",

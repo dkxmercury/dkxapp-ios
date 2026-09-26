@@ -3087,6 +3087,11 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     
     func application(_ application: UIApplication, handleEventsForBackgroundURLSession identifier: String, completionHandler: @escaping () -> Void) {
         Logger.shared.log("App \(self.episodeId)", "handleEventsForBackgroundURLSession \(identifier)")
+        // MARK: DKX фоновая выгрузка в Google Drive отвечает системе сама, когда разберёт события
+        if identifier == DkxGoogleDriveUpload.backgroundSessionIdentifier {
+            DkxGoogleDriveUpload.handleBackgroundEvents(completion: completionHandler)
+            return
+        }
         completionHandler()
     }
     

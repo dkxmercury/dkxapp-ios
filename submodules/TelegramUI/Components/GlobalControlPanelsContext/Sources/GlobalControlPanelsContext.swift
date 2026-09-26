@@ -142,17 +142,21 @@ public final class GlobalControlPanelsContext {
         public let liveLocation: LiveLocation?
         public let chatListNotice: ChatListNotice?
         public let groupCall: GroupCall?
+        // MARK: DKX ход выгрузки в Google Drive, полоса там же, где плеер
+        public let dkxDriveUpload: DkxDriveUploadProgress?
 
         public init(
             mediaPlayback: MediaPlayback?,
             liveLocation: LiveLocation?,
             chatListNotice: ChatListNotice?,
-            groupCall: GroupCall?
+            groupCall: GroupCall?,
+            dkxDriveUpload: DkxDriveUploadProgress? = nil
         ) {
             self.mediaPlayback = mediaPlayback
             self.liveLocation = liveLocation
             self.chatListNotice = chatListNotice
             self.groupCall = groupCall
+            self.dkxDriveUpload = dkxDriveUpload
         }
     }
 
@@ -180,12 +184,29 @@ public final class GlobalControlPanelsContext {
         
         var groupCall: GroupCall?
         var currentGroupCallDisposable: Disposable?
+        
+        var dkxDriveUpload: DkxDriveUploadProgress?
+        var dkxDriveUploadDisposable: Disposable?
 
         init(queue: Queue, context: AccountContext, mediaPlayback: Bool, liveLocationMode: LiveLocationMode?, groupCalls: EnginePeer.Id?, chatListNotices: Bool) {
             self.queue = queue
             self.context = context
             
             self.stateValue = State(mediaPlayback: nil, liveLocation: nil, chatListNotice: nil, groupCall: nil)
+
+            // MARK: DKX полоса выгрузки в Drive показывается там же, где плеер
+            if mediaPlayback {
+                self.dkxDriveUploadDisposable = (DkxDriveUploadStatus.signal
+                |> deliverOnMainQueue).start(next: { [weak self] progress in
+                    guard let self else {
+                        return
+                    }
+                    if self.dkxDriveUpload != progress {
+                        self.dkxDriveUpload = progress
+                        self.notifyStateUpdated()
+                    }
+                })
+            }
 
             if mediaPlayback {
                 self.mediaStatusDisposable = (context.sharedContext.mediaManager.globalMediaPlayerState
@@ -619,6 +640,7 @@ public final class GlobalControlPanelsContext {
             self.liveLocationDisposable?.dispose()
             self.suggestedChatListNoticeDisposable?.dispose()
             self.currentGroupCallDisposable?.dispose()
+            self.dkxDriveUploadDisposable?.dispose()
         }
         
         private func notifyStateUpdated() {
@@ -645,7 +667,8 @@ public final class GlobalControlPanelsContext {
                     )
                 },
                 chatListNotice: self.chatListNotice,
-                groupCall: self.groupCall
+                groupCall: self.groupCall,
+                dkxDriveUpload: self.dkxDriveUpload
             )
             self.statePipe.putNext(self.stateValue)
         }
