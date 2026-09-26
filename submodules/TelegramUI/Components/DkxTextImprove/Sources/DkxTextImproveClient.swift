@@ -105,5 +105,5 @@ public func dkxImproveText(_ text: String, options: DkxImproveOptions, variant: 
     let preferGemini = options.language == 2 || (options.language == 0 && dkxLooksUzbek(text))
     // «Ещё вариант» просит сервис быть смелее, иначе он повторит тот же текст
     let temperature = variant == 0 ? 0.4 : 0.9
-    return dkxAIComplete(system: dkxSystemPrompt(options), text: text, temperature: temperature, maxTokens: 2048, timeout: 45.0, preferring: preferGemini ? .gemini : nil)
+    return dkxAIComplete(system: dkxSystemPrompt(options), text: text, temperature: temperature, maxTokens: 4096, timeout: 45.0, preferring: preferGemini ? .gemini : nil)
 }

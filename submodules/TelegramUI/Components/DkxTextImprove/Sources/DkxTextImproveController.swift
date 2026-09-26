@@ -25,6 +25,7 @@ private struct DkxImproveState: Equatable {
     var result: String
     var status: DkxImproveStatus
     var variant: Int
+    var noService = false
 }
 
 private final class DkxImproveArguments {
@@ -36,8 +37,9 @@ private final class DkxImproveArguments {
     let selectEmoji: (Int32) -> Void
     let selectAddress: (Int32) -> Void
     let selectLanguage: (Int32) -> Void
+    let openServices: () -> Void
 
-    init(updateResult: @escaping (String) -> Void, again: @escaping () -> Void, selectStyle: @escaping (Int32) -> Void, updateCustom: @escaping (String) -> Void, applyCustom: @escaping () -> Void, selectEmoji: @escaping (Int32) -> Void, selectAddress: @escaping (Int32) -> Void, selectLanguage: @escaping (Int32) -> Void) {
+    init(updateResult: @escaping (String) -> Void, again: @escaping () -> Void, selectStyle: @escaping (Int32) -> Void, updateCustom: @escaping (String) -> Void, applyCustom: @escaping () -> Void, selectEmoji: @escaping (Int32) -> Void, selectAddress: @escaping (Int32) -> Void, selectLanguage: @escaping (Int32) -> Void, openServices: @escaping () -> Void) {
         self.updateResult = updateResult
         self.again = again
         self.selectStyle = selectStyle
@@ -46,6 +48,7 @@ private final class DkxImproveArguments {
         self.selectEmoji = selectEmoji
         self.selectAddress = selectAddress
         self.selectLanguage = selectLanguage
+        self.openServices = openServices
     }
 }
 
@@ -54,6 +57,7 @@ private enum DkxImproveEntry: ItemListNodeEntry {
     case result(String)
     case status(String)
     case again(Bool)
+    case openServices
     case styleHeader
     case style(index: Int32, title: String, checked: Bool)
     case custom(String)
@@ -68,7 +72,7 @@ private enum DkxImproveEntry: ItemListNodeEntry {
 
     var section: ItemListSectionId {
         switch self {
-        case .resultHeader, .result, .status, .again:
+        case .resultHeader, .result, .status, .again, .openServices:
             return 0
         case .styleHeader, .style, .custom, .applyCustom:
             return 1
@@ -91,6 +95,8 @@ private enum DkxImproveEntry: ItemListNodeEntry {
             return 2
         case .again:
             return 3
+        case .openServices:
+            return 4
         case .styleHeader:
             return 100
         case let .style(index, _, _):
@@ -134,6 +140,10 @@ private enum DkxImproveEntry: ItemListNodeEntry {
         case let .again(enabled):
             return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Ещё вариант"), kind: enabled ? .generic : .disabled, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.again()
+            })
+        case .openServices:
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Открыть «API ИИ»"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+                arguments.openServices()
             })
         case .styleHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("СТИЛЬ"), sectionId: self.section)
@@ -187,7 +197,11 @@ private func dkxImproveEntries(state: DkxImproveState, todayCount: Int32) -> [Dk
     case let .failed(reason):
         entries.append(.status(DkxStrings.tr("Не получилось, {}.", reason)))
     }
-    entries.append(.again(state.status != .loading))
+    if state.noService {
+        entries.append(.openServices)
+    } else {
+        entries.append(.again(state.status != .loading))
+    }
 
     entries.append(.styleHeader)
     for (index, title) in dkxImproveStyles.enumerated() {
@@ -238,6 +252,7 @@ public func dkxTextImproveController(context: AccountContext, text: String, appl
 
     let requestDisposable = MetaDisposable()
     var dismissImpl: (() -> Void)?
+    var pushImpl: ((ViewController) -> Void)?
 
     // Прошлые настройки запоминаются, в следующий раз экран откроется с ними
     let saveOptions: (DkxImproveOptions) -> Void = { options in
@@ -274,14 +289,17 @@ public func dkxTextImproveController(context: AccountContext, text: String, appl
             updateState { state in
                 state.result = result
                 state.status = .done(provider.title)
+                state.noService = false
             }
         }, error: { error in
             updateState { state in
                 switch error {
                 case .noKeys:
-                    state.status = .failed(DkxStrings.tr("нет подключённого сервиса. Добавьте ключ и модель в Dkx, раздел «API ИИ»"))
+                    state.status = .failed(DkxStrings.tr("нет подключённого сервиса ИИ. Откройте «API ИИ», вставьте ключ любого сервиса и выберите модель"))
+                    state.noService = true
                 case let .failed(reason):
                     state.status = .failed(reason)
+                    state.noService = false
                 }
             }
         }))
@@ -319,6 +337,8 @@ public func dkxTextImproveController(context: AccountContext, text: String, appl
         changeOptions { $0.address = index }
     }, selectLanguage: { index in
         changeOptions { $0.language = index }
+    }, openServices: {
+        pushImpl?(dkxAIKeysController(context: context))
     })
 
     let signal = combineLatest(queue: .mainQueue(),
@@ -350,6 +370,15 @@ public func dkxTextImproveController(context: AccountContext, text: String, appl
     controller.navigationPresentation = .modal
     dismissImpl = { [weak controller] in
         controller?.dismiss()
+    }
+    pushImpl = { [weak controller] c in
+        (controller?.navigationController as? NavigationController)?.pushViewController(c)
+    }
+    // Вернулись из «API ИИ» с подключённым сервисом, просим вариант сразу
+    controller.didAppear = { _ in
+        if stateValue.with({ $0.noService }) && DkxAIKeys.hasAnyKey {
+            run()
+        }
     }
     run()
     return controller
