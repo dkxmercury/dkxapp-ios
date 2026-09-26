@@ -58,7 +58,39 @@ private func dkxDrivePickMedia(message: Message) -> DkxDriveMedia? {
     return nil
 }
 
+// Аккаунтов несколько и основной не выбран, спрашиваем, на какой диск грузить
+public func dkxDriveChooseAccount(context: AccountContext, present: @escaping (ViewController, Any?) -> Void, completion: @escaping (String?) -> Void) {
+    guard DkxGoogleDrive.needsChoice else {
+        completion(DkxGoogleDrive.resolvedAccountId(nil))
+        return
+    }
+    let presentationData = context.sharedContext.currentPresentationData.with { $0 }
+    let actionSheet = ActionSheetController(presentationData: presentationData)
+    var items: [ActionSheetItem] = [ActionSheetTextItem(title: DkxStrings.tr("На какой Google Drive загрузить?"))]
+    for account in DkxGoogleDrive.accounts {
+        items.append(ActionSheetButtonItem(title: account.title, color: .accent, action: { [weak actionSheet] in
+            actionSheet?.dismissAnimated()
+            completion(account.id)
+        }))
+    }
+    actionSheet.setItemGroups([
+        ActionSheetItemGroup(items: items),
+        ActionSheetItemGroup(items: [
+            ActionSheetButtonItem(title: presentationData.strings.Common_Cancel, color: .accent, font: .bold, action: { [weak actionSheet] in
+                actionSheet?.dismissAnimated()
+            })
+        ])
+    ])
+    present(actionSheet, nil)
+}
+
 public func dkxUploadMessagesToDrive(context: AccountContext, messages: [Message], force: Bool = false, present: @escaping (ViewController, Any?) -> Void) {
+    dkxDriveChooseAccount(context: context, present: present, completion: { accountId in
+        dkxUploadMessagesToDriveAccount(context: context, messages: messages, force: force, accountId: accountId, present: present)
+    })
+}
+
+private func dkxUploadMessagesToDriveAccount(context: AccountContext, messages: [Message], force: Bool, accountId: String?, present: @escaping (ViewController, Any?) -> Void) {
     let presentationData = context.sharedContext.currentPresentationData.with { $0 }
     let showToast: (String) -> Void = { text in
         let presentationData = context.sharedContext.currentPresentationData.with { $0 }
@@ -101,7 +133,7 @@ public func dkxUploadMessagesToDrive(context: AccountContext, messages: [Message
 
         // Загрузка идёт фоном, ход виден в полосе под шапкой. Экран не держим.
         // По отдельному файлу говорим только об ошибке, остальное одним итогом.
-        DkxGoogleDriveUploadQueue.enqueue(DkxGoogleDriveUploadJob(fileName: fileName, mimeType: media.mimeType, chatId: message.id.peerId.toInt64(), chatTitle: chatTitle, messageId: message.id.id, force: force, prepare: prepare, completion: { result, summary in
+        DkxGoogleDriveUploadQueue.enqueue(DkxGoogleDriveUploadJob(fileName: fileName, mimeType: media.mimeType, chatId: message.id.peerId.toInt64(), chatTitle: chatTitle, messageId: message.id.id, force: force, accountId: accountId, prepare: prepare, completion: { result, summary in
             if case let .failed(reason) = result {
                 showToast(DkxStrings.tr("Не удалось загрузить {}. {}", fileName, reason))
             } else if case .notConnected = result, summary != nil {

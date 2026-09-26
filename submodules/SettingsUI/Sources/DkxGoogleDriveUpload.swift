@@ -35,9 +35,11 @@ public final class DkxGoogleDriveUploadJob {
     public let prepare: Signal<String, NoError>
     // Повторная загрузка по просьбе владельца, дубль на диске не проверяем
     public let force: Bool
+    // Аккаунт Google, nil значит основной или единственный
+    public let accountId: String?
     public let completion: (DkxGoogleDriveUploadResult, DkxGoogleDriveBatchSummary?) -> Void
 
-    public init(fileName: String, mimeType: String, chatId: Int64, chatTitle: String, messageId: Int32, force: Bool = false, prepare: Signal<String, NoError>, completion: @escaping (DkxGoogleDriveUploadResult, DkxGoogleDriveBatchSummary?) -> Void) {
+    public init(fileName: String, mimeType: String, chatId: Int64, chatTitle: String, messageId: Int32, force: Bool = false, accountId: String? = nil, prepare: Signal<String, NoError>, completion: @escaping (DkxGoogleDriveUploadResult, DkxGoogleDriveBatchSummary?) -> Void) {
         var value: Int64 = 0
         arc4random_buf(&value, MemoryLayout<Int64>.size)
         self.id = value
@@ -47,6 +49,7 @@ public final class DkxGoogleDriveUploadJob {
         self.chatTitle = chatTitle
         self.messageId = messageId
         self.force = force
+        self.accountId = accountId
         self.prepare = prepare
         self.completion = completion
     }
@@ -331,11 +334,11 @@ public enum DkxGoogleDriveUpload {
     // Проверка дубля, папки, сессия загрузки и временная копия файла. Всё,
     // кроме самих байтов.
     static func startSession(job: DkxGoogleDriveUploadJob, filePath: String, completion: @escaping (SessionOutcome) -> Void) {
-        guard DkxGoogleDrive.isConnected else {
+        guard let accountId = DkxGoogleDrive.resolvedAccountId(job.accountId) else {
             completion(.finished(.notConnected))
             return
         }
-        DkxGoogleDrive.accessToken(completion: { token in
+        DkxGoogleDrive.accessToken(accountId: accountId, completion: { token in
             guard let token = token else {
                 completion(.finished(DkxGoogleDrive.isConnected ? .failed(DkxStrings.tr("Нужно войти в Google заново")) : .notConnected))
                 return
@@ -354,7 +357,7 @@ public enum DkxGoogleDriveUpload {
                     completion(.finished(.duplicate))
                     return
                 }
-                ensureFolder(token: token, chatId: job.chatId, chatTitle: job.chatTitle, completion: { folderId in
+                ensureFolder(token: token, accountId: accountId, chatId: job.chatId, chatTitle: job.chatTitle, completion: { folderId in
                     createUploadSession(token: token, fileName: job.fileName, mimeType: job.mimeType, parentId: folderId, dedupKey: dedupKey, completion: { sessionUrl in
                         guard let sessionUrl = sessionUrl else {
                             completion(.finished(.failed(DkxStrings.tr("Google не принял загрузку"))))
@@ -419,21 +422,22 @@ public enum DkxGoogleDriveUpload {
 
     // Возвращает id подпапки чата внутри папки Dkx, создавая обе при нужде.
     // parentId nil означает загрузку в корень, если папку сделать не вышло.
-    private static func ensureFolder(token: String, chatId: Int64, chatTitle: String, completion: @escaping (String?) -> Void) {
-        ensureSingleFolder(token: token, name: "Dkx", parentId: nil, propKey: "dkxRoot", propValue: "1", completion: { rootId in
+    private static func ensureFolder(token: String, accountId: String, chatId: Int64, chatTitle: String, completion: @escaping (String?) -> Void) {
+        ensureSingleFolder(token: token, accountId: accountId, name: "Dkx", parentId: nil, propKey: "dkxRoot", propValue: "1", completion: { rootId in
             guard let rootId = rootId else {
                 completion(nil)
                 return
             }
             let safeTitle = chatTitle.isEmpty ? DkxStrings.tr("Чат {}", chatId) : chatTitle
-            ensureSingleFolder(token: token, name: safeTitle, parentId: rootId, propKey: "dkxChatId", propValue: String(chatId), completion: { chatFolderId in
+            ensureSingleFolder(token: token, accountId: accountId, name: safeTitle, parentId: rootId, propKey: "dkxChatId", propValue: String(chatId), completion: { chatFolderId in
                 completion(chatFolderId ?? rootId)
             })
         })
     }
 
-    private static func ensureSingleFolder(token: String, name: String, parentId: String?, propKey: String, propValue: String, completion: @escaping (String?) -> Void) {
-        let cacheKey = "\(propKey)=\(propValue)"
+    // У каждого аккаунта свой диск, поэтому папки кэшируются по аккаунту
+    private static func ensureSingleFolder(token: String, accountId: String, name: String, parentId: String?, propKey: String, propValue: String, completion: @escaping (String?) -> Void) {
+        let cacheKey = "\(accountId):\(propKey)=\(propValue)"
         if let cached = cachedFolder(cacheKey) {
             completion(cached)
             return
