@@ -69,6 +69,7 @@ swift_library(
         "//submodules/TelegramPresentationData:TelegramPresentationData",
         "//submodules/TelegramUIPreferences:TelegramUIPreferences",
         "//submodules/AccountContext:AccountContext",
+        "//submodules/AccountUtils:AccountUtils",
         "//submodules/TelegramStringFormatting:TelegramStringFormatting",
         "//submodules/AppBundle:AppBundle",
         "//submodules/AnimatedStickerNode:AnimatedStickerNode",

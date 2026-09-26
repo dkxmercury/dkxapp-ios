@@ -227,15 +227,15 @@ extension PeerInfoScreenNode {
                 guard let strongSelf = self else {
                     return
                 }
-                var maximumAvailableAccounts: Int = 3
+                var maximumAvailableAccounts: Int = maximumNumberOfAccounts // MARK: DKX было 3 и 4 с Premium
                 if accountAndPeer?.1.isPremium == true && !strongSelf.context.account.testingEnvironment {
-                    maximumAvailableAccounts = 4
+                    maximumAvailableAccounts = maximumPremiumNumberOfAccounts
                 }
                 var count: Int = 1
                 for (accountContext, peer, _) in accountsAndPeers {
                     if !accountContext.account.testingEnvironment {
                         if peer.isPremium {
-                            maximumAvailableAccounts = 4
+                            maximumAvailableAccounts = maximumPremiumNumberOfAccounts
                         }
                         count += 1
                     }
