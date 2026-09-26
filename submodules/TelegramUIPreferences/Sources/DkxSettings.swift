@@ -69,6 +69,16 @@ public struct DkxSettings: Codable, Equatable {
     // Расшифровка голосовых и кружков на телефоне, когда нет Premium, и её язык
     public var localTranscription: Bool
     public var transcriptionLocale: String
+    // «Улучшить текст». Последние выбранные стиль, смайлики, обращение и язык,
+    // свой стиль текстом и счётчик запросов за день, день в виде ГГГГММДД
+    public var improveText: Bool
+    public var improveStyle: Int32
+    public var improveCustom: String
+    public var improveEmoji: Int32
+    public var improveAddress: Int32
+    public var improveLanguage: Int32
+    public var improveDay: Int32
+    public var improveCount: Int32
     public var lockedPeers: [Int64]
     public var quickReplyTemplates: [String]
     // Спрятанные вкладки и строки настроек, rawValue из DkxHiddenSection
@@ -129,6 +139,14 @@ public struct DkxSettings: Codable, Equatable {
         self.remindLater = true
         self.localTranscription = true
         self.transcriptionLocale = "ru-RU"
+        self.improveText = true
+        self.improveStyle = 0
+        self.improveCustom = ""
+        self.improveEmoji = 1
+        self.improveAddress = 2
+        self.improveLanguage = 0
+        self.improveDay = 0
+        self.improveCount = 0
         self.lockedPeers = []
         self.quickReplyTemplates = []
         self.hiddenSections = []
@@ -215,6 +233,14 @@ public struct DkxSettings: Codable, Equatable {
         self.remindLater = (try container.decodeIfPresent(Int32.self, forKey: "remindLater")).map { $0 != 0 } ?? defaults.remindLater
         self.localTranscription = (try container.decodeIfPresent(Int32.self, forKey: "localTranscription")).map { $0 != 0 } ?? defaults.localTranscription
         self.transcriptionLocale = (try container.decodeIfPresent(String.self, forKey: "transcriptionLocale")) ?? defaults.transcriptionLocale
+        self.improveText = (try container.decodeIfPresent(Int32.self, forKey: "improveText")).map { $0 != 0 } ?? defaults.improveText
+        self.improveStyle = (try container.decodeIfPresent(Int32.self, forKey: "improveStyle")) ?? defaults.improveStyle
+        self.improveCustom = (try container.decodeIfPresent(String.self, forKey: "improveCustom")) ?? defaults.improveCustom
+        self.improveEmoji = (try container.decodeIfPresent(Int32.self, forKey: "improveEmoji")) ?? defaults.improveEmoji
+        self.improveAddress = (try container.decodeIfPresent(Int32.self, forKey: "improveAddress")) ?? defaults.improveAddress
+        self.improveLanguage = (try container.decodeIfPresent(Int32.self, forKey: "improveLanguage")) ?? defaults.improveLanguage
+        self.improveDay = (try container.decodeIfPresent(Int32.self, forKey: "improveDay")) ?? defaults.improveDay
+        self.improveCount = (try container.decodeIfPresent(Int32.self, forKey: "improveCount")) ?? defaults.improveCount
         self.lockedPeers = (try container.decodeIfPresent([Int64].self, forKey: "lockedPeers")) ?? defaults.lockedPeers
         self.quickReplyTemplates = (try container.decodeIfPresent([String].self, forKey: "quickReplyTemplates")) ?? defaults.quickReplyTemplates
         self.hiddenSections = (try container.decodeIfPresent([String].self, forKey: "hiddenSections")) ?? defaults.hiddenSections
@@ -258,6 +284,14 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode((self.remindLater ? 1 : 0) as Int32, forKey: "remindLater")
         try container.encode((self.localTranscription ? 1 : 0) as Int32, forKey: "localTranscription")
         try container.encode(self.transcriptionLocale, forKey: "transcriptionLocale")
+        try container.encode((self.improveText ? 1 : 0) as Int32, forKey: "improveText")
+        try container.encode(self.improveStyle, forKey: "improveStyle")
+        try container.encode(self.improveCustom, forKey: "improveCustom")
+        try container.encode(self.improveEmoji, forKey: "improveEmoji")
+        try container.encode(self.improveAddress, forKey: "improveAddress")
+        try container.encode(self.improveLanguage, forKey: "improveLanguage")
+        try container.encode(self.improveDay, forKey: "improveDay")
+        try container.encode(self.improveCount, forKey: "improveCount")
         try container.encode(self.lockedPeers, forKey: "lockedPeers")
         try container.encode(self.quickReplyTemplates, forKey: "quickReplyTemplates")
         try container.encode(self.hiddenSections, forKey: "hiddenSections")

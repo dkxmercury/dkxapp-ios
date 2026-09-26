@@ -1,4 +1,5 @@
 import Foundation
+import DkxTextImprove
 import TelegramUIPreferences
 import UniformTypeIdentifiers
 import UIKit
@@ -5763,6 +5764,25 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
         }
     }
     
+    // MARK: DKX «Улучшить текст». Берём весь текст поля ввода, готовый вариант
+    // заменяет его целиком. Форматирование при этом теряется, его у такого
+    // текста обычно и нет.
+    private func dkxOpenImprove() {
+        guard let context = self.context, let interfaceInteraction = self.interfaceInteraction else {
+            return
+        }
+        let text = self.presentationInterfaceState?.interfaceState.effectiveInputState.inputText.string ?? ""
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return
+        }
+        let controller = dkxTextImproveController(context: context, text: text, apply: { [weak interfaceInteraction] result in
+            interfaceInteraction?.updateTextInputStateAndMode { _, inputMode in
+                return (ChatTextInputState(inputText: NSAttributedString(string: result)), inputMode)
+            }
+        })
+        interfaceInteraction.getNavigationController()?.pushViewController(controller)
+    }
+
     @objc func accessoryItemButtonPressed(_ button: UIView) {
         for (item, currentButton) in self.accessoryItemButtons {
             if currentButton === button {
@@ -5809,6 +5829,8 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                     } else if let first = DkxRuntime.current.quickReplyTemplates.first {
                         self.insertText(text: NSAttributedString(string: first))
                     }
+                case .dkxImprove:
+                    self.dkxOpenImprove()
                 }
                 break
             }

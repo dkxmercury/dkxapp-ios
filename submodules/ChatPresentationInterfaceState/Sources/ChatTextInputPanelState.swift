@@ -14,6 +14,8 @@ public enum ChatTextInputAccessoryItem: Equatable {
         case suggestPost
         // MARK: DKX шаблоны быстрых ответов
         case dkxTemplates
+        // MARK: DKX «Улучшить текст»
+        case dkxImprove
     }
     
     public enum InputMode: Hashable {
@@ -33,7 +35,9 @@ public enum ChatTextInputAccessoryItem: Equatable {
     case suggestPost
     // MARK: DKX шаблоны быстрых ответов
     case dkxTemplates
-    
+    // MARK: DKX «Улучшить текст»
+    case dkxImprove
+
     public var key: Key {
         switch self {
         case .input:
@@ -54,6 +58,8 @@ public enum ChatTextInputAccessoryItem: Equatable {
             return .suggestPost
         case .dkxTemplates:
             return .dkxTemplates
+        case .dkxImprove:
+            return .dkxImprove
         }
     }
 }

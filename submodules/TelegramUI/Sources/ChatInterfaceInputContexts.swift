@@ -1,4 +1,5 @@
 import Foundation
+import DkxTextImprove
 import TelegramUIPreferences
 import UIKit
 import TelegramCore
@@ -225,6 +226,10 @@ func inputTextPanelStateForChatPresentationInterfaceState(_ chatPresentationInte
                 // во всех чатах.
                 if DkxRuntime.current.quickReplies && !DkxRuntime.current.quickReplyTemplates.isEmpty && !hasForward {
                     accessoryItems.append(.dkxTemplates)
+                }
+                // MARK: DKX «Улучшить текст», когда в поле есть текст и вставлен хоть один ключ
+                if !isTextEmpty && DkxRuntime.current.improveText && DkxAIKeys.hasAnyKey && !hasForward {
+                    accessoryItems.append(.dkxImprove)
                 }
                     
                 var stickersEnabled = true

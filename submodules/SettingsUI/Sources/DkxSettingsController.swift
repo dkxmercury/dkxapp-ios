@@ -8,6 +8,7 @@ import TelegramPresentationData
 import TelegramUIPreferences
 import LocalAudioTranscription
 import ChatListUI
+import DkxTextImprove
 import ItemListUI
 import PresentationDataUtils
 import AccountContext
@@ -142,6 +143,8 @@ private final class DkxSettingsControllerArguments {
     let updateUnansweredHours: (Int32) -> Void
     let updateTranscription: (Bool) -> Void
     let updateTranscriptionLocale: (String) -> Void
+    let updateImproveText: (Bool) -> Void
+    let openImproveKeys: () -> Void
     let openQuickReplies: () -> Void
     let openChatLabels: () -> Void
     let updateSpoofPanel: (Bool) -> Void
@@ -163,6 +166,8 @@ private final class DkxSettingsControllerArguments {
         updateUnansweredHours: @escaping (Int32) -> Void,
         updateTranscription: @escaping (Bool) -> Void,
         updateTranscriptionLocale: @escaping (String) -> Void,
+        updateImproveText: @escaping (Bool) -> Void,
+        openImproveKeys: @escaping () -> Void,
         openQuickReplies: @escaping () -> Void,
         openChatLabels: @escaping () -> Void,
         updateSpoofPanel: @escaping (Bool) -> Void,
@@ -183,6 +188,8 @@ private final class DkxSettingsControllerArguments {
         self.updateUnansweredHours = updateUnansweredHours
         self.updateTranscription = updateTranscription
         self.updateTranscriptionLocale = updateTranscriptionLocale
+        self.updateImproveText = updateImproveText
+        self.openImproveKeys = openImproveKeys
         self.openQuickReplies = openQuickReplies
         self.openChatLabels = openChatLabels
         self.updateSpoofPanel = updateSpoofPanel
@@ -200,6 +207,7 @@ private enum DkxSettingsSection: Int32 {
     case chats
     case unanswered
     case transcription
+    case improve
     case location
     case features
     case drive
@@ -228,6 +236,11 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case transcription(Bool)
     case transcriptionLocale(index: Int32, id: String, title: String, checked: Bool)
     case transcriptionFooter(String)
+
+    case improveHeader
+    case improveToggle(Bool)
+    case improveKeys(String)
+    case improveFooter(String)
 
     case locationHeader
     case spoofPanel(Bool)
@@ -259,6 +272,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return DkxSettingsSection.unanswered.rawValue
         case .transcriptionHeader, .transcription, .transcriptionLocale, .transcriptionFooter:
             return DkxSettingsSection.transcription.rawValue
+        case .improveHeader, .improveToggle, .improveKeys, .improveFooter:
+            return DkxSettingsSection.improve.rawValue
         case .locationHeader, .spoofPanel, .locationFooter:
             return DkxSettingsSection.location.rawValue
         case .featuresHeader, .antiDelete, .editHistory, .featuresFooter:
@@ -312,6 +327,14 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 302 + index
         case .transcriptionFooter:
             return 399
+        case .improveHeader:
+            return 400
+        case .improveToggle:
+            return 401
+        case .improveKeys:
+            return 402
+        case .improveFooter:
+            return 499
         case .locationHeader:
             return 1000
         case .spoofPanel:
@@ -411,6 +434,18 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
                 arguments.updateTranscriptionLocale(id)
             })
         case let .transcriptionFooter(text):
+            return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
+        case .improveHeader:
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: "УЛУЧШИТЬ ТЕКСТ", sectionId: self.section)
+        case let .improveToggle(value):
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Кнопка в поле ввода", value: value, sectionId: self.section, style: .blocks, updated: { value in
+                arguments.updateImproveText(value)
+            })
+        case let .improveKeys(label):
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Ключи Gemini и GLM", label: label, sectionId: self.section, style: .blocks, action: {
+                arguments.openImproveKeys()
+            })
+        case let .improveFooter(text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case .unansweredFooter:
             return ItemListTextItem(presentationData: presentationData, text: .plain("Список открывается долгим нажатием на вкладку «Чаты». В нём личные чаты, где последним написал собеседник, без ботов и архива. Сверху те, кто ждёт дольше всех."), sectionId: self.section)
@@ -517,6 +552,19 @@ private func dkxSettingsControllerEntries(settings: DkxSettings) -> [DkxSettings
         entries.append(.transcriptionFooter(text))
     } else {
         entries.append(.transcriptionFooter("Без Premium кнопки расшифровки не будет."))
+    }
+
+    entries.append(.improveHeader)
+    entries.append(.improveToggle(settings.improveText))
+    if settings.improveText {
+        let keys = DkxAIKeys.Provider.allCases.filter { DkxAIKeys.key($0) != nil }.map { $0.title }
+        entries.append(.improveKeys(keys.isEmpty ? "нет" : keys.joined(separator: " и ")))
+        let now = Calendar.current.dateComponents([.year, .month, .day], from: Date())
+        let today = Int32((now.year ?? 0) * 10000 + (now.month ?? 0) * 100 + (now.day ?? 0))
+        let count = settings.improveDay == today ? settings.improveCount : 0
+        entries.append(.improveFooter("Кнопка с волшебной палочкой появляется в поле ввода, когда там есть текст. Стиль, смайлики, обращение и язык выбираются на её экране, последний выбор запоминается. Ключи хранятся в Keychain этого телефона и переживают переустановку приложения. Сегодня запросов \(count)."))
+    } else {
+        entries.append(.improveFooter("Кнопки «Улучшить текст» в поле ввода не будет."))
     }
 
     entries.append(.locationHeader)
@@ -626,6 +674,12 @@ public func dkxSettingsController(context: AccountContext) -> ViewController {
         updateTranscriptionLocale: { value in
             update { $0.transcriptionLocale = value }
         },
+        updateImproveText: { value in
+            update { $0.improveText = value }
+        },
+        openImproveKeys: {
+            pushControllerImpl?(dkxAIKeysController(context: context))
+        },
         openQuickReplies: {
             pushControllerImpl?(dkxQuickRepliesController(context: context))
         },
@@ -684,6 +738,11 @@ public func dkxSettingsController(context: AccountContext) -> ViewController {
     }
 
     let controller = ItemListController(context: context, state: signal)
+    // Ключи ИИ и вход в Google лежат в Keychain, после возврата с их экранов
+    // строки перерисовываем сами
+    controller.didAppear = { _ in
+        driveRefresh.set(0)
+    }
     pushControllerImpl = { [weak controller] c in
         if let controller = controller {
             (controller.navigationController as? NavigationController)?.pushViewController(c)
