@@ -90,6 +90,22 @@ private func dkxRemindTitle(_ remind: DkxTask.Remind) -> String {
     }
 }
 
+// Целой фразой, а не склейкой с названием варианта, иначе в языках с заглавными существительными выходит ошибка
+private func dkxRemindInlineText(_ remind: DkxTask.Remind) -> String {
+    switch remind {
+    case .none:
+        return ""
+    case .atTime:
+        return DkxStrings.tr("напомнит в момент дела")
+    case .hourBefore:
+        return DkxStrings.tr("напомнит за час")
+    case .twoHoursBefore:
+        return DkxStrings.tr("напомнит за 2 часа")
+    case .dayBefore:
+        return DkxStrings.tr("напомнит за день")
+    }
+}
+
 // Строка под названием. День, если группа его не называет, напоминание и
 // начало заметки
 private func dkxTaskMeta(_ task: DkxTask, showDay: Bool) -> String {
@@ -98,7 +114,7 @@ private func dkxTaskMeta(_ task: DkxTask, showDay: Bool) -> String {
         parts.append(dkxRelativeDay(dkxDayStart(task.date)))
     }
     if task.remind != .none && !task.done {
-        parts.append(DkxStrings.tr("напомнит ") + dkxRemindTitle(task.remind).lowercased())
+        parts.append(dkxRemindInlineText(task.remind))
     }
     let note = task.note.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: .whitespaces)
     if !note.isEmpty {

@@ -207,7 +207,7 @@ private func dkxLoadChatMedia(context: AccountContext, peerId: EnginePeer.Id, ta
 private func dkxSizeText(_ bytes: Int64) -> String {
     let megabytes = Double(bytes) / 1_048_576.0
     if megabytes >= 1024.0 {
-        return String(format: DkxStrings.tr("%.1f ГБ"), megabytes / 1024.0).replacingOccurrences(of: ".", with: ",")
+        return String(format: DkxStrings.tr("%.1f ГБ"), locale: DkxStrings.locale, megabytes / 1024.0)
     }
     return DkxStrings.tr("{} МБ", max(1, Int(megabytes.rounded())))
 }

@@ -20,7 +20,7 @@ private func dkxSpoofDistance(_ meters: Double) -> String {
     if meters < 1000.0 {
         return DkxStrings.tr("{} м", Int(meters.rounded()))
     }
-    return String(format: DkxStrings.tr("%.1f км"), meters / 1000.0).replacingOccurrences(of: ".", with: ",")
+    return String(format: DkxStrings.tr("%.1f км"), locale: DkxStrings.locale, meters / 1000.0)
 }
 
 private func dkxSpoofStatus(_ settings: DkxSettings) -> String {
