@@ -16,6 +16,11 @@ import PeerNameColorItem
 
 // Шестерёнка со вкладки «Настройки». Она нарисована во весь квадрат, поэтому
 // уменьшаем её до размера соседних значков строк.
+// MARK: DKX строки, спрятанные в Dkx, «Скрыть разделы»
+private func dkxHidden(_ section: DkxHiddenSection) -> Bool {
+    return DkxRuntime.current.isHidden(section)
+}
+
 private let dkxSettingsIcon = renderSettingsIcon(name: "Chat List/Tabs/IconSettings", scaleFactor: 0.72, backgroundColors: [UIColor(rgb: 0x8E8E93)])
 
 enum SettingsSection: Int, CaseIterable {
@@ -64,7 +69,7 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
         displaySetStatus = false
     }
     
-    if displaySetStatus {
+    if displaySetStatus && !dkxHidden(.editButtons) {
         items[.edit]!.append(PeerInfoScreenActionItem(id: 0, text: setStatusTitle, icon: UIImage(bundleImageName: hasEmojiStatus ? "Settings/EditEmojiStatus" : "Settings/SetEmojiStatus"), action: {
             interaction.openSettings(.emojiStatus)
         }))
@@ -74,11 +79,13 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
         }))
     }
     
-    items[.edit]!.append(PeerInfoScreenActionItem(id: 2, text: setPhotoTitle, icon: UIImage(bundleImageName: "Settings/SetAvatar"), action: {
-        interaction.openSettings(.avatar)
-    }))
-    
-    if let peer = data.peer, (peer.addressName ?? "").isEmpty {
+    if !dkxHidden(.editButtons) {
+        items[.edit]!.append(PeerInfoScreenActionItem(id: 2, text: setPhotoTitle, icon: UIImage(bundleImageName: "Settings/SetAvatar"), action: {
+            interaction.openSettings(.avatar)
+        }))
+    }
+
+    if let peer = data.peer, (peer.addressName ?? "").isEmpty, !dkxHidden(.editButtons) {
         items[.edit]!.append(PeerInfoScreenActionItem(id: 3, text: presentationData.strings.Settings_SetUsername, icon: UIImage(bundleImageName: "Settings/SetUsername"), action: {
             interaction.openSettings(.username)
         }))
@@ -152,9 +159,11 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
             }))
         }
         
-        items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_MyProfile, icon: PresentationResourcesSettings.myProfile, action: {
-            interaction.openSettings(.profile)
-        }))
+        if !dkxHidden(.myProfile) {
+            items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_MyProfile, icon: PresentationResourcesSettings.myProfile, action: {
+                interaction.openSettings(.profile)
+            }))
+        }
         // MARK: DKX «Мои дела» под «Моим профилем», включается тумблером в Dkx
         if DkxRuntime.current.todoEnabled {
             items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 50, text: "Мои дела", icon: PresentationResourcesSettings.clock, action: {
@@ -172,7 +181,7 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
             interaction.openSettings(.dkx)
         }))
         
-        if !settings.proxySettings.servers.isEmpty {
+        if !settings.proxySettings.servers.isEmpty && !dkxHidden(.proxy) {
             let proxyType: String
             if settings.proxySettings.enabled, let activeServer = settings.proxySettings.activeServer {
                 switch activeServer.connection {
@@ -191,7 +200,7 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
     }
     
     var appIndex = 1000
-    if let settings = data.globalSettings {
+    if let settings = data.globalSettings, !dkxHidden(.apps) {
         for bot in settings.bots {
             let iconSignal: Signal<UIImage?, NoError>
             if let peer = PeerReference(bot.peer), let icon = bot.icons[.iOSSettingsStatic] {
@@ -217,12 +226,16 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
         }
     }
     
-    items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_SavedMessages, icon: PresentationResourcesSettings.savedMessages, action: {
-        interaction.openSettings(.savedMessages)
-    }))
-    items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 2, text: presentationData.strings.CallSettings_RecentCalls, icon: PresentationResourcesSettings.recentCalls, action: {
-        interaction.openSettings(.recentCalls)
-    }))
+    if !dkxHidden(.savedMessages) {
+        items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_SavedMessages, icon: PresentationResourcesSettings.savedMessages, action: {
+            interaction.openSettings(.savedMessages)
+        }))
+    }
+    if !dkxHidden(.recentCalls) {
+        items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 2, text: presentationData.strings.CallSettings_RecentCalls, icon: PresentationResourcesSettings.recentCalls, action: {
+            interaction.openSettings(.recentCalls)
+        }))
+    }
     
     let devicesLabel: String
     if let settings = data.globalSettings, let otherSessionsCount = settings.otherSessionsCount {
@@ -235,12 +248,16 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
         devicesLabel = ""
     }
     
-    items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 3, label: .text(devicesLabel), text: presentationData.strings.Settings_Devices, icon: PresentationResourcesSettings.devices, action: {
-        interaction.openSettings(.devices)
-    }))
-    items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 4, text: presentationData.strings.Settings_ChatFolders, icon: PresentationResourcesSettings.chatFolders, action: {
-        interaction.openSettings(.chatFolders)
-    }))
+    if !dkxHidden(.devices) {
+        items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 3, label: .text(devicesLabel), text: presentationData.strings.Settings_Devices, icon: PresentationResourcesSettings.devices, action: {
+            interaction.openSettings(.devices)
+        }))
+    }
+    if !dkxHidden(.chatFolders) {
+        items[.shortcuts]!.append(PeerInfoScreenDisclosureItem(id: 4, text: presentationData.strings.Settings_ChatFolders, icon: PresentationResourcesSettings.chatFolders, action: {
+            interaction.openSettings(.chatFolders)
+        }))
+    }
     
     let notificationsWarning: Bool
     if let settings = data.globalSettings {
@@ -248,36 +265,48 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
     } else {
         notificationsWarning = false
     }
-    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 0, label: notificationsWarning ? .badge("!", presentationData.theme.list.itemDestructiveColor) : .none, text: presentationData.strings.Settings_NotificationsAndSounds, icon: PresentationResourcesSettings.notifications, action: {
-        interaction.openSettings(.notificationsAndSounds)
-    }))
-    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_PrivacySettings, icon: PresentationResourcesSettings.security, action: {
-        interaction.openSettings(.privacyAndSecurity)
-    }))
-    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 2, text: presentationData.strings.Settings_ChatSettings, icon: PresentationResourcesSettings.dataAndStorage, action: {
-        interaction.openSettings(.dataAndStorage)
-    }))
-    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 3, text: presentationData.strings.Settings_Appearance, icon: PresentationResourcesSettings.appearance, action: {
-        interaction.openSettings(.appearance)
-    }))
-    
-    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 6, label: .text(data.isPowerSavingEnabled == true ? presentationData.strings.Settings_PowerSavingOn : presentationData.strings.Settings_PowerSavingOff), text: presentationData.strings.Settings_PowerSaving, icon: PresentationResourcesSettings.powerSaving, action: {
-        interaction.openSettings(.powerSaving)
-    }))
-    
+    if !dkxHidden(.notifications) {
+        items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 0, label: notificationsWarning ? .badge("!", presentationData.theme.list.itemDestructiveColor) : .none, text: presentationData.strings.Settings_NotificationsAndSounds, icon: PresentationResourcesSettings.notifications, action: {
+            interaction.openSettings(.notificationsAndSounds)
+        }))
+    }
+    if !dkxHidden(.privacy) {
+        items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_PrivacySettings, icon: PresentationResourcesSettings.security, action: {
+            interaction.openSettings(.privacyAndSecurity)
+        }))
+    }
+    if !dkxHidden(.dataAndStorage) {
+        items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 2, text: presentationData.strings.Settings_ChatSettings, icon: PresentationResourcesSettings.dataAndStorage, action: {
+            interaction.openSettings(.dataAndStorage)
+        }))
+    }
+    if !dkxHidden(.appearance) {
+        items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 3, text: presentationData.strings.Settings_Appearance, icon: PresentationResourcesSettings.appearance, action: {
+            interaction.openSettings(.appearance)
+        }))
+    }
+
+    if !dkxHidden(.powerSaving) {
+        items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 6, label: .text(data.isPowerSavingEnabled == true ? presentationData.strings.Settings_PowerSavingOn : presentationData.strings.Settings_PowerSavingOff), text: presentationData.strings.Settings_PowerSaving, icon: PresentationResourcesSettings.powerSaving, action: {
+            interaction.openSettings(.powerSaving)
+        }))
+    }
+
     let languageName = presentationData.strings.primaryComponent.localizedName
-    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 4, label: .text(languageName.isEmpty ? presentationData.strings.Localization_LanguageName : languageName), text: presentationData.strings.Settings_AppLanguage, icon: PresentationResourcesSettings.language, action: {
-        interaction.openSettings(.language)
-    }))
+    if !dkxHidden(.language) {
+        items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 4, label: .text(languageName.isEmpty ? presentationData.strings.Localization_LanguageName : languageName), text: presentationData.strings.Settings_AppLanguage, icon: PresentationResourcesSettings.language, action: {
+            interaction.openSettings(.language)
+        }))
+    }
     
     let premiumConfiguration = PremiumConfiguration.with(appConfiguration: context.currentAppConfiguration.with { $0 })
     let isPremiumDisabled = premiumConfiguration.isPremiumDisabled
-    if !isPremiumDisabled || context.isPremium {
+    if (!isPremiumDisabled || context.isPremium) && !dkxHidden(.premium) {
         items[.payment]!.append(PeerInfoScreenDisclosureItem(id: 100, label: .text(""), text: presentationData.strings.Settings_Premium, icon: PresentationResourcesSettings.premium, action: {
             interaction.openSettings(.premium)
         }))
     }
-    if let starsState = data.starsState {
+    if let starsState = data.starsState, !dkxHidden(.stars) {
         // MARK: DKX пункт Stars остаётся и при тумблере «без навязывания»,
         // покупка Stars нужна для проверки платных ботов
         if !isPremiumDisabled || PremiumConfiguration.dkxHidePromo || abs(starsState.balance.value) > 0 {
@@ -296,7 +325,7 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
             }))
         }
     }
-    if let tonState = data.tonState {
+    if let tonState = data.tonState, !dkxHidden(.ton) {
         if abs(tonState.balance.value) > 0 {
             let balanceText: NSAttributedString
             if abs(tonState.balance.value) > 0 {
@@ -313,12 +342,12 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
             }))
         }
     }
-    if !isPremiumDisabled || context.isPremium {
+    if (!isPremiumDisabled || context.isPremium) && !dkxHidden(.business) {
         items[.payment]!.append(PeerInfoScreenDisclosureItem(id: 104, label: .text(""), additionalBadgeLabel: nil, text: presentationData.strings.Settings_Business, icon: PresentationResourcesSettings.business, action: {
             interaction.openSettings(.businessSetup)
         }))
     }
-    if let starsState = data.starsState {
+    if let starsState = data.starsState, !dkxHidden(.sendGift) {
         if !isPremiumDisabled || starsState.balance > StarsAmount.zero {
             items[.payment]!.append(PeerInfoScreenDisclosureItem(id: 105, label: .text(""), text: presentationData.strings.Settings_SendGift, icon: PresentationResourcesSettings.premiumGift, action: {
                 interaction.openSettings(.premiumGift)
@@ -327,27 +356,33 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
     }
     
     if let settings = data.globalSettings {
-        if settings.hasPassport {
+        if settings.hasPassport && !dkxHidden(.passport) {
             items[.extra]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_Passport, icon: PresentationResourcesSettings.passport, action: {
                 interaction.openSettings(.passport)
             }))
         }
-        if settings.hasWatchApp {
+        if settings.hasWatchApp && !dkxHidden(.watch) {
             items[.extra]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_AppleWatch, icon: PresentationResourcesSettings.watch, action: {
                 interaction.openSettings(.watch)
             }))
         }
     }
     
-    items[.support]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_Support, icon: PresentationResourcesSettings.support, action: {
-        interaction.openSettings(.support)
-    }))
-    items[.support]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_FAQ, icon: PresentationResourcesSettings.faq, action: {
-        interaction.openSettings(.faq)
-    }))
-    items[.support]!.append(PeerInfoScreenDisclosureItem(id: 2, text: presentationData.strings.Settings_Tips, icon: PresentationResourcesSettings.tips, action: {
-        interaction.openSettings(.tips)
-    }))
+    if !dkxHidden(.support) {
+        items[.support]!.append(PeerInfoScreenDisclosureItem(id: 0, text: presentationData.strings.Settings_Support, icon: PresentationResourcesSettings.support, action: {
+            interaction.openSettings(.support)
+        }))
+    }
+    if !dkxHidden(.faq) {
+        items[.support]!.append(PeerInfoScreenDisclosureItem(id: 1, text: presentationData.strings.Settings_FAQ, icon: PresentationResourcesSettings.faq, action: {
+            interaction.openSettings(.faq)
+        }))
+    }
+    if !dkxHidden(.tips) {
+        items[.support]!.append(PeerInfoScreenDisclosureItem(id: 2, text: presentationData.strings.Settings_Tips, icon: PresentationResourcesSettings.tips, action: {
+            interaction.openSettings(.tips)
+        }))
+    }
     
     var result: [(AnyHashable, [PeerInfoScreenItem])] = []
     for section in SettingsSection.allCases {

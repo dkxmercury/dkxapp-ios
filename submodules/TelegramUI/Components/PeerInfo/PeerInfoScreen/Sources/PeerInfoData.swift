@@ -855,7 +855,9 @@ func peerInfoScreenSettingsData(context: AccountContext, peerId: EnginePeer.Id, 
     let preferences = context.sharedContext.accountManager.sharedData(keys: [
         SharedDataKeys.proxySettings,
         ApplicationSpecificSharedDataKeys.inAppNotificationSettings,
-        ApplicationSpecificSharedDataKeys.experimentalUISettings
+        ApplicationSpecificSharedDataKeys.experimentalUISettings,
+        // MARK: DKX правка настроек Dkx сразу перерисовывает экран настроек
+        ApplicationSpecificSharedDataKeys.dkxSettings
     ])
     
     let notificationsAuthorizationStatus = Promise<AccessType>(.allowed)
@@ -1006,6 +1008,10 @@ func peerInfoScreenSettingsData(context: AccountContext, peerId: EnginePeer.Id, 
         let (featuredStickerPacks, archivedStickerPacks) = stickerPacks
         
         let proxySettings: ProxySettings = sharedPreferences.entries[SharedDataKeys.proxySettings]?.get(ProxySettings.self) ?? ProxySettings.defaultSettings
+        // MARK: DKX строки ниже читают снимок, а он мог ещё не обновиться
+        if let dkxSettings = sharedPreferences.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) {
+            DkxRuntime.update(dkxSettings)
+        }
         let inAppNotificationSettings: InAppNotificationSettings = sharedPreferences.entries[ApplicationSpecificSharedDataKeys.inAppNotificationSettings]?.get(InAppNotificationSettings.self) ?? InAppNotificationSettings.defaultSettings
         
         let unreadTrendingStickerPacks = featuredStickerPacks.reduce(0, { count, item -> Int in

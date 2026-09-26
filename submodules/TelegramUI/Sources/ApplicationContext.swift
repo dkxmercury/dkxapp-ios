@@ -152,6 +152,7 @@ final class AuthorizedApplicationContext {
     private var applicationInForegroundDisposable: Disposable?
     
     private var showCallsTab: Bool
+    private var dkxHideContactsTab: Bool
     private var showCallsTabDisposable: Disposable?
     private var enablePostboxTransactionsDiposable: Disposable?
     
@@ -166,8 +167,10 @@ final class AuthorizedApplicationContext {
         
         self.context = context
         
-        self.showCallsTab = showCallsTab
-        
+        // MARK: DKX вкладки, спрятанные в Dkx
+        self.showCallsTab = showCallsTab && !DkxRuntime.current.isHidden(.tabCalls)
+        self.dkxHideContactsTab = DkxRuntime.current.isHidden(.tabContacts)
+
         self.notificationController = NotificationContainerController(context: context)
         
         self.rootController = TelegramRootController(context: context)
@@ -249,6 +252,7 @@ final class AuthorizedApplicationContext {
         }
         
         if self.rootController.rootTabController == nil {
+            self.rootController.dkxHideContactsTab = self.dkxHideContactsTab
             self.rootController.addRootControllers(showCallsTab: self.showCallsTab)
         }
         if let tabsController = self.rootController.viewControllers.first as? TabBarController, !tabsController.controllers.isEmpty, tabsController.selectedIndex >= 0 {
@@ -802,18 +806,21 @@ final class AuthorizedApplicationContext {
             }
         })
         
-        let showCallsTabSignal = context.sharedContext.accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.callListSettings])
-        |> map { sharedData -> Bool in
+        let showCallsTabSignal = context.sharedContext.accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.callListSettings, ApplicationSpecificSharedDataKeys.dkxSettings])
+        |> map { sharedData -> (Bool, Bool) in
             var value = CallListSettings.defaultSettings.showTab
             if let settings = sharedData.entries[ApplicationSpecificSharedDataKeys.callListSettings]?.get(CallListSettings.self) {
                 value = settings.showTab
             }
-            return value
+            let dkxSettings = sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
+            return (value && !dkxSettings.isHidden(.tabCalls), dkxSettings.isHidden(.tabContacts))
         }
-        self.showCallsTabDisposable = (showCallsTabSignal |> deliverOnMainQueue).start(next: { [weak self] value in
+        self.showCallsTabDisposable = (showCallsTabSignal |> deliverOnMainQueue).start(next: { [weak self] value, hideContacts in
             if let strongSelf = self {
-                if strongSelf.showCallsTab != value {
+                if strongSelf.showCallsTab != value || strongSelf.dkxHideContactsTab != hideContacts {
                     strongSelf.showCallsTab = value
+                    strongSelf.dkxHideContactsTab = hideContacts
+                    strongSelf.rootController.dkxHideContactsTab = hideContacts
                     strongSelf.rootController.updateRootControllers(showCallsTab: value)
                 }
             }

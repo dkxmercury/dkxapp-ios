@@ -76,6 +76,8 @@ public final class TelegramRootController: NavigationController, TelegramRootCon
     public var rootTabController: TabBarController?
     
     public var contactsController: ContactsController?
+    // MARK: DKX вкладку «Контакты» можно спрятать в Dkx, сам экран остаётся
+    public var dkxHideContactsTab = false
     public var callListController: CallListController?
     public var chatListController: ChatListController?
     public var accountSettingsController: PeerInfoScreen?
@@ -213,8 +215,10 @@ public final class TelegramRootController: NavigationController, TelegramRootCon
         contactsController.switchToChatsController = {  [weak self] in
             self?.openChatsController(activateSearch: false)
         }
-        controllers.append(contactsController)
-        
+        if !self.dkxHideContactsTab {
+            controllers.append(contactsController)
+        }
+
         if showCallsTab {
             controllers.append(callListController)
         }
@@ -254,7 +258,9 @@ public final class TelegramRootController: NavigationController, TelegramRootCon
             return
         }
         var controllers: [ViewController] = []
-        controllers.append(self.contactsController!)
+        if !self.dkxHideContactsTab {
+            controllers.append(self.contactsController!)
+        }
         if showCallsTab {
             controllers.append(self.callListController!)
         }
