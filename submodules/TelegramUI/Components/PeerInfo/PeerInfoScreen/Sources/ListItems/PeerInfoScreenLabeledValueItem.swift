@@ -19,6 +19,9 @@ import TextNodeWithEntities
 enum PeerInfoScreenLabeledValueTextColor {
     case primary
     case accent
+    // MARK: DKX метка «сохранил» и «не сохранил» в профиле
+    case dkxPositive
+    case dkxNegative
 }
 
 enum PeerInfoScreenLabeledValueTextBehavior: Equatable {
@@ -498,6 +501,10 @@ private final class PeerInfoScreenLabeledValueItemNode: PeerInfoScreenItemNode {
             textColorValue = presentationData.theme.list.itemPrimaryTextColor
         case .accent:
             textColorValue = presentationData.theme.list.itemAccentColor
+        case .dkxPositive:
+            textColorValue = UIColor(rgb: 0x4CD964)
+        case .dkxNegative:
+            textColorValue = UIColor(rgb: 0xFF453A)
         }
         
         self.expandNode.attributedText = NSAttributedString(string: presentationData.strings.PeerInfo_BioExpand, font: Font.regular(17.0), textColor: presentationData.theme.list.itemAccentColor)

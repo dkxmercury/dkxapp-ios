@@ -30,6 +30,25 @@ func dkxBotApiId(_ peerId: EnginePeer.Id) -> String? {
     }
 }
 
+// Записан ли владелец в контактах у собеседника. Флаг mutualContact сервер
+// ставит только при взаимности, поэтому строку показываем лишь тем, кого
+// владелец сохранил сам: для остальных «не сохранил» было бы догадкой.
+func dkxContactBadgeItem(id: AnyHashable, user: TelegramUser, isContact: Bool) -> PeerInfoScreenItem? {
+    guard DkxRuntime.current.showContactBadge, isContact, user.botInfo == nil else {
+        return nil
+    }
+    let isMutual = user.flags.contains(.mutualContact)
+    return PeerInfoScreenLabeledValueItem(
+        id: id,
+        label: "Вы в контактах собеседника",
+        text: isMutual ? "Сохранил" : "Не сохранил",
+        textColor: isMutual ? .dkxPositive : .dkxNegative,
+        action: nil,
+        requestLayout: { _ in
+        }
+    )
+}
+
 func dkxPeerIdItem(id: AnyHashable, peerId: EnginePeer.Id, presentationData: PresentationData, interaction: PeerInfoInteraction) -> PeerInfoScreenItem? {
     guard DkxRuntime.current.showPeerId, let text = dkxBotApiId(peerId) else {
         return nil
