@@ -334,6 +334,21 @@ public final class DkxRuntime {
     private static var labelsByPeer: [Int64: [DkxChatLabel]] = [:]
     // Главный список чатов подписан на своё закрепление, ему нужен сигнал
     private static let localPinsPromise = ValuePromise<[Int64]>([], ignoreRepeated: true)
+    private static var language = "ru"
+
+    public static var languageCode: String {
+        lock.lock()
+        let result = language
+        lock.unlock()
+        return result
+    }
+
+    public static func updateLanguage(_ code: String) {
+        let normalized = code.lowercased()
+        lock.lock()
+        language = normalized
+        lock.unlock()
+    }
 
     public static var localPinsSignal: Signal<[Int64], NoError> {
         return localPinsPromise.get()

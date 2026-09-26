@@ -357,6 +357,7 @@ public final class SharedAccountContextImpl: SharedAccountContext {
         }
         
         self._currentPresentationData = Atomic(value: initialPresentationDataAndSettings.presentationData)
+        DkxRuntime.updateLanguage(initialPresentationDataAndSettings.presentationData.strings.baseLanguageCode)
         self.currentAutomaticMediaDownloadSettings = initialPresentationDataAndSettings.automaticMediaDownloadSettings
         self.currentAutodownloadSettings = Atomic(value: initialPresentationDataAndSettings.autodownloadSettings)
         self.currentMediaInputSettings = Atomic(value: initialPresentationDataAndSettings.mediaInputSettings)
@@ -452,6 +453,7 @@ public final class SharedAccountContextImpl: SharedAccountContext {
                 }
                 if stringsUpdated {
                     updateLegacyLocalization(strings: next.strings)
+                    DkxRuntime.updateLanguage(next.strings.baseLanguageCode)
                 }
                 if themeUpdated {
                     updateLegacyTheme()
