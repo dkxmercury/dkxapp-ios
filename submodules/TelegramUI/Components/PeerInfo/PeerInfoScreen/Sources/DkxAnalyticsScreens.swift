@@ -367,7 +367,8 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
                 errNote = dkxAnSignedPercent(err - previousErr, digits: 1)
                 errColor = tone(err - previousErr)
             }
-            tiles.append(("ERR", report.err.map { dkxAnPercent($0) } ?? "\u{2014}", nil, errNote, errColor, viewsSpark, self.colors.red))
+            let errText: String = report.err.map { dkxAnPercent($0) } ?? "\u{2014}"
+            tiles.append(("ERR", errText, nil, errNote, errColor, viewsSpark, self.colors.red))
 
             var erNote: String?
             var erColor: UIColor?
@@ -375,7 +376,9 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
                 erNote = dkxAnSignedPercent(engagement - previousEngagement, digits: 1)
                 erColor = tone(engagement - previousEngagement)
             }
-            tiles.append((DkxStrings.tr("Вовлечённость"), report.engagement.map { dkxAnPercent($0) } ?? "\u{2014}", nil, erNote, erColor, active.compactMap { $0.bucket.engagement }, self.colors.orange))
+            let erText: String = report.engagement.map { dkxAnPercent($0) } ?? "\u{2014}"
+            let erSpark: [Double] = active.compactMap { $0.bucket.engagement }
+            tiles.append((DkxStrings.tr("Вовлечённость"), erText, nil, erNote, erColor, erSpark, self.colors.orange))
         } else {
             var membersNote: String?
             var membersColor: UIColor?
@@ -391,7 +394,8 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
                 postsNote = dkxAnSignedPercent(change)
                 postsColor = tone(change)
             }
-            tiles.append((DkxStrings.tr("Сообщения"), dkxAnNumber(report.posts.count), nil, postsNote, postsColor, report.chart.map { Double($0.bucket.posts) }, self.colors.accent))
+            let postsSpark: [Double] = report.chart.map { Double($0.bucket.posts) }
+            tiles.append((DkxStrings.tr("Сообщения"), dkxAnNumber(report.posts.count), nil, postsNote, postsColor, postsSpark, self.colors.accent))
             tiles.append((DkxStrings.tr("Сообщений в день"), dkxAnDecimal(report.postsPerDay), nil, nil, nil, nil, nil))
             tiles.append((DkxStrings.tr("Писали"), dkxAnNumber(report.activeAuthors), nil, nil, nil, nil, nil))
         }
@@ -546,7 +550,8 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
                 card.addSubview(detail)
                 y += 23.0
                 let bar = DkxAnBarView(track: self.colors.track, color: self.colors.accent)
-                bar.fraction = maxValue > 0.0 ? CGFloat((channelMode ? average(row.bucket) : Double(row.bucket.posts)) / maxValue) : 0.0
+                let rowValue: Double = channelMode ? average(row.bucket) : Double(row.bucket.posts)
+                bar.fraction = maxValue > 0.0 ? CGFloat(rowValue / maxValue) : 0.0
                 bar.frame = CGRect(x: inner, y: y, width: innerWidth, height: 8.0)
                 card.addSubview(bar)
                 y += 8.0 + 12.0
@@ -911,7 +916,8 @@ final class DkxAnalyticsPostsController: DkxAnalyticsBaseController {
         } else if channelMode {
             tiles.append((DkxStrings.tr("Постов"), dkxAnNumber(report.posts.count), nil, nil, nil, nil, nil))
             tiles.append((DkxStrings.tr("Среднее"), dkxAnNumber(Int(report.avgViews.rounded())), nil, nil, nil, nil, nil))
-            tiles.append(("ER", report.engagement.map { dkxAnPercent($0) } ?? "\u{2014}", nil, nil, nil, nil, nil))
+            let erText: String = report.engagement.map { dkxAnPercent($0) } ?? "\u{2014}"
+            tiles.append(("ER", erText, nil, nil, nil, nil, nil))
         } else {
             tiles.append((DkxStrings.tr("Сообщений"), dkxAnNumber(report.posts.count), nil, nil, nil, nil, nil))
             tiles.append((DkxStrings.tr("Писали"), dkxAnNumber(report.activeAuthors), nil, nil, nil, nil, nil))
@@ -1446,7 +1452,12 @@ final class DkxAnalyticsPostController: DkxAnalyticsBaseController {
                 let alignment: NSTextAlignment = index == 0 ? .left : (index == marks - 1 ? .right : .center)
                 let label = dkxAnLabel("\(value) " + unit, size: 11.0, color: self.colors.secondary, alignment: alignment)
                 let position = inner + innerWidth * CGFloat(index) / CGFloat(marks - 1)
-                let labelX = alignment == .left ? position : (alignment == .right ? position - 40.0 : position - 20.0)
+                var labelX: CGFloat = position - 20.0
+                if index == 0 {
+                    labelX = position
+                } else if index == marks - 1 {
+                    labelX = position - 40.0
+                }
                 label.frame = CGRect(x: labelX, y: y, width: 40.0, height: 14.0)
                 card.addSubview(label)
             }

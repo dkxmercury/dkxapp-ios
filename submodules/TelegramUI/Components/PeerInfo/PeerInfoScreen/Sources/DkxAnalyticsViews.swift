@@ -473,7 +473,11 @@ final class DkxAnGrowthView: UIView {
         let dotArea: CGFloat = 16.0
         let chartHeight = bounds.height - dotArea
         let half = chartHeight / 2.0
-        let maxValue = CGFloat(max(1, self.days.map { max($0.joined, $0.left) }.max() ?? 1))
+        var largest = 1
+        for day in self.days {
+            largest = max(largest, day.joined, day.left)
+        }
+        let maxValue = CGFloat(largest)
         let count = CGFloat(self.days.count)
         let gap: CGFloat = count > 60 ? 0.0 : 3.0
         let width = max(1.0, (bounds.width - gap * (count - 1.0)) / count)

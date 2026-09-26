@@ -36,7 +36,12 @@ private func dkxAdviceDate(_ timestamp: Int32) -> String {
 func dkxAdvicePrompt(report: DkxAnalyticsReport, title: String, username: String?, periodTitle: String) -> (system: String, text: String) {
     let isChannel = report.isChannel
     var lines: [String] = []
-    lines.append((isChannel ? "Канал " : "Группа ") + title + (username.map { " @" + $0 } ?? ""))
+    var header = isChannel ? "Канал " : "Группа "
+    header += title
+    if let username {
+        header += " @" + username
+    }
+    lines.append(header)
     lines.append("Период \(periodTitle), с \(dkxAdviceDate(report.periodStart)) по \(dkxAdviceDate(report.periodEnd)), время телефона")
     if let members = report.members {
         lines.append((isChannel ? "Подписчиков сейчас " : "Участников сейчас ") + "\(members)")

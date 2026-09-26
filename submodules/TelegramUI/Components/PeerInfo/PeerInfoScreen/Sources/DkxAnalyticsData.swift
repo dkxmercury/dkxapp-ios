@@ -279,14 +279,23 @@ struct DkxAnalyticsReport: Equatable {
             return (0.0, 0.0, 0.0, nil)
         }
         let count = Double(source.count)
-        let views = source.reduce(0) { $0 + $1.views }
-        let interactions = source.reduce(0) { $0 + $1.interactions }
-        return (
-            Double(source.reduce(0) { $0 + $1.reactions }) / count,
-            Double(source.reduce(0) { $0 + $1.forwards }) / count,
-            Double(source.reduce(0) { $0 + $1.comments }) / count,
-            views > 0 ? Double(interactions) / Double(views) * 100.0 : nil
-        )
+        var views = 0
+        var interactions = 0
+        var reactions = 0
+        var forwards = 0
+        var comments = 0
+        for post in source {
+            views += post.views
+            interactions += post.interactions
+            reactions += post.reactions
+            forwards += post.forwards
+            comments += post.comments
+        }
+        var engagement: Double?
+        if views > 0 {
+            engagement = Double(interactions) / Double(views) * 100.0
+        }
+        return (Double(reactions) / count, Double(forwards) / count, Double(comments) / count, engagement)
     }
 
     func netRank(_ post: DkxPost) -> Int? {

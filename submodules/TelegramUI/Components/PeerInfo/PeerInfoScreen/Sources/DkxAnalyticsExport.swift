@@ -152,24 +152,36 @@ func dkxAnalyticsSheets(report: DkxAnalyticsReport, title: String, username: Str
 
     var posts: [[Cell]] = [[text(DkxStrings.tr("Дата")), text(DkxStrings.tr("Тип")), text(DkxStrings.tr("Текст")), text(DkxStrings.tr("Просмотры")), text(DkxStrings.tr("Реакции")), text(DkxStrings.tr("Пересылки")), text(DkxStrings.tr("Комментарии")), text(DkxStrings.tr("Звёзды")), text(DkxStrings.tr("Вовлечённость, %")), text(DkxStrings.tr("К среднему, раз")), text(DkxStrings.tr("Пришло, оценка")), text(DkxStrings.tr("Ушло, оценка")), text(DkxStrings.tr("Реклама")), text(DkxStrings.tr("Автор")), text(DkxStrings.tr("Ссылка"))]]
     for post in report.posts {
-        let impact = report.impacts[post.id]
-        posts.append([
-            text(dkxXlsxDate(post.date)),
-            text(post.kind.title),
-            text(String(post.fullText.prefix(32000))),
-            int(post.views),
-            int(post.reactions),
-            int(post.forwards),
-            int(post.comments),
-            int(post.paidStars),
-            post.engagement.map { number(dkxRound($0)) } ?? text(""),
-            report.ratio(post).map { number(dkxRound($0)) } ?? text(""),
-            impact.map { number(dkxRound($0.joined, 1)) } ?? text(""),
-            impact.map { number(dkxRound($0.left, 1)) } ?? text(""),
-            text(post.isAd ? yes : no),
-            text(post.authorName ?? ""),
-            text(dkxPostLink(post, username: username))
-        ])
+        var row: [Cell] = []
+        row.append(text(dkxXlsxDate(post.date)))
+        row.append(text(post.kind.title))
+        row.append(text(String(post.fullText.prefix(32000))))
+        row.append(int(post.views))
+        row.append(int(post.reactions))
+        row.append(int(post.forwards))
+        row.append(int(post.comments))
+        row.append(int(post.paidStars))
+        if let engagement = post.engagement {
+            row.append(number(dkxRound(engagement)))
+        } else {
+            row.append(text(""))
+        }
+        if let ratio = report.ratio(post) {
+            row.append(number(dkxRound(ratio)))
+        } else {
+            row.append(text(""))
+        }
+        if let impact = report.impacts[post.id] {
+            row.append(number(dkxRound(impact.joined, 1)))
+            row.append(number(dkxRound(impact.left, 1)))
+        } else {
+            row.append(text(""))
+            row.append(text(""))
+        }
+        row.append(text(post.isAd ? yes : no))
+        row.append(text(post.authorName ?? ""))
+        row.append(text(dkxPostLink(post, username: username)))
+        posts.append(row)
     }
     sheets.append(DkxXlsxSheet(name: report.isChannel ? DkxStrings.tr("Посты") : DkxStrings.tr("Сообщения"), rows: posts))
 
@@ -261,19 +273,28 @@ func dkxAnalyticsExport(context: AccountContext, report: DkxAnalyticsReport, pee
             share()
             return
         }
-        DkxGoogleDriveUploadQueue.enqueue(DkxGoogleDriveUploadJob(fileName: fileName, mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", chatId: chatId, chatTitle: title, messageId: 0, force: true, prepare: .single(path), completion: { [weak controller] result, _ in
-            switch result {
-            case .uploaded, .duplicate:
-                controller?.showToast(DkxStrings.tr("Таблица загружена в Google Drive"))
-            case .notConnected:
-                controller?.showToast(DkxStrings.tr("Сначала войдите в Google в настройках Dkx"))
-                share()
-            case let .failed(reason):
-                controller?.showToast(DkxStrings.tr("Не удалось загрузить таблицу. {}", reason))
-            case .cancelled:
-                break
-            }
-        }))
-        controller.showToast(DkxStrings.tr("Таблица в очереди на Google Drive, ход загрузки вверху экрана"))
+        guard DkxGoogleDrive.isConnected else {
+            controller.showToast(DkxStrings.tr("Сначала войдите в Google в настройках Dkx"))
+            share()
+            return
+        }
+        dkxDriveChooseAccount(context: context, present: { [weak controller] sheet, _ in
+            controller?.present(sheet, in: .window(.root))
+        }, completion: { [weak controller] accountId in
+            DkxGoogleDriveUploadQueue.enqueue(DkxGoogleDriveUploadJob(fileName: fileName, mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", chatId: chatId, chatTitle: title, messageId: 0, force: true, accountId: accountId, prepare: .single(path), completion: { [weak controller] result, _ in
+                switch result {
+                case .uploaded, .duplicate:
+                    controller?.showToast(DkxStrings.tr("Таблица загружена в Google Drive"))
+                case .notConnected:
+                    controller?.showToast(DkxStrings.tr("Сначала войдите в Google в настройках Dkx"))
+                    share()
+                case let .failed(reason):
+                    controller?.showToast(DkxStrings.tr("Не удалось загрузить таблицу. {}", reason))
+                case .cancelled:
+                    break
+                }
+            }))
+            controller?.showToast(DkxStrings.tr("Таблица в очереди на Google Drive, ход загрузки вверху экрана"))
+        })
     })
 }
