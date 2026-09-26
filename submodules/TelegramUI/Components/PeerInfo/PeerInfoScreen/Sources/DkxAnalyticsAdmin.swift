@@ -135,7 +135,7 @@ private func dkxAdminFromGroup(_ stats: GroupStats, names: [EnginePeer.Id: Strin
     return result
 }
 
-// Ждём догрузки графиков, но не дольше 20 секунд. Что не успело, пропускаем
+// Ждём догрузки графиков, но не дольше 15 секунд. Что не успело, пропускаем
 private func dkxWaitStats<T>(state: Signal<T?, NoError>, request: @escaping () -> Void, pending: @escaping (T) -> Bool, keepAlive: AnyObject) -> Signal<T?, NoError> {
     return Signal<T?, NoError> { subscriber in
         var latest: T?
@@ -149,7 +149,7 @@ private func dkxWaitStats<T>(state: Signal<T?, NoError>, request: @escaping () -
             subscriber.putNext(latest)
             subscriber.putCompletion()
         }
-        let timer = SwiftSignalKit.Timer(timeout: 20.0, repeat: false, completion: {
+        let timer = SwiftSignalKit.Timer(timeout: 15.0, repeat: false, completion: {
             finish()
         }, queue: Queue.mainQueue())
         timer.start()

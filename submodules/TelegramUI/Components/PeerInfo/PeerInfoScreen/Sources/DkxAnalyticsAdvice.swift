@@ -48,7 +48,7 @@ func dkxAdvicePrompt(report: DkxAnalyticsReport, title: String, username: String
     }
     lines.append("Постов \(report.posts.count), в день \(dkxAdviceNumber(report.postsPerDay))")
     if report.capped {
-        lines.append("Загружены не все сообщения периода, только последние \(dkxAnalyticsMessageCap)")
+        lines.append("Загружены не все сообщения периода, только последние \(report.loadedMessages)")
     }
     if report.hasViews {
         lines.append("Просмотры на пост по постам старше 48 часов \(dkxAdviceNumber(report.avgViews)), медиана \(dkxAdviceNumber(report.medianViews)), таких постов \(report.maturePostCount)")
@@ -233,7 +233,7 @@ final class DkxAnalyticsAdviceController: DkxAnalyticsBaseController {
         self.loading = true
         self.failure = nil
         self.reload()
-        self.requestDisposable.set((dkxAIComplete(system: prompt.system, text: prompt.text, temperature: 0.5, maxTokens: 3000, timeout: 120.0)
+        self.requestDisposable.set((dkxAIComplete(system: prompt.system, text: prompt.text, temperature: 0.5, maxTokens: 8000, timeout: 120.0)
         |> deliverOnMainQueue).start(next: { [weak self] result, provider in
             guard let self else {
                 return

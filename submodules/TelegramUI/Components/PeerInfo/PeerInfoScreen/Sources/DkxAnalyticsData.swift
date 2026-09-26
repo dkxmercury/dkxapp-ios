@@ -239,6 +239,8 @@ struct DkxAnalyticsReport: Equatable {
     let admin: DkxAdminStats?
     let viewsSeries: [Double]
     let viewsFromTelegram: Bool
+    let loadedMessages: Int
+    let incomplete: Bool
 
     func isMature(_ post: DkxPost) -> Bool {
         return self.periodEnd - post.date >= dkxAnalyticsMatureAge
@@ -821,7 +823,7 @@ private func dkxFill(_ starts: [Int32], _ posts: [DkxPost], now: Int32) -> [DkxD
     return buckets
 }
 
-func dkxBuildReport(allPosts: [DkxPost], isChannel: Bool, members: Int?, periodDays: Int, now: Int32, capped: Bool, previousComplete: Bool, admin: DkxAdminStats?, calendar: Calendar = Calendar.current) -> DkxAnalyticsReport {
+func dkxBuildReport(allPosts: [DkxPost], isChannel: Bool, members: Int?, periodDays: Int, now: Int32, capped: Bool, previousComplete: Bool, admin: DkxAdminStats?, loadedMessages: Int = 0, incomplete: Bool = false, calendar: Calendar = Calendar.current) -> DkxAnalyticsReport {
     let growth = admin?.growth ?? []
     let periodStart = now - Int32(periodDays) * 86400
     let posts = allPosts.filter { $0.date >= periodStart && $0.date <= now }
@@ -979,7 +981,9 @@ func dkxBuildReport(allPosts: [DkxPost], isChannel: Bool, members: Int?, periodD
         previous: previousComplete && !previousPosts.isEmpty ? dkxSummary(previousPosts, members: members, now: now) : nil,
         admin: admin,
         viewsSeries: viewsSeries,
-        viewsFromTelegram: viewsFromTelegram
+        viewsFromTelegram: viewsFromTelegram,
+        loadedMessages: loadedMessages,
+        incomplete: incomplete
     )
 }
 
@@ -987,37 +991,64 @@ struct DkxAnalyticsSource {
     let messages: [Message]
     let capped: Bool
     let oldestDate: Int32?
+    // Сервер не отдал историю до конца, по таймауту или пустой страницей
+    var incomplete = false
 }
 
+// Нижнюю дату в запрос не передаём. Так канал и супергруппа читаются обычной
+// историей, как при прокрутке чата. Поиск с датой упирается в лимиты сервера,
+// и запрос молча ждёт. Листаем, пока не дойдём до нужной даты
 func dkxLoadHistory(context: AccountContext, peerId: EnginePeer.Id, minDate: Int32, cap: Int, progress: @escaping (Int) -> Void) -> Signal<DkxAnalyticsSource, NoError> {
+    let partial = Atomic<[Message]>(value: [])
     func page(_ state: SearchMessagesState?, _ collected: [Message], _ known: Set<MessageId>) -> Signal<DkxAnalyticsSource, NoError> {
-        return context.engine.messages.searchMessages(location: .peer(peerId: peerId, fromId: nil, tags: nil, reactions: nil, threadId: nil, minDate: minDate, maxDate: nil), query: "", state: state, limit: 100)
+        return context.engine.messages.searchMessages(location: .peer(peerId: peerId, fromId: nil, tags: nil, reactions: nil, threadId: nil, minDate: nil, maxDate: nil), query: "", state: state, limit: 100)
         |> take(1)
         |> mapToSignal { result, nextState -> Signal<DkxAnalyticsSource, NoError> in
             var all = collected
             var knownIds = known
             var added = 0
+            var reachedStart = false
             for message in result.messages where !knownIds.contains(message.id) {
                 knownIds.insert(message.id)
-                all.append(message)
                 added += 1
+                if message.timestamp < minDate {
+                    reachedStart = true
+                } else {
+                    all.append(message)
+                }
             }
+            let _ = partial.swap(all)
             progress(all.count)
             let oldest = all.map { $0.timestamp }.min()
+            if result.completed || reachedStart {
+                return .single(DkxAnalyticsSource(messages: all, capped: false, oldestDate: oldest))
+            }
             if all.count >= cap {
                 return .single(DkxAnalyticsSource(messages: all, capped: true, oldestDate: oldest))
             }
-            if result.completed || added == 0 {
-                return .single(DkxAnalyticsSource(messages: all, capped: false, oldestDate: oldest))
+            if added == 0 {
+                DkxLog.write("аналитика", "сервер отдал пустую страницу, загружено \(all.count)")
+                return .single(DkxAnalyticsSource(messages: all, capped: true, oldestDate: oldest, incomplete: true))
             }
             return page(nextState, all, knownIds)
         }
     }
+    // Сервер тормозит, отдаём то, что успели загрузить, и честно пишем, что не всё
+    let partialResult = Signal<DkxAnalyticsSource, NoError> { subscriber in
+        let messages = partial.with { $0 }
+        DkxLog.write("аналитика", "история не успела за 2 минуты, загружено \(messages.count)")
+        subscriber.putNext(DkxAnalyticsSource(messages: messages, capped: true, oldestDate: messages.map { $0.timestamp }.min(), incomplete: true))
+        subscriber.putCompletion()
+        return EmptyDisposable
+    }
     return page(nil, [], Set())
+    |> timeout(120.0, queue: Queue.concurrentDefaultQueue(), alternate: partialResult)
 }
 
 struct DkxAnalyticsRaw {
     let posts: [DkxPost]
+    let messageCount: Int
+    let incomplete: Bool
     let isChannel: Bool
     let members: Int?
     let capped: Bool
@@ -1026,7 +1057,7 @@ struct DkxAnalyticsRaw {
     let admin: DkxAdminStats?
 }
 
-func dkxLoadAnalytics(context: AccountContext, peerId: EnginePeer.Id, periodDays: Int, now: Int32, progress: @escaping (Int) -> Void) -> Signal<DkxAnalyticsRaw, NoError> {
+func dkxLoadAnalytics(context: AccountContext, peerId: EnginePeer.Id, periodDays: Int, now: Int32, progress: @escaping (Int) -> Void, historyDone: @escaping (Int) -> Void) -> Signal<DkxAnalyticsRaw, NoError> {
     let loadDays = periodDays <= dkxAnalyticsCompareMaxDays ? periodDays * 2 : periodDays
     let minDate = now - Int32(loadDays) * 86400
     return context.engine.data.get(
@@ -1038,14 +1069,21 @@ func dkxLoadAnalytics(context: AccountContext, peerId: EnginePeer.Id, periodDays
         if let peer, case let .channel(channel) = peer, case .broadcast = channel.info {
             isChannel = true
         }
-        return combineLatest(
-            dkxLoadHistory(context: context, peerId: peerId, minDate: minDate, cap: dkxAnalyticsMessageCap, progress: progress),
-            dkxLoadAdminStats(context: context, peerId: peerId, isChannel: isChannel)
-        )
+        let started = CFAbsoluteTimeGetCurrent()
+        let history = dkxLoadHistory(context: context, peerId: peerId, minDate: minDate, cap: dkxAnalyticsMessageCap, progress: progress)
+        |> afterNext { source in
+            DkxLog.write("аналитика", "история \(source.messages.count) за \(Int(CFAbsoluteTimeGetCurrent() - started)) с")
+            historyDone(source.messages.count)
+        }
+        let admin = dkxLoadAdminStats(context: context, peerId: peerId, isChannel: isChannel)
+        |> afterNext { stats in
+            DkxLog.write("аналитика", "статистика Telegram \(stats == nil ? "нет" : "есть") за \(Int(CFAbsoluteTimeGetCurrent() - started)) с")
+        }
+        return combineLatest(history, admin)
         |> take(1)
         |> deliverOn(Queue.concurrentDefaultQueue())
         |> map { source, admin -> DkxAnalyticsRaw in
-            return DkxAnalyticsRaw(posts: dkxMakePosts(source.messages), isChannel: isChannel, members: members, capped: source.capped, oldestDate: source.oldestDate, loadedFrom: minDate, admin: admin)
+            return DkxAnalyticsRaw(posts: dkxMakePosts(source.messages), messageCount: source.messages.count, incomplete: source.incomplete, isChannel: isChannel, members: members, capped: source.capped, oldestDate: source.oldestDate, loadedFrom: minDate, admin: admin)
         }
     }
 }
@@ -1055,5 +1093,5 @@ func dkxReport(_ raw: DkxAnalyticsRaw, periodDays: Int, now: Int32) -> DkxAnalyt
     let previousStart = periodStart - Int32(periodDays) * 86400
     let currentCapped = raw.capped && (raw.oldestDate ?? now) > periodStart
     let previousComplete = raw.loadedFrom <= previousStart && (!raw.capped || (raw.oldestDate ?? now) <= previousStart)
-    return dkxBuildReport(allPosts: raw.posts, isChannel: raw.isChannel, members: raw.members, periodDays: periodDays, now: now, capped: currentCapped, previousComplete: previousComplete, admin: raw.admin)
+    return dkxBuildReport(allPosts: raw.posts, isChannel: raw.isChannel, members: raw.members, periodDays: periodDays, now: now, capped: currentCapped, previousComplete: previousComplete, admin: raw.admin, loadedMessages: raw.messageCount, incomplete: raw.incomplete)
 }

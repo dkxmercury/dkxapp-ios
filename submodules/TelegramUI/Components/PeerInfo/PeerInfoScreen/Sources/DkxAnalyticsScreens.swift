@@ -152,7 +152,7 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
         let days = dkxAnalyticsPeriods[self.periodIndex].days
         let needDays = days <= dkxAnalyticsCompareMaxDays ? days * 2 : days
         // Упёрлись в предел сообщений, новая загрузка даст то же самое
-        if let raw = self.raw, raw.capped || raw.loadedFrom <= self.rawNow - Int32(needDays) * 86400 {
+        if let raw = self.raw, !raw.incomplete, raw.capped || raw.loadedFrom <= self.rawNow - Int32(needDays) * 86400 {
             let now = self.rawNow
             self.loadDisposable.set((Signal<DkxAnalyticsReport, NoError> { subscriber in
                 subscriber.putNext(dkxReport(raw, periodDays: days, now: now))
@@ -178,6 +178,10 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
         self.loadDisposable.set((dkxLoadAnalytics(context: self.context, peerId: self.peerId, periodDays: days, now: now, progress: { [weak self] count in
             Queue.mainQueue().async {
                 self?.updateProgress(count)
+            }
+        }, historyDone: { [weak self] count in
+            Queue.mainQueue().async {
+                self?.progressLabel?.text = DkxStrings.tr("Сообщений {}. Считаю и жду статистику Telegram, до 15 секунд", dkxAnNumber(count))
             }
         })
         |> map { raw -> (DkxAnalyticsRaw, DkxAnalyticsReport) in
@@ -229,14 +233,31 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
         guard !self.loading, let report = self.report else {
             return self.buildLoading(x: x, top: y, width: width)
         }
+        if report.incomplete {
+            let text = report.posts.isEmpty ? DkxStrings.tr("Telegram не отдал историю сообщений. Так бывает, когда сервер просит подождать. Попробуйте ещё раз через минуту.") : DkxStrings.tr("Telegram отдал не всю историю, в расчёте последние {} сообщений. Можно загрузить заново.", dkxAnNumber(report.loadedMessages))
+            y = self.addFootnote(text, x: x, top: y, width: width) + 10.0
+            let retry = self.makeButton(DkxStrings.tr("Загрузить заново"), width: width, height: 44.0, filled: false, fontSize: 15.0, icon: "arrow.clockwise", action: { [weak self] in
+                guard let self else {
+                    return
+                }
+                self.raw = nil
+                self.load()
+            })
+            retry.frame.origin = CGPoint(x: x, y: y)
+            self.add(retry)
+            y += 44.0 + 14.0
+            if report.posts.isEmpty {
+                return y
+            }
+        }
         if report.posts.isEmpty {
             return self.addCard(x: x, top: y, width: width, title: nil, content: { card, inner, top, innerWidth in
                 let label = dkxAnLabel(DkxStrings.tr("За этот период сообщений нет"), size: 15.0, color: self.colors.secondary, lines: 0, alignment: .center)
                 return top + dkxAnPlace(label, in: card, x: inner, y: top + 16.0, width: innerWidth) + 16.0
             })
         }
-        if report.capped {
-            y = self.addFootnote(DkxStrings.tr("Загружены последние {} сообщений, более ранние в расчёт не вошли", dkxAnNumber(dkxAnalyticsMessageCap)), x: x, top: y, width: width) + 14.0
+        if report.capped && !report.incomplete {
+            y = self.addFootnote(DkxStrings.tr("Загружены последние {} сообщений, более ранние в расчёт не вошли", dkxAnNumber(report.loadedMessages)), x: x, top: y, width: width) + 14.0
         }
         let channelMode = report.isChannel && report.hasViews
         y = self.buildTiles(report, channelMode: channelMode, x: x, top: y, width: width) + 14.0

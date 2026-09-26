@@ -106,7 +106,7 @@ func dkxAnalyticsSheets(report: DkxAnalyticsReport, title: String, username: Str
             }
         }
     }
-    summary.append([text(DkxStrings.tr("Выгрузка обрезана")), text(report.capped ? yes : no), text(report.capped ? DkxStrings.tr("загружены последние {} сообщений", dkxAnalyticsMessageCap) : "")])
+    summary.append([text(DkxStrings.tr("Выгрузка обрезана")), text(report.capped ? yes : no), text(report.capped ? DkxStrings.tr("загружены последние {} сообщений", report.loadedMessages) : "")])
     sheets.append(DkxXlsxSheet(name: DkxStrings.tr("Сводка"), rows: summary))
 
     var days: [[Cell]] = [[text(DkxStrings.tr("Дата")), text(DkxStrings.tr("Постов")), text(DkxStrings.tr("Просмотров")), text(DkxStrings.tr("Реакций")), text(DkxStrings.tr("Пересылок")), text(DkxStrings.tr("Комментариев"))]]
