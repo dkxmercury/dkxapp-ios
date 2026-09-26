@@ -277,7 +277,7 @@ public enum DkxGoogleDrive {
                 completion(nil)
                 return
             }
-            storeAccessToken(token, expiresIn: json["expires_in"] as? Double ?? 3600.0)
+            storeAccessToken(token, expiresIn: json?["expires_in"] as? Double ?? 3600.0)
             completion(token)
         }).resume()
     }
