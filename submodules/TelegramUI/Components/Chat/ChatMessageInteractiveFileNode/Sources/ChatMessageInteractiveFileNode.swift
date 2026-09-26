@@ -425,31 +425,40 @@ public final class ChatMessageInteractiveFileNode: ASDisplayNode {
                 
                 if context.sharedContext.immediateExperimentalUISettings.localTranscription || dkxLocal {
                     let appLocale = presentationData.strings.baseLanguageCode
-                    
-                    let signal: Signal<LocallyTranscribedAudio?, NoError> = context.engine.data.get(TelegramEngine.EngineData.Item.Messages.Message(id: message.id))
-                    |> mapToSignal { message -> Signal<String?, NoError> in
-                        guard let message = message else {
-                            return .single(nil)
-                        }
-                        guard let file = message.media.first(where: { $0 is TelegramMediaFile }) as? TelegramMediaFile else {
-                            return .single(nil)
-                        }
-                        return context.engine.resources.data(id: EngineMediaResource.Id(file.resource.id))
-                        |> take(1)
-                        |> mapToSignal { data -> Signal<String?, NoError> in
-                            if !data.isComplete {
-                                return .single(nil)
-                            }
-                            return .single(data.path)
+                    dkxSetTranscriptionFailure(nil)
+
+                    // MARK: DKX голосовое докачивается, если ещё не скачано, и ждём полный файл
+                    let file = arguments.file
+                    let downloaded = Signal<String?, NoError> { subscriber in
+                        let fetchDisposable = messageMediaFileInteractiveFetched(context: context, message: message, file: file, userInitiated: true).start()
+                        let dataDisposable = (context.engine.resources.data(id: EngineMediaResource.Id(file.resource.id))
+                        |> filter { $0.isComplete }
+                        |> take(1)).start(next: { data in
+                            subscriber.putNext(data.path)
+                            subscriber.putCompletion()
+                        })
+                        return ActionDisposable {
+                            fetchDisposable.dispose()
+                            dataDisposable.dispose()
                         }
                     }
+                    |> timeout(60.0, queue: Queue.mainQueue(), alternate: .single(nil))
+
+                    let signal: Signal<LocallyTranscribedAudio?, NoError> = downloaded
                     |> mapToSignal { result -> Signal<String?, NoError> in
                         guard let result = result else {
+                            dkxSetTranscriptionFailure(DkxStrings.tr("запись не скачалась за минуту, проверьте интернет"))
                             return .single(nil)
                         }
                         return convertOpusToAAC(sourcePath: result, allocateTempFile: {
                             return EngineTempBox.shared.tempFile(fileName: "audio.m4a").path
                         })
+                        |> map { converted -> String? in
+                            if converted == nil {
+                                dkxSetTranscriptionFailure(DkxStrings.tr("не удалось подготовить звук из записи"))
+                            }
+                            return converted
+                        }
                     }
                     |> mapToSignal { result -> Signal<LocallyTranscribedAudio?, NoError> in
                         guard let result = result else {
@@ -473,7 +482,7 @@ public final class ChatMessageInteractiveFileNode: ASDisplayNode {
                             strongSelf.audioTranscriptionState = .collapsed
                             strongSelf.requestUpdateLayout(true)
                             if dkxLocal {
-                                arguments.controllerInteraction.presentControllerInCurrent(UndoOverlayController(presentationData: arguments.context.sharedContext.currentPresentationData.with { $0 }, content: .info(title: nil, text: (dkxSpeechAccessDenied() ? DkxStrings.tr("Нет разрешения на распознавание речи. Включите его в настройках iOS, раздел Dkx.") : DkxStrings.tr("Не удалось расшифровать. Проверьте язык в Dkx, раздел «Расшифровка голосовых», и что запись загружена.")), timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return true }), nil)
+                                arguments.controllerInteraction.presentControllerInCurrent(UndoOverlayController(presentationData: arguments.context.sharedContext.currentPresentationData.with { $0 }, content: .info(title: nil, text: dkxTranscriptionFailureText(), timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return true }), nil)
                             }
                         }
                     }, completed: { [weak self] in
@@ -811,7 +820,13 @@ public final class ChatMessageInteractiveFileNode: ASDisplayNode {
                 }
                 
                 let currentTime = Int32(Date().timeIntervalSince1970)
-                if transcribedText == nil, let cooldownUntilTime = arguments.associatedData.audioTranscriptionTrial.cooldownUntilTime, cooldownUntilTime > currentTime {
+                // MARK: DKX без Premium расшифровывает телефон, пробный лимит Telegram его не касается
+                let dkxLocalLayout = DkxRuntime.current.localTranscription && !arguments.associatedData.isPremium
+                if dkxLocalLayout {
+                    if case .locked = audioTranscriptionState {
+                        updatedAudioTranscriptionState = transcribedText == nil ? .collapsed : .expanded
+                    }
+                } else if transcribedText == nil, let cooldownUntilTime = arguments.associatedData.audioTranscriptionTrial.cooldownUntilTime, cooldownUntilTime > currentTime {
                     updatedAudioTranscriptionState = .locked
                 }
                 

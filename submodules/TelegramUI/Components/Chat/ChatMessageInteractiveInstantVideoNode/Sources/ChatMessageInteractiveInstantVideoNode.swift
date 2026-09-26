@@ -639,7 +639,13 @@ public class ChatMessageInteractiveInstantVideoNode: ASDisplayNode {
             }
             
             let currentTime = Int32(Date().timeIntervalSince1970)
-            if transcribedText == nil, let cooldownUntilTime = item.associatedData.audioTranscriptionTrial.cooldownUntilTime, cooldownUntilTime > currentTime {
+            // MARK: DKX без Premium расшифровывает телефон, пробный лимит Telegram его не касается
+            let dkxLocalLayout = DkxRuntime.current.localTranscription && !item.associatedData.isPremium
+            if dkxLocalLayout {
+                if case .locked = audioTranscriptionState {
+                    updatedAudioTranscriptionState = transcribedText == nil ? .collapsed : .expanded
+                }
+            } else if transcribedText == nil, let cooldownUntilTime = item.associatedData.audioTranscriptionTrial.cooldownUntilTime, cooldownUntilTime > currentTime {
                 updatedAudioTranscriptionState = .locked
             }
             
@@ -1942,23 +1948,43 @@ public class ChatMessageInteractiveInstantVideoNode: ASDisplayNode {
     // MARK: DKX звук вынимается из кружка и распознаётся на телефоне
     private func dkxTranscribeLocally(item: ChatMessageBubbleContentItem) {
         let context = item.context
-        let messageId = item.message.id
-        let signal: Signal<LocallyTranscribedAudio?, NoError> = context.engine.data.get(TelegramEngine.EngineData.Item.Messages.Message(id: messageId))
-        |> mapToSignal { message -> Signal<String?, NoError> in
-            guard let message, let file = message.media.first(where: { $0 is TelegramMediaFile }) as? TelegramMediaFile else {
-                return .single(nil)
-            }
-            return context.engine.resources.data(id: EngineMediaResource.Id(file.resource.id))
-            |> take(1)
-            |> map { data -> String? in
-                return data.isComplete ? data.path : nil
+        let message = item.message
+        let messageId = message.id
+        dkxSetTranscriptionFailure(nil)
+        guard let file = message.media.first(where: { $0 is TelegramMediaFile }) as? TelegramMediaFile else {
+            self.audioTranscriptionState = .collapsed
+            self.requestUpdateLayout(true)
+            return
+        }
+        // Кружок докачивается, если ещё не скачан, и ждём полный файл
+        let downloaded = Signal<String?, NoError> { subscriber in
+            let fetchDisposable = messageMediaFileInteractiveFetched(context: context, message: message, file: file, userInitiated: true).start()
+            let dataDisposable = (context.engine.resources.data(id: EngineMediaResource.Id(file.resource.id))
+            |> filter { $0.isComplete }
+            |> take(1)).start(next: { data in
+                subscriber.putNext(data.path)
+                subscriber.putCompletion()
+            })
+            return ActionDisposable {
+                fetchDisposable.dispose()
+                dataDisposable.dispose()
             }
         }
+        |> timeout(60.0, queue: Queue.mainQueue(), alternate: .single(nil))
+
+        let signal: Signal<LocallyTranscribedAudio?, NoError> = downloaded
         |> mapToSignal { path -> Signal<String?, NoError> in
             guard let path else {
+                dkxSetTranscriptionFailure(DkxStrings.tr("запись не скачалась за минуту, проверьте интернет"))
                 return .single(nil)
             }
             return dkxExtractAudio(videoPath: path)
+            |> map { audio -> String? in
+                if audio == nil {
+                    dkxSetTranscriptionFailure(DkxStrings.tr("не удалось вынуть звук из кружка"))
+                }
+                return audio
+            }
         }
         |> mapToSignal { path -> Signal<LocallyTranscribedAudio?, NoError> in
             guard let path else {
@@ -1976,7 +2002,7 @@ public class ChatMessageInteractiveInstantVideoNode: ASDisplayNode {
             } else {
                 self.audioTranscriptionState = .collapsed
                 self.requestUpdateLayout(true)
-                item.controllerInteraction.presentControllerInCurrent(UndoOverlayController(presentationData: context.sharedContext.currentPresentationData.with { $0 }, content: .info(title: nil, text: (dkxSpeechAccessDenied() ? DkxStrings.tr("Нет разрешения на распознавание речи. Включите его в настройках iOS, раздел Dkx.") : DkxStrings.tr("Не удалось расшифровать. Проверьте язык в Dkx, раздел «Расшифровка голосовых», и что запись загружена.")), timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return true }), nil)
+                item.controllerInteraction.presentControllerInCurrent(UndoOverlayController(presentationData: context.sharedContext.currentPresentationData.with { $0 }, content: .info(title: nil, text: dkxTranscriptionFailureText(), timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return true }), nil)
             }
         }, completed: { [weak self] in
             self?.transcribeDisposable?.dispose()
