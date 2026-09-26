@@ -10,8 +10,9 @@ import DeviceLocationManager
 
 // MARK: DKX панель подмены геопозиции прямо над картой в экране отправки.
 // Переключатель Настоящая, Точка, Маршрут. Точки ставятся долгим нажатием на
-// карту, в маршруте первое нажатие ставит А, второе Б, третье начинает новый
-// маршрут. Настройки те же, что читает подмена в DeviceLocationManager.
+// карту, в маршруте первое нажатие ставит А, следующие ставят Б. Метки
+// перетаскиваются, «Заново» стирает маршрут. Настройки те же, что читает
+// подмена в DeviceLocationManager.
 
 private let dkxSpoofSpeeds: [Int32] = [5, 15, 40, 90]
 
@@ -29,7 +30,7 @@ private func dkxSpoofStatus(_ settings: DkxSettings) -> String {
     switch settings.spoofMode {
     case .point:
         if DkxSettings.parseCoordinate(settings.spoofCoordinate) != nil {
-            return "Стоим в точке. Долгое нажатие на карту переставит её"
+            return "Стоим в точке. Метку можно перетащить пальцем"
         }
         return "Долгое нажатие на карту ставит точку"
     case .route:
@@ -42,7 +43,7 @@ private func dkxSpoofStatus(_ settings: DkxSettings) -> String {
             return "Точка А есть. Долгое нажатие ставит Б"
         }
         guard let path = settings.effectiveRoutePath else {
-            return "Долгое нажатие начнёт новый маршрут"
+            return "Долгое нажатие переставит Б"
         }
         let metersPerSecond = Double(max(1, settings.routeSpeed)) / 3.6
         let startedAt: Double? = settings.routeStartedAt > 0 ? Double(settings.routeStartedAt) : nil
@@ -54,7 +55,7 @@ private func dkxSpoofStatus(_ settings: DkxSettings) -> String {
             road = ", дорогу не нашли, едем прямо"
         }
         if startedAt == nil {
-            return "Маршрут \(dkxSpoofDistance(sample.distance))\(road). Трансляция запустит движение сама"
+            return "Маршрут \(dkxSpoofDistance(sample.distance))\(road). Метки можно перетащить, движение начнётся с трансляцией"
         }
         if sample.fraction >= 1.0 {
             return "Приехали в точку Б"
@@ -99,17 +100,25 @@ final class DkxSpoofPanelView: UIView {
     private let backgroundView = UIView()
     private let modeControl = UISegmentedControl(items: ["Настоящая", "Точка", "Маршрут"])
     private let statusLabel = UILabel()
+    // Кнопок больше, чем влезает в узкий экран, поэтому ряд прокручивается
+    private let chipsView = UIScrollView()
+    private var startChip: DkxSpoofChip?
     private var speedChip: DkxSpoofChip?
     private var roadsChip: DkxSpoofChip?
-    private var startChip: DkxSpoofChip?
+    private var reverseChip: DkxSpoofChip?
+    private var resetChip: DkxSpoofChip?
 
     var modeChanged: ((Int) -> Void)?
     var speedPressed: (() -> Void)?
     var roadsPressed: (() -> Void)?
     var startPressed: (() -> Void)?
+    var reversePressed: (() -> Void)?
+    var resetPressed: (() -> Void)?
 
     private var showsRouteControls = false
     private var showsStatus = false
+
+    private let chipHeight: CGFloat = 28.0
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -126,21 +135,34 @@ final class DkxSpoofPanelView: UIView {
         self.statusLabel.numberOfLines = 2
         self.addSubview(self.statusLabel)
 
+        self.chipsView.showsHorizontalScrollIndicator = false
+        self.chipsView.showsVerticalScrollIndicator = false
+        self.chipsView.alwaysBounceHorizontal = false
+        self.addSubview(self.chipsView)
+
+        let startChip = DkxSpoofChip(action: { [weak self] in
+            self?.startPressed?()
+        })
         let speedChip = DkxSpoofChip(action: { [weak self] in
             self?.speedPressed?()
         })
         let roadsChip = DkxSpoofChip(action: { [weak self] in
             self?.roadsPressed?()
         })
-        let startChip = DkxSpoofChip(action: { [weak self] in
-            self?.startPressed?()
+        let reverseChip = DkxSpoofChip(action: { [weak self] in
+            self?.reversePressed?()
         })
+        let resetChip = DkxSpoofChip(action: { [weak self] in
+            self?.resetPressed?()
+        })
+        self.startChip = startChip
         self.speedChip = speedChip
         self.roadsChip = roadsChip
-        self.startChip = startChip
-        self.addSubview(speedChip)
-        self.addSubview(roadsChip)
-        self.addSubview(startChip)
+        self.reverseChip = reverseChip
+        self.resetChip = resetChip
+        for chip in [startChip, speedChip, roadsChip, reverseChip, resetChip] {
+            self.chipsView.addSubview(chip)
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -169,50 +191,59 @@ final class DkxSpoofPanelView: UIView {
         self.showsRouteControls = settings.spoofLocation && settings.spoofMode == .route
         self.statusLabel.text = dkxSpoofStatus(settings)
 
+        let hasFrom = DkxSettings.parseCoordinate(settings.routeFrom) != nil
+        let hasTo = DkxSettings.parseCoordinate(settings.routeTo) != nil
+
         let accent = list.itemAccentColor
-        self.speedChip?.update(title: "\(settings.routeSpeed) км/ч", color: accent)
-        self.roadsChip?.update(title: settings.routeByRoads ? "По дорогам" : "Напрямую", color: accent)
         if settings.routeStartedAt > 0 {
             self.startChip?.update(title: "Стоп", color: list.itemDestructiveColor)
         } else {
             self.startChip?.update(title: "Поехали", color: accent)
         }
+        self.speedChip?.update(title: "\(settings.routeSpeed) км/ч", color: accent)
+        self.roadsChip?.update(title: settings.routeByRoads ? "По дорогам" : "Напрямую", color: accent)
+        self.reverseChip?.update(title: "Обратно", color: accent)
+        self.resetChip?.update(title: "Заново", color: list.itemDestructiveColor)
+
         self.statusLabel.isHidden = !self.showsStatus
-        self.speedChip?.isHidden = !self.showsRouteControls
-        self.roadsChip?.isHidden = !self.showsRouteControls
-        self.startChip?.isHidden = !self.showsRouteControls
+        self.chipsView.isHidden = !self.showsRouteControls
+        self.reverseChip?.isHidden = !(hasFrom && hasTo)
+        self.resetChip?.isHidden = !hasFrom
+        self.layoutChips()
     }
 
-    // Раскладка под ширину, возвращает высоту панели
+    private func layoutChips() {
+        var x: CGFloat = 8.0
+        for chip in [self.startChip, self.speedChip, self.roadsChip, self.reverseChip, self.resetChip] {
+            guard let chip = chip, !chip.isHidden else {
+                continue
+            }
+            let chipWidth = chip.fittingWidth()
+            chip.frame = CGRect(x: x, y: 0.0, width: chipWidth, height: self.chipHeight)
+            x += chipWidth + 6.0
+        }
+        self.chipsView.contentSize = CGSize(width: x + 2.0, height: self.chipHeight)
+    }
+
+    // Раскладка под ширину, возвращает высоту панели. Под строку состояния
+    // всегда две строки, чтобы панель не прыгала от длины подсказки.
     func layout(width: CGFloat) -> CGFloat {
         let inset: CGFloat = 8.0
         let controlHeight: CGFloat = 32.0
         self.modeControl.frame = CGRect(x: inset, y: inset, width: width - inset * 2.0, height: controlHeight)
         var y = inset + controlHeight
 
-        if self.showsRouteControls {
-            y += 8.0
-            let chipHeight: CGFloat = 28.0
-            var x = width - inset
-            for chip in [self.startChip, self.roadsChip, self.speedChip] {
-                guard let chip = chip else {
-                    continue
-                }
-                let chipWidth = chip.fittingWidth()
-                x -= chipWidth
-                chip.frame = CGRect(x: x, y: y, width: chipWidth, height: chipHeight)
-                x -= 6.0
-            }
-            let statusWidth = max(0.0, x - inset - 4.0)
-            let statusHeight = min(chipHeight + 4.0, ceil(self.statusLabel.sizeThatFits(CGSize(width: statusWidth, height: 40.0)).height))
-            self.statusLabel.frame = CGRect(x: inset + 4.0, y: y + floor((chipHeight - statusHeight) / 2.0), width: statusWidth, height: statusHeight)
-            y += chipHeight
-        } else if self.showsStatus {
+        if self.showsStatus {
             y += 6.0
-            let statusWidth = width - inset * 2.0 - 8.0
-            let statusHeight = ceil(self.statusLabel.sizeThatFits(CGSize(width: statusWidth, height: 40.0)).height)
-            self.statusLabel.frame = CGRect(x: inset + 4.0, y: y, width: statusWidth, height: statusHeight)
+            let statusHeight = ceil(self.statusLabel.font.lineHeight * 2.0)
+            self.statusLabel.frame = CGRect(x: inset + 4.0, y: y, width: width - inset * 2.0 - 8.0, height: statusHeight)
             y += statusHeight
+        }
+        if self.showsRouteControls {
+            y += 6.0
+            self.chipsView.frame = CGRect(x: 0.0, y: y, width: width, height: self.chipHeight)
+            self.layoutChips()
+            y += self.chipHeight
         }
         y += inset
         self.backgroundView.frame = CGRect(x: 0.0, y: 0.0, width: width, height: y)
@@ -251,6 +282,15 @@ final class DkxSpoofPanelController {
         }
         self.view.startPressed = { [weak self] in
             self?.toggleStart()
+        }
+        self.view.reversePressed = { [weak self] in
+            self?.reverseRoute()
+        }
+        self.view.resetPressed = { [weak self] in
+            self?.resetRoute()
+        }
+        mapNode.dkxSpoofAnnotationMoved = { [weak self] kind, coordinate in
+            self?.handleDrag(kind, coordinate: coordinate)
         }
 
         self.settingsDisposable = (accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.dkxSettings])
@@ -391,9 +431,7 @@ final class DkxSpoofPanelController {
             })
             return
         }
-        let hasFrom = DkxSettings.parseCoordinate(settings.routeFrom) != nil
-        let hasTo = DkxSettings.parseCoordinate(settings.routeTo) != nil
-        if hasFrom && !hasTo {
+        if DkxSettings.parseCoordinate(settings.routeFrom) != nil {
             self.updateRoute({ current in
                 current.routeTo = text
                 current.routeStartedAt = 0
@@ -405,6 +443,48 @@ final class DkxSpoofPanelController {
                 current.routeStartedAt = 0
             })
         }
+    }
+
+    // Сдвиг А или Б останавливает движение, иначе точка прыгнула бы на новый путь
+    private func handleDrag(_ kind: DkxSpoofAnnotation.Kind, coordinate: CLLocationCoordinate2D) {
+        let text = DkxSettings.formatCoordinate(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        switch kind {
+        case .point:
+            self.update({ current in
+                current.spoofCoordinate = text
+            })
+        case .from:
+            self.updateRoute({ current in
+                current.routeFrom = text
+                current.routeStartedAt = 0
+            })
+        case .to:
+            self.updateRoute({ current in
+                current.routeTo = text
+                current.routeStartedAt = 0
+            })
+        }
+    }
+
+    // Обратная дорога по дорогам не всегда та же, поэтому путь считается заново
+    private func reverseRoute() {
+        self.updateRoute({ current in
+            let from = current.routeFrom
+            current.routeFrom = current.routeTo
+            current.routeTo = from
+            current.routeStartedAt = 0
+        })
+    }
+
+    private func resetRoute() {
+        self.routeDisposable.set(nil)
+        self.update({ current in
+            current.routeFrom = ""
+            current.routeTo = ""
+            current.routePath = []
+            current.routePathSource = ""
+            current.routeStartedAt = 0
+        })
     }
 
     private func cycleSpeed() {
@@ -464,6 +544,12 @@ func dkxStartRouteForBroadcast(accountManager: AccountManager<TelegramAccountMan
 
 // Долгое нажатие должно срабатывать вместе с жестами самой карты
 final class DkxSpoofLongPressDelegate: NSObject, UIGestureRecognizerDelegate {
+    var shouldBegin: ((UIGestureRecognizer) -> Bool)?
+
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        return self.shouldBegin?(gestureRecognizer) ?? true
+    }
+
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
     }

@@ -77,7 +77,7 @@ private class LocationMapView: MKMapView, UIGestureRecognizerDelegate {
             return pointInside
         }
         
-        for annotation in self.annotations(in: self.visibleMapRect) where annotation is LocationPinAnnotation {
+        for annotation in self.annotations(in: self.visibleMapRect) where annotation is LocationPinAnnotation || annotation is DkxSpoofAnnotation {
             guard let view = self.view(for: annotation as! MKAnnotation) else {
                 continue
             }
@@ -146,6 +146,7 @@ protocol MKMapViewDelegateTarget: AnyObject {
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView)
     func mapView(_ mapView: MKMapView, didDeselect view: MKAnnotationView)
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, didChange newState: MKAnnotationView.DragState, fromOldState oldState: MKAnnotationView.DragState)
 }
 
 private final class MKMapViewDelegateImpl: NSObject, MKMapViewDelegate {
@@ -196,10 +197,16 @@ private final class MKMapViewDelegateImpl: NSObject, MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         return self.target?.mapView(mapView, rendererFor: overlay) ?? MKOverlayRenderer()
     }
+
+    func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, didChange newState: MKAnnotationView.DragState, fromOldState oldState: MKAnnotationView.DragState) {
+        self.target?.mapView(mapView, annotationView: view, didChange: newState, fromOldState: oldState)
+    }
 }
 
 public final class LocationMapNode: ASDisplayNode, MKMapViewDelegateTarget {
     private var delegateImpl: MKMapViewDelegateImpl?
+    // MARK: DKX метку подмены отпустили на новом месте
+    var dkxSpoofAnnotationMoved: ((DkxSpoofAnnotation.Kind, CLLocationCoordinate2D) -> Void)?
     
     public static let defaultMapSpan = MKCoordinateSpan(latitudeDelta: 0.016, longitudeDelta: 0.016)
     public static let viewMapSpan = MKCoordinateSpan(latitudeDelta: 0.008, longitudeDelta: 0.008)
@@ -568,6 +575,7 @@ public final class LocationMapNode: ASDisplayNode, MKMapViewDelegateTarget {
             view.glyphText = annotation.glyph
             view.displayPriority = .required
             view.canShowCallout = false
+            view.isDraggable = true
             return view
         }
         
@@ -642,6 +650,14 @@ public final class LocationMapNode: ASDisplayNode, MKMapViewDelegateTarget {
         }
     }
         
+    // MARK: DKX перетаскивание меток подмены
+    public func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, didChange newState: MKAnnotationView.DragState, fromOldState oldState: MKAnnotationView.DragState) {
+        guard let annotation = view.annotation as? DkxSpoofAnnotation, newState == .ending else {
+            return
+        }
+        self.dkxSpoofAnnotationMoved?(annotation.kind, annotation.coordinate)
+    }
+
     public func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
         // MARK: DKX путь подмены геопозиции
         if let polyline = overlay as? DkxSpoofPolyline {
@@ -948,12 +964,21 @@ public final class LocationMapNode: ASDisplayNode, MKMapViewDelegateTarget {
 // MARK: DKX подмена геопозиции. Метки точки, А и Б, линия пути и перевод
 // точки нажатия в координату. Здесь, потому что сама карта у узла приватная.
 public final class DkxSpoofAnnotation: NSObject, MKAnnotation {
-    public let coordinate: CLLocationCoordinate2D
+    enum Kind {
+        case point
+        case from
+        case to
+    }
+
+    // Карта сама пишет сюда новое место, когда метку перетащили
+    @objc public dynamic var coordinate: CLLocationCoordinate2D
     @objc public let title: String?
+    let kind: Kind
     let glyph: String
     let tint: UIColor
 
-    init(coordinate: CLLocationCoordinate2D, title: String, glyph: String, tint: UIColor) {
+    init(kind: Kind, coordinate: CLLocationCoordinate2D, title: String, glyph: String, tint: UIColor) {
+        self.kind = kind
         self.coordinate = coordinate
         self.title = title
         self.glyph = glyph
@@ -975,13 +1000,13 @@ extension LocationMapNode {
 
         var annotations: [DkxSpoofAnnotation] = []
         if let point = point {
-            annotations.append(DkxSpoofAnnotation(coordinate: point, title: "Точка", glyph: "•", tint: UIColor(rgb: 0xFF9500)))
+            annotations.append(DkxSpoofAnnotation(kind: .point, coordinate: point, title: "Точка", glyph: "•", tint: UIColor(rgb: 0xFF9500)))
         }
         if let from = from {
-            annotations.append(DkxSpoofAnnotation(coordinate: from, title: "А", glyph: "А", tint: UIColor(rgb: 0x34C759)))
+            annotations.append(DkxSpoofAnnotation(kind: .from, coordinate: from, title: "А", glyph: "А", tint: UIColor(rgb: 0x34C759)))
         }
         if let to = to {
-            annotations.append(DkxSpoofAnnotation(coordinate: to, title: "Б", glyph: "Б", tint: UIColor(rgb: 0xFF3B30)))
+            annotations.append(DkxSpoofAnnotation(kind: .to, coordinate: to, title: "Б", glyph: "Б", tint: UIColor(rgb: 0xFF3B30)))
         }
         mapView.addAnnotations(annotations)
 
@@ -1006,5 +1031,19 @@ extension LocationMapNode {
             return nil
         }
         return mapView.convert(point, toCoordinateFrom: mapView)
+    }
+
+    // Долгое нажатие по самой метке это начало перетаскивания, а не новая точка
+    func dkxIsOverSpoofAnnotation(_ recognizer: UIGestureRecognizer) -> Bool {
+        guard let mapView = self.mapView else {
+            return false
+        }
+        let point = recognizer.location(in: mapView)
+        for annotation in mapView.annotations where annotation is DkxSpoofAnnotation {
+            if let view = mapView.view(for: annotation), view.frame.insetBy(dx: -12.0, dy: -12.0).contains(point) {
+                return true
+            }
+        }
+        return false
     }
 }

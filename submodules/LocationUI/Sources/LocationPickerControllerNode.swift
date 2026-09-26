@@ -1113,6 +1113,12 @@ final class LocationPickerControllerNode: ViewControllerTracingNode, CLLocationM
         // рядом со своими метками.
         let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(self.dkxLongPress(_:)))
         recognizer.minimumPressDuration = 0.5
+        self.dkxLongPressDelegate.shouldBegin = { [weak self] recognizer in
+            guard let self else {
+                return false
+            }
+            return !self.headerNode.mapNode.dkxIsOverSpoofAnnotation(recognizer)
+        }
         recognizer.delegate = self.dkxLongPressDelegate
         self.headerNode.view.addGestureRecognizer(recognizer)
     }
