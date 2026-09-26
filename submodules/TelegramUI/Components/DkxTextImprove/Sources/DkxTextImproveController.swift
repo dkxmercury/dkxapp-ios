@@ -209,13 +209,16 @@ private func dkxImproveEntries(state: DkxImproveState, todayCount: Int32) -> [Dk
     for (index, title) in dkxImproveLanguages.enumerated() {
         entries.append(.language(index: Int32(index), title: title, checked: Int32(index) == state.options.language))
     }
-    entries.append(.footer(DkxStrings.tr("Сегодня запросов {}. Русский и английский улучшает GLM, узбекский Gemini, при сбое запрос уходит в другой сервис. Бесплатный Gemini может показывать тексты сотрудникам Google, личное туда лучше не отправлять.", todayCount)))
+    entries.append(.footer(DkxStrings.tr("Сегодня запросов {}. Текст улучшает основной сервис из раздела «API ИИ», для узбекского первым идёт Gemini, при сбое запрос уходит в следующий. Бесплатный Gemini может показывать тексты сотрудникам Google, личное туда лучше не отправлять.", todayCount)))
     return entries
 }
 
 private func dkxTodayStamp() -> Int32 {
     let components = Calendar.current.dateComponents([.year, .month, .day], from: Date())
-    return Int32((components.year ?? 0) * 10000 + (components.month ?? 0) * 100 + (components.day ?? 0))
+    let year: Int = components.year ?? 0
+    let month: Int = components.month ?? 0
+    let day: Int = components.day ?? 0
+    return Int32(year * 10000 + month * 100 + day)
 }
 
 public func dkxTextImproveController(context: AccountContext, text: String, apply: @escaping (String) -> Void) -> ViewController {

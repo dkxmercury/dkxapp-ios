@@ -103,8 +103,8 @@ public func dkxAIRequest(provider: DkxAIKeys.Provider, key: String? = nil, model
         request.setValue(key, forHTTPHeaderField: "x-goog-api-key")
         body = [
             "systemInstruction": ["parts": [["text": system]]],
-            "contents": [["role": "user", "parts": [["text": text]]]],
-            "generationConfig": ["temperature": temperature, "maxOutputTokens": maxTokens]
+            "contents": [["role": "user", "parts": [["text": text]]] as [String: Any]],
+            "generationConfig": ["temperature": temperature, "maxOutputTokens": maxTokens] as [String: Any]
         ]
         parse = { json in
             guard let candidates = json["candidates"] as? [[String: Any]], let content = candidates.first?["content"] as? [String: Any], let parts = content["parts"] as? [[String: Any]] else {
