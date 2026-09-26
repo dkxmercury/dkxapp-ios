@@ -191,7 +191,7 @@ public let telegramPostboxSeedConfiguration: SeedConfiguration = {
             // применения правки DkxEditHistory уже положил в updated более
             // свежую историю, и безусловное добавление воскресило бы старую.
             //
-            // Следствие, о котором надо помнить: после этого атрибуты становятся
+            // Следствие, о котором надо помнить. После этого атрибуты становятся
             // несбрасываемыми, ни один путь обновления их больше не снимет. Если
             // когда-нибудь появится действие "снять пометку" или "очистить
             // архив", оно должно обходить это слияние особым образом.
@@ -221,7 +221,7 @@ public let telegramPostboxSeedConfiguration: SeedConfiguration = {
                         // более короткую историю, оставляем длинную.
                         if let current = updated[foundIndex] as? DkxEditHistoryAttribute, current.texts.count < previousHistory.texts.count {
                             updated[foundIndex] = previousHistory
-                            DkxLog.write("слияние", "гонка процессов: история \(current.texts.count) против \(previousHistory.texts.count), оставил длинную")
+                            DkxLog.write("слияние", "гонка процессов, история \(current.texts.count) против \(previousHistory.texts.count), оставил длинную")
                         }
                     } else {
                         updated.append(previousHistory)

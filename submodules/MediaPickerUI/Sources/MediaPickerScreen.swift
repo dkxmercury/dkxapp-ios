@@ -1462,7 +1462,7 @@ public final class MediaPickerScreenImpl: ViewController, MediaPickerScreen, Att
             controller.dismissAllTooltips()
             
             // MARK: DKX фото и видео без сжатия. Тот же путь, что штатное
-            // «Отправить файлом»: оригинал, без пережатия, с вопросом про HEIC
+            // «Отправить файлом». Оригинал без пережатия, с вопросом про HEIC
             let asFile = asFile || DkxRuntime.current.mediaNoCompression
             
             var parameters = parameters

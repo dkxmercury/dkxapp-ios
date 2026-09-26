@@ -233,7 +233,7 @@ public class ContactsPeerItem: ItemListItem, ListViewItemWithHeader {
     public let header: ListViewItemHeader?
     
     // MARK: DKX метка «сохранил» или «не сохранил» в строке статуса. Включает
-    // только список контактов: там все люди заведомо сохранены владельцем, и
+    // только список контактов. Там все люди заведомо сохранены владельцем, и
     // флаг взаимности значит ровно то, что написано. В поиске, у участников
     // групп и в выборе получателя выключено.
     public var dkxShowSavedBadge: Bool = false

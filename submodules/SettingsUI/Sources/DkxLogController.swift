@@ -10,7 +10,7 @@ import AccountContext
 import UndoUI
 
 // Экран журнала форка. Показывает хвост журнала, отдаёт его целиком файлом
-// или в буфер обмена. Полный журнал на экран не выводится: полмегабайта
+// или в буфер обмена. Полный журнал на экран не выводится, полмегабайта
 // текста в одной ячейке списка раскладываются заметно долго.
 
 private let dkxLogVisibleLines = 150
@@ -95,7 +95,7 @@ private enum DkxLogEntry: ItemListNodeEntry {
                 arguments.clear()
             })
         case .actionsFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("В журнале только служебные записи форка и отчёты о падениях: идентификаторы, счётчики и причины. Тексты сообщений, имена и номера сюда не пишутся.\n\nЕсли приложение упало, отчёт появится здесь после следующего запуска. Иногда iOS отдаёт его с задержкой до суток."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain("В журнале только служебные записи форка и отчёты о падениях, то есть идентификаторы, счётчики и причины. Тексты сообщений, имена и номера сюда не пишутся.\n\nЕсли приложение упало, отчёт появится здесь после следующего запуска. Иногда iOS отдаёт его с задержкой до суток."), sectionId: self.section)
         case let .contentsHeader(text):
             return ItemListSectionHeaderItem(presentationData: presentationData, text: text, sectionId: self.section)
         case let .contents(text):
@@ -118,7 +118,7 @@ private func dkxLogEntries(contents: String) -> [DkxLogEntry] {
         entries.append(.contents("Журнал пуст."))
     } else {
         let visible = lines.suffix(dkxLogVisibleLines)
-        let header = visible.count < lines.count ? "ПОСЛЕДНИЕ \(visible.count) ИЗ \(lines.count)" : "ВСЕГО ЗАПИСЕЙ: \(lines.count)"
+        let header = visible.count < lines.count ? "ПОСЛЕДНИЕ \(visible.count) ИЗ \(lines.count)" : "ВСЕГО ЗАПИСЕЙ \(lines.count)"
         entries.append(.contentsHeader(header))
         // Свежие сверху, так быстрее найти то, что случилось только что
         entries.append(.contents(visible.reversed().joined(separator: "\n")))

@@ -1303,7 +1303,7 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
         let message = messages[0]
 
         // MARK: DKX просмотр предыдущих версий отредактированного сообщения.
-        // Строки захардкожены намеренно: свои ключи в Localizable.strings
+        // Строки захардкожены намеренно. Свои ключи в Localizable.strings
         // требуют прогона GenerateStrings.py, а это отдельный шаг сборки
         // ради форка на несколько устройств.
         if messages.count == 1, let dkxHistory = message.attributes.first(where: { $0 is DkxEditHistoryAttribute }) as? DkxEditHistoryAttribute, !dkxHistory.texts.isEmpty {

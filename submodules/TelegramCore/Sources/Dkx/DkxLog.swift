@@ -5,11 +5,11 @@ import Darwin
 // что-то пошло не так, чтобы владелец мог скопировать журнал из настроек и
 // переслать разработчику.
 //
-// Файл один на все процессы: приложение и расширение уведомлений пишут в
+// Файл один на все процессы. Приложение и расширение уведомлений пишут в
 // общую папку группы. Запись идёт через O_APPEND одним вызовом write, такая
 // дозапись не перемешивает строки разных процессов.
 //
-// Правило для вызывающих: только идентификаторы, счётчики и причины. Текст
+// Правило для вызывающих. Только идентификаторы, счётчики и причины. Текст
 // сообщений, номера телефонов и имена в журнал не пишутся, потому что он
 // уходит наружу целиком.
 public final class DkxLog {
@@ -32,7 +32,7 @@ public final class DkxLog {
         return rootPath + "/logs/dkx.log"
     }
 
-    // Короткое имя процесса: Telegram для приложения, имя расширения для
+    // Короткое имя процесса. Telegram для приложения, имя расширения для
     // остальных
     private static let processName: String = {
         return Bundle.main.bundleURL.deletingPathExtension().lastPathComponent
@@ -47,7 +47,7 @@ public final class DkxLog {
             let formatter = DateFormatter()
             formatter.locale = Locale(identifier: "en_US_POSIX")
             formatter.dateFormat = "dd.MM HH:mm:ss.SSS"
-            let line = "\(formatter.string(from: date)) [\(DkxLog.processName)] \(tag): \(message)\n"
+            let line = "\(formatter.string(from: date)) [\(DkxLog.processName)] \(tag) · \(message)\n"
             DkxLog.append(line, path: path)
         }
     }

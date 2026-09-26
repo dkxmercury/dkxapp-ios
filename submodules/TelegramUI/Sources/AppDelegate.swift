@@ -2846,7 +2846,7 @@ private func extractAccountManagerState(records: AccountRecordsView<TelegramAcco
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        // MARK: DKX напоминание из «Моих дел»: открываем список дел
+        // MARK: DKX напоминание из «Моих дел» открывает список дел
         if response.notification.request.content.userInfo[DkxTaskReminders.userInfoKey] != nil {
             let _ = (self.authorizedContext()
             |> take(1)

@@ -32,7 +32,7 @@ public enum DkxChatExport {
         }
         return account.postbox.transaction { transaction -> ClosedRange<Int32>? in
             let holes = transaction.getHoles(peerId: peerId, namespace: Namespaces.Message.Cloud)
-            // Берём верхнюю дыру: грузим от свежих к старым, как прокрутка
+            // Берём верхнюю дыру и грузим от свежих к старым, как прокрутка
             guard let last = holes.rangeView.last else {
                 return nil
             }

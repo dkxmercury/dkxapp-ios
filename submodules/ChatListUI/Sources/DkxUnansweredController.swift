@@ -9,14 +9,14 @@ import TelegramUIPreferences
 import ItemListUI
 import AccountContext
 
-// MARK: DKX. Список «Без ответа»: личные чаты, где последним написал
-// собеседник, самые долгие ожидания сверху. Для продаж: видно, кому пора
+// MARK: DKX. Список «Без ответа». Личные чаты, где последним написал
+// собеседник, самые долгие ожидания сверху. Для продаж видно, кому пора
 // ответить. Отвечаешь, и человек сам пропадает из списка.
 //
 // Папки Telegram хранятся на сервере, условия «последнее сообщение от них»
 // у них нет, поэтому это отдельный экран, а не вкладка папок. Вход из меню
 // долгого нажатия на вкладку «Чаты». Смотрим только основной список, без
-// архива: заархивированное владелец убрал сам.
+// архива, заархивированное владелец убрал сам.
 
 // Сколько последних чатов просматривать. Дальше хвост списка обычно
 // давно неактивен.
@@ -178,7 +178,7 @@ public func dkxUnansweredController(context: AccountContext) -> ViewController {
         if items.isEmpty {
             entries.append(.footer("Все, кто писал последним, уже получили ответ. Порог ожидания настраивается в настройках Dkx."))
         } else {
-            entries.append(.header("ЖДУТ ОТВЕТА: \(items.count)"))
+            entries.append(.header("ЖДУТ ОТВЕТА \(items.count)"))
             for (index, item) in items.enumerated() {
                 entries.append(.item(index: Int32(index), item, title: item.peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder), waiting: dkxFormatWaiting(item.waiting)))
             }

@@ -857,9 +857,9 @@ private final class NotificationServiceHandler {
             var recordId: AccountRecordId?
             var isCurrentAccount: Bool = false
 
-            // MARK: DKX список закрытых Face ID чатов: их текст в уведомлениях прячем
+            // MARK: DKX список закрытых Face ID чатов, их текст в уведомлениях прячем
             let dkxSettings = sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
-            // Тумблеры сохранения удалённых и истории правок: пуш тоже
+            // Тумблеры сохранения удалённых и истории правок. Пуш тоже
             // применяет удаления и правки
             DkxCoreFlags.update(antiDelete: dkxSettings.antiDelete, editHistory: dkxSettings.editHistory)
             
@@ -1160,7 +1160,7 @@ private final class NotificationServiceHandler {
                     } else {
                         if let aps = payloadJson["aps"] as? [String: Any], var peerId = peerId {
                             var content: NotificationContent = NotificationContent(isLockedMessage: isLockedMessage)
-                            // MARK: DKX закрытый Face ID чат: вместо текста нейтральная строка
+                            // MARK: DKX закрытый Face ID чат, вместо текста нейтральная строка
                             if dkxSettings.chatLock && dkxSettings.lockedPeers.contains(peerId.toInt64()) {
                                 content.isLockedMessage = "Новое сообщение в закрытом чате"
                             }

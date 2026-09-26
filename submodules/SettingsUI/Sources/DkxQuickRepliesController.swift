@@ -9,7 +9,7 @@ import ItemListUI
 import PresentationDataUtils
 import AccountContext
 
-// Шаблоны быстрых ответов: список и редактор одного шаблона. Сами шаблоны
+// Шаблоны быстрых ответов, список и редактор одного шаблона. Сами шаблоны
 // лежат в DkxSettings.quickReplyTemplates, вставляются кнопкой в поле ввода
 // чата. Хранятся только на устройстве.
 
@@ -104,7 +104,7 @@ public func dkxQuickRepliesController(context: AccountContext) -> ViewController
         let settings = sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
         var entries: [DkxQuickRepliesEntry] = [.add]
         if !settings.quickReplyTemplates.isEmpty {
-            entries.append(.header("ШАБЛОНЫ: \(settings.quickReplyTemplates.count)"))
+            entries.append(.header("ШАБЛОНЫ \(settings.quickReplyTemplates.count)"))
             for (index, text) in settings.quickReplyTemplates.enumerated() {
                 entries.append(.template(index: Int32(index), preview: dkxTemplatePreview(text)))
             }
@@ -226,7 +226,7 @@ private func dkxQuickReplyEditController(context: AccountContext, index: Int?, i
         dismissImpl?()
     })
 
-    // Поле рисуется из начального текста, а не из текущего: иначе каждая
+    // Поле рисуется из начального текста, а не из текущего. Иначе каждая
     // клавиша перерисовывала бы ячейку и курсор прыгал бы в конец
     let signal = combineLatest(queue: .mainQueue(),
         context.sharedContext.presentationData,

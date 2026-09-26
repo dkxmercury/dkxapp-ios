@@ -118,7 +118,7 @@ jobs:
             [ -n "$data" ] || { echo "секрет для профиля $name пуст"; exit 1; }
             printf '%s' "$data" | base64 --decode > "build-input/codesigning/profiles/${name}.mobileprovision"
           done
-          echo "профилей разложено:"
+          echo "профилей разложено"
           ls -1 build-input/codesigning/profiles
 
       - name: Импорт сертификата в keychain
@@ -135,8 +135,8 @@ jobs:
 
           # GitHub маскирует значение секрета, но не его длину. Если длина
           # не совпадает с ожидаемой, значит секрет приехал битым.
-          echo "длина пароля из секрета: ${#P12_PASSWORD}"
-          echo "размер p12: $(wc -c < build-input/codesigning/certs/distribution.p12) байт"
+          echo "длина пароля из секрета ${#P12_PASSWORD}"
+          echo "размер p12 $(wc -c < build-input/codesigning/certs/distribution.p12) байт"
           openssl pkcs12 -in build-input/codesigning/certs/distribution.p12             -passin "pass:${P12_PASSWORD}" -nokeys -noout             && echo "openssl открывает p12 этим паролем"             || echo "openssl НЕ открывает p12 этим паролем"
 
           security create-keychain -p "$KEYCHAIN_PW" "$KEYCHAIN"

@@ -13,11 +13,11 @@ import AccountContext
 import DeviceLocationManager
 
 // Экран настроек форка. Сюда складываются все тумблеры, которые решает
-// интерфейс. Строки захардкожены: свои ключи в Localizable.strings требуют
+// интерфейс. Строки захардкожены. Свои ключи в Localizable.strings требуют
 // прогона GenerateStrings.py, а это отдельный шаг сборки ради форка на
 // несколько устройств.
 
-// Выбор точки на карте открывается снаружи: сам экран карты живёт в
+// Выбор точки на карте открывается снаружи. Сам экран карты живёт в
 // LocationUI, а тянуть его в зависимости SettingsUI ради одного вызова
 // незачем. Первый аргумент это стартовая точка карты, если она уже есть.
 public typealias DkxMakeLocationPicker = (_ initial: (latitude: Double, longitude: Double)?, _ completion: @escaping (_ latitude: Double, _ longitude: Double) -> Void) -> ViewController
@@ -442,7 +442,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
                 arguments.openQuickReplies()
             })
         case .chatsFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Метка «сохранил» или «не сохранил» видна в шапке чата и в профиле собеседника, только для тех, кого вы сами сохранили.\n\nЗаметка в шапке чата это первая строка вашей заметки из профиля собеседника. Правится в профиле через «Изменить».\n\nШаблоны вставляются кнопкой в поле ввода, она появляется после добавления первого шаблона. «Все сообщения автора» есть в меню долгого нажатия на сообщение в группе. «Выгрузить чат в файл» в профиле собеседника, группы или канала: вся история текстом, с пометками удалённых и прежними версиями изменённых.\n\nБез сжатия фото и видео из галереи уходят оригиналом, файлом, как через «Отправить файлом». Получатель увидит файл, а не картинку в ленте. Предел размера 2 ГБ держит сервер Telegram, его не поднять.\n\nFace ID на чат: долгое нажатие на чат в списке, «Закрыть Face ID». У закрытого чата скрыт текст последнего сообщения и предпросмотр, открывается он после проверки и снова закрывается, когда приложение уходит в фон. Снять замок или выключить эту настройку можно только после проверки.\n\n«Мои дела» открываются из главных настроек, строка под «Моим профилем». Вид меняется кнопкой вверху: лента, день по часам, месяц. Выключенный тумблер прячет строку, сами дела и напоминания остаются. «Пароли» там же, открываются по Face ID, записи лежат в Keychain только на этом телефоне.\n\nВключённое или выключенное применяется при следующем открытии экрана."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain("Метка «сохранил» или «не сохранил» видна в шапке чата и в профиле собеседника, только для тех, кого вы сами сохранили.\n\nЗаметка в шапке чата это первая строка вашей заметки из профиля собеседника. Правится в профиле через «Изменить».\n\nШаблоны вставляются кнопкой в поле ввода, она появляется после добавления первого шаблона. «Все сообщения автора» есть в меню долгого нажатия на сообщение в группе. «Выгрузить чат в файл» в профиле собеседника, группы или канала. Там вся история текстом, с пометками удалённых и прежними версиями изменённых.\n\nБез сжатия фото и видео из галереи уходят оригиналом, файлом, как через «Отправить файлом». Получатель увидит файл, а не картинку в ленте. Предел размера 2 ГБ держит сервер Telegram, его не поднять.\n\nFace ID на чат ставится долгим нажатием на чат в списке, пункт «Закрыть Face ID». У закрытого чата скрыт текст последнего сообщения и предпросмотр, открывается он после проверки и снова закрывается, когда приложение уходит в фон. Снять замок или выключить эту настройку можно только после проверки.\n\n«Мои дела» открываются из главных настроек, строка под «Моим профилем». Вид меняется кнопкой вверху, это лента, день по часам и месяц. Выключенный тумблер прячет строку, сами дела и напоминания остаются. «Пароли» там же, открываются по Face ID, записи лежат в Keychain только на этом телефоне.\n\nВключённое или выключенное применяется при следующем открытии экрана."), sectionId: self.section)
 
         case .unansweredHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: "БЕЗ ОТВЕТА", sectionId: self.section)
@@ -569,7 +569,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
                 arguments.openDebug()
             })
         case .debugFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Журнал Dkx пишется всегда и показывает, что делали правки форка, плюс отчёты о падениях.\n\nПолные логи Telegram пишутся только по запросу: в отладочном меню включите Log to File, повторите проблему и нажмите Send Logs."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain("Журнал Dkx пишется всегда и показывает, что делали правки форка, плюс отчёты о падениях.\n\nПолные логи Telegram пишутся только по запросу. В отладочном меню включите Log to File, повторите проблему и нажмите Send Logs."), sectionId: self.section)
         }
     }
 }
@@ -627,7 +627,7 @@ private func dkxRouteStatus(settings: DkxSettings, now: Int32) -> String {
     }
     let travelled = sample.distance * sample.fraction
     let remaining = sample.distance - travelled
-    return "В пути: \(dkxFormatDistance(travelled)) из \(dkxFormatDistance(sample.distance)), до точки Б около \(dkxFormatDuration(remaining / metersPerSecond)). " + roadStatus + "\n\nТрансляция геопозиции обновляется раз в несколько секунд, стрелка у получателя смотрит по ходу движения."
+    return "В пути, \(dkxFormatDistance(travelled)) из \(dkxFormatDistance(sample.distance)), до точки Б около \(dkxFormatDuration(remaining / metersPerSecond)). " + roadStatus + "\n\nТрансляция геопозиции обновляется раз в несколько секунд, стрелка у получателя смотрит по ходу движения."
 }
 
 private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSettingsControllerState, now: Int32) -> [DkxSettingsControllerEntry] {
@@ -676,9 +676,9 @@ private func dkxSettingsControllerEntries(settings: DkxSettings, state: DkxSetti
             if coordinateText.isEmpty {
                 footer = "Вставьте широту и долготу через запятую или выберите точку на карте. Пока точка не задана, отдаётся настоящая координата."
             } else if let coordinate = DkxSettings.parseCoordinate(coordinateText) {
-                footer = "Точка принята: \(DkxSettings.formatCoordinate(latitude: coordinate.latitude, longitude: coordinate.longitude))."
+                footer = "Точка принята, \(DkxSettings.formatCoordinate(latitude: coordinate.latitude, longitude: coordinate.longitude))."
             } else {
-                footer = "Не удалось разобрать строку. Нужны два числа через запятую: широта от минус 90 до 90, долгота от минус 180 до 180. Пока строка неверна, отдаётся настоящая координата."
+                footer = "Не удалось разобрать строку. Нужны два числа через запятую. Широта от минус 90 до 90, долгота от минус 180 до 180. Пока строка неверна, отдаётся настоящая координата."
             }
             entries.append(.pointFooter(footer))
         case .route:
@@ -904,7 +904,7 @@ public func dkxSettingsController(context: AccountContext, makeLocationPicker: @
             }
         },
         updateRouteSpeed: { value in
-            // Пешком и на колёсах дороги разные: при переходе через эту
+            // Пешком и на колёсах дороги разные. При переходе через эту
             // границу маршрут пересчитывается
             let wasWalking = currentSettings.with { $0.routeSpeed <= 5 }
             if wasWalking != (value <= 5) {

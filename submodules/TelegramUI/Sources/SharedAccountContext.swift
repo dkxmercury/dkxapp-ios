@@ -543,7 +543,7 @@ public final class SharedAccountContextImpl: SharedAccountContext {
         })
         
         // MARK: DKX подмена координат. Единственное место, где настройки
-        // доезжают до слоя геолокации: тот модуль лежит слишком низко и
+        // доезжают до слоя геолокации. Тот модуль лежит слишком низко и
         // читать их сам не может. Подписка стоит здесь, а не рядом с
         // созданием менеджера, потому что до конца инициализации всех полей
         // трогать self нельзя.
@@ -595,13 +595,13 @@ public final class SharedAccountContextImpl: SharedAccountContext {
                 }
             }))
             
-            // MARK: DKX Face ID на чат. Фон, а не потеря фокуса: окно Face ID
+            // MARK: DKX Face ID на чат. Фон, а не потеря фокуса. Окно Face ID
             // само снимает фокус, и замок захлопывался бы сразу после проверки
             self.dkxBackgroundObserver = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: OperationQueue.main, using: { [weak self] _ in
                 DkxChatLock.lockAll()
                 // Открытый закрытый чат убираем с экрана. Иначе после возврата
                 // он был бы виден без проверки, и попал бы в снимок
-                // переключателя приложений: система делает его после этого
+                // переключателя приложений. Система делает его после этого
                 // события.
                 guard let self, let navigationController = self.mainWindow?.viewController as? NavigationController else {
                     return

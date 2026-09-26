@@ -11,7 +11,7 @@ public enum DkxDeleteReason {
 public enum DkxAntiDelete {
     // Разделяет список на те, что оставляем помеченными, и те, что реально удаляем.
     public static func partition(transaction: Transaction, ids: [MessageId]) -> (keep: [MessageId], drop: [MessageId]) {
-        // Тумблер в настройках Dkx выключен: удаляем как обычный Telegram
+        // Тумблер в настройках Dkx выключен, удаляем как обычный Telegram
         if !DkxCoreFlags.antiDelete {
             return ([], ids)
         }
@@ -62,7 +62,7 @@ public enum DkxAntiDelete {
         return true
     }
 
-    // Вешает пометку. Идемпотентно: если пометка уже есть, сообщение не трогается.
+    // Вешает пометку. Идемпотентно, если пометка уже есть, сообщение не трогается.
     //
     // channelPts нужен там, где мы отменяем удаление внутри перепроверки истории
     // канала. Рядом с тем удалением апстрим проставляет отметку "проверено на

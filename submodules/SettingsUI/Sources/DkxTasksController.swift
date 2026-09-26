@@ -11,7 +11,7 @@ import PresentationDataUtils
 import AccountContext
 import ItemListDatePickerItem
 
-// «Мои дела». Один экран с тремя видами, как на одобренном превью: лента
+// «Мои дела». Один экран с тремя видами, как на одобренном превью. Лента
 // дел по группам, день по часам и месяц сеткой с отмеченными днями. Вид
 // меняется кнопкой сверху. Завершение дела через подтверждение, как просил
 // владелец. Редактор на стандартных списках. Хранение и напоминания в DkxTasks.
@@ -97,7 +97,7 @@ private func dkxRemindTitle(_ remind: DkxTask.Remind) -> String {
     }
 }
 
-// Строка под названием: день, если группа его не называет, напоминание и
+// Строка под названием. День, если группа его не называет, напоминание и
 // начало заметки
 private func dkxTaskMeta(_ task: DkxTask, showDay: Bool) -> String {
     var parts: [String] = []
@@ -258,7 +258,7 @@ private final class DkxTaskCardView: UIView {
     }
 }
 
-// Кнопка-таблетка: текст, значок или оба
+// Кнопка-таблетка с текстом, значком или обоими
 private final class DkxPillView: UIView {
     private let button = UIButton(type: .custom)
     private let label = UILabel()
@@ -558,7 +558,7 @@ private final class DkxTasksCalendarController: ViewController {
         }
     }
 
-    // Час, к которому прокрутить день: чуть раньше текущего или раннего дела
+    // Час, к которому прокрутить день. Чуть раньше текущего или раннего дела
     private func scrollTargetHour() -> Int {
         let calendar = Calendar.current
         var hour = calendar.isDateInToday(self.selectedDay) ? max(0, calendar.component(.hour, from: Date()) - 1) : 8
@@ -851,7 +851,7 @@ private final class DkxTasksCalendarController: ViewController {
         }
         y += 22.0
 
-        // Неделя с понедельника. weekday у Calendar: 1 воскресенье, 2 понедельник
+        // Неделя с понедельника. У Calendar weekday 1 это воскресенье, 2 понедельник
         let leading = (calendar.component(.weekday, from: self.monthStart) + 5) % 7
         let dayCount = calendar.range(of: .day, in: .month, for: self.monthStart)?.count ?? 30
         let monthStartStamp = Int32(self.monthStart.timeIntervalSince1970)

@@ -77,7 +77,7 @@ private func dkxRunChatExport(context: AccountContext, peerId: EnginePeer.Id, co
             let _ = try? FileManager.default.removeItem(at: url)
             try text.data(using: .utf8)?.write(to: url, options: .atomic)
         } catch {
-            DkxLog.write("выгрузка", "не удалось записать файл: \(error.localizedDescription)")
+            DkxLog.write("выгрузка", "не удалось записать файл, \(error.localizedDescription)")
             controller.present(UndoOverlayController(presentationData: presentationData, content: .info(title: nil, text: "Не удалось записать файл", timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return false }), in: .current)
             return
         }
@@ -95,9 +95,9 @@ private func dkxFormatChatExport(title: String, messages: [Message], accountPeer
     shortFormatter.dateFormat = "dd.MM HH:mm"
 
     var lines: [String] = []
-    lines.append("Чат: \(title)")
-    lines.append("Выгружено: \(dateFormatter.string(from: Date()))")
-    lines.append("Сообщений: \(messages.count)")
+    lines.append("Чат \(title)")
+    lines.append("Выгружено \(dateFormatter.string(from: Date()))")
+    lines.append("Сообщений \(messages.count)")
     if messages.count >= DkxChatExport.maxBatches * 100 {
         lines.append("Выгрузка упёрлась в предел, самые старые сообщения могли не попасть.")
     }
@@ -138,7 +138,7 @@ private func dkxFormatChatExport(title: String, messages: [Message], accountPeer
             if let deleted = attribute as? DkxDeletedMessageAttribute {
                 line += "\n    (удалено \(shortFormatter.string(from: Date(timeIntervalSince1970: Double(deleted.deletionDate)))))"
             } else if let history = attribute as? DkxEditHistoryAttribute, !history.texts.isEmpty {
-                line += "\n    (изменено, прежние версии:"
+                line += "\n    (изменено, прежние версии"
                 for i in 0 ..< min(history.texts.count, history.dates.count) {
                     let when = shortFormatter.string(from: Date(timeIntervalSince1970: Double(history.dates[i])))
                     line += "\n     \(when): \(history.texts[i])"

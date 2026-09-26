@@ -12,12 +12,12 @@ import AccountContext
 import UndoUI
 
 // «Пароли». Записи хранятся в системной Keychain, по одной на запись,
-// только на этом устройстве: без синхронизации в iCloud и без переноса в
+// только на этом устройстве, без синхронизации в iCloud и без переноса в
 // резервную копию на другой телефон. Вход в раздел по Face ID с запасным
 // паролем телефона. Скопированное из раздела само стирается из буфера
 // обмена через две минуты.
 //
-// Дизайн выбран владельцем: вариант Б, карточки. Каждая запись в списке
+// Дизайн выбран владельцем, вариант Б, карточки. Каждая запись в списке
 // это отдельный блок с названием, логином, значками заполненных полей и
 // кнопками копирования логина и пароля прямо из списка.
 
@@ -156,7 +156,7 @@ private func dkxCopySecret(_ value: String) {
     UIPasteboard.general.setItems([["public.utf8-plain-text": value]], options: [.localOnly: true, .expirationDate: Date(timeIntervalSinceNow: 120.0)])
 }
 
-// Сигнал списка: хранилище синхронное, а экраны должны обновляться после
+// Сигнал списка. Хранилище синхронное, а экраны должны обновляться после
 // правок, поэтому держим версию и перечитываем по ней
 private let dkxPasswordsVersion = ValuePromise<Int>(0, ignoreRepeated: false)
 private let dkxPasswordsVersionValue = Atomic<Int>(value: 0)
@@ -332,7 +332,7 @@ private func dkxPasswordsController(context: AccountContext) -> ViewController {
             }
         }
         if !entries.isEmpty {
-            items.append(.footer("Записей: \(entries.count). Хранятся в Keychain только на этом телефоне и не уходят ни на сервер Telegram, ни в iCloud."))
+            items.append(.footer("Записей \(entries.count). Хранятся в Keychain только на этом телефоне и не уходят ни на сервер Telegram, ни в iCloud."))
         }
         let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Пароли"), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: items, style: .blocks, animateChanges: false)

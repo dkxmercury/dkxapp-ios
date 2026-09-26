@@ -10,7 +10,7 @@ import SwiftSignalKit
 // сохранение удалённых сообщений и история правок тумблеров не имеют, они
 // зашиты. Тут только то, что решает интерфейс.
 //
-// Новое поле добавляется в трёх местах: объявление со значением по умолчанию
+// Новое поле добавляется в трёх местах. Объявление со значением по умолчанию
 // в init(), чтение в init(from:) через decodeIfPresent и запись в encode.
 // Старые сохранённые настройки без нового поля читаются со значением по
 // умолчанию.
@@ -30,7 +30,7 @@ public struct DkxSettings: Codable, Equatable {
     public var hideStories: Bool
     // Предложения премиума, подсказки покупки, навязчивые баннеры
     public var hidePremiumPromo: Bool
-    // Главные правки форка: удалённые остаются, правки сохраняются
+    // Главные правки форка. Удалённые остаются, правки сохраняются
     public var antiDelete: Bool
     public var editHistory: Bool
 
@@ -39,7 +39,7 @@ public struct DkxSettings: Codable, Equatable {
     public var showNoteInHeader: Bool
     public var showPeerId: Bool
 
-    // Список «Без ответа»: личные чаты, где последним написал собеседник.
+    // Список «Без ответа». Личные чаты, где последним написал собеседник.
     // Порог в часах, сколько он должен ждать, чтобы попасть в список. Ноль
     // значит сразу.
     public var unansweredFilter: Bool
@@ -141,7 +141,7 @@ public struct DkxSettings: Codable, Equatable {
         return (latitude, longitude)
     }
 
-    // Путь, по которому едет маршрут: по дорогам, если он проложен, иначе
+    // Путь, по которому едет маршрут. По дорогам, если он проложен, иначе
     // прямая из А в Б. nil, если какой-то из точек нет.
     public var effectiveRoutePath: [Double]? {
         guard let from = DkxSettings.parseCoordinate(self.routeFrom), let to = DkxSettings.parseCoordinate(self.routeTo) else {
@@ -233,7 +233,7 @@ public struct DkxSettings: Codable, Equatable {
     }
 }
 
-// Снимок настроек для мест, где подписаться на сигнал неудобно: ячейки
+// Снимок настроек для мест, где подписаться на сигнал неудобно. Это ячейки
 // списков, шапка чата, строки профиля. Обновляет его SharedAccountContext при
 // запуске и при каждой правке настроек. Экран, открытый в момент правки,
 // увидит новое значение при следующей перерисовке.

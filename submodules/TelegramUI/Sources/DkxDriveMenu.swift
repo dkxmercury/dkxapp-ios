@@ -113,7 +113,7 @@ func dkxUploadMessageToDrive(context: AccountContext, message: Message, present:
         case .notConnected:
             text = "Сначала войдите в Google в настройках Dkx"
         case let .failed(reason):
-            text = "Не удалось: \(reason)"
+            text = "Не удалось. \(reason)"
         }
         present(UndoOverlayController(presentationData: presentationData, content: .info(title: nil, text: text, timeout: nil, customUndoText: nil), elevatedLayout: false, animateInAsReplacement: false, action: { _ in return false }), nil)
     }))

@@ -12,7 +12,7 @@ import SwiftSignalKit
 // секрета GOOGLE_IOS_CLIENT_ID, в исходниках его нет.
 
 public enum DkxGoogleDrive {
-    // Client ID из Info.plist. Пусто, если сборка без секрета: тогда вся
+    // Client ID из Info.plist. Пусто, если сборка без секрета. Тогда вся
     // фича молчит и в интерфейсе показывается, что не настроено.
     public static var clientId: String {
         return (Bundle.main.object(forInfoDictionaryKey: "DkxGoogleClientID") as? String) ?? ""
@@ -157,7 +157,7 @@ public enum DkxGoogleDrive {
                 guard let callbackUrl = callbackUrl,
                       let code = URLComponents(url: callbackUrl, resolvingAgainstBaseURL: false)?.queryItems?.first(where: { $0.name == "code" })?.value else {
                     if let error = error {
-                        DkxLog.write("drive", "вход прерван: \(error.localizedDescription)")
+                        DkxLog.write("drive", "вход прерван, \(error.localizedDescription)")
                     }
                     subscriber.putNext(false)
                     subscriber.putCompletion()

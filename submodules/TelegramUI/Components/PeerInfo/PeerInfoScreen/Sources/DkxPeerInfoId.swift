@@ -9,8 +9,8 @@ import TelegramUIPreferences
 
 // MARK: DKX. Числовой Telegram ID в профиле, по нажатию копируется.
 //
-// Формат тот же, что ждёт Bot API и что показывают боты вроде @userinfobot:
-// пользователи и боты как есть, обычные группы с минусом, каналы и
+// Формат тот же, что ждёт Bot API и что показывают боты вроде @userinfobot.
+// Пользователи и боты как есть, обычные группы с минусом, каналы и
 // супергруппы в виде -100 и дальше число. Считается арифметикой, а не
 // склейкой строк, иначе у коротких идентификаторов потерялись бы нули.
 
@@ -24,7 +24,7 @@ func dkxBotApiId(_ peerId: EnginePeer.Id) -> String? {
     case Namespaces.Peer.CloudChannel:
         return "\(-(1000000000000 + raw))"
     default:
-        // Секретные чаты и прочие локальные пространства: у них нет ID,
+        // У секретных чатов и прочих локальных пространств нет ID,
         // который понял бы кто-то снаружи
         return nil
     }
@@ -32,7 +32,7 @@ func dkxBotApiId(_ peerId: EnginePeer.Id) -> String? {
 
 // Записан ли владелец в контактах у собеседника. Флаг mutualContact сервер
 // ставит только при взаимности, поэтому строку показываем лишь тем, кого
-// владелец сохранил сам: для остальных «не сохранил» было бы догадкой.
+// владелец сохранил сам. Для остальных «не сохранил» было бы догадкой.
 func dkxContactBadgeItem(id: AnyHashable, user: TelegramUser, isContact: Bool) -> PeerInfoScreenItem? {
     guard DkxRuntime.current.showContactBadge, isContact, user.botInfo == nil else {
         return nil

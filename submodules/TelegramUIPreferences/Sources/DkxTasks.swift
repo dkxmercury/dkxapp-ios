@@ -3,8 +3,8 @@ import UserNotifications
 import TelegramCore
 import SwiftSignalKit
 
-// «Мои дела»: задачи с датой, временем и напоминанием. Хранятся отдельным
-// ключом, а не в DkxSettings: дел может быть много, а настройки читаются
+// «Мои дела», задачи с датой, временем и напоминанием. Хранятся отдельным
+// ключом, а не в DkxSettings. Дел может быть много, а настройки читаются
 // целиком при каждой перерисовке экранов.
 //
 // Напоминания это локальные уведомления системы с идентификатором
@@ -155,12 +155,12 @@ public enum DkxTaskReminders {
         }
         let updatedIds = Set(updated.items.map { $0.id })
 
-        // Удалённые дела: только снять напоминание
+        // У удалённых дел только снять напоминание
         let removed = previous.items.filter { !updatedIds.contains($0.id) }.map { self.identifier($0) }
         if !removed.isEmpty {
             center.removePendingNotificationRequests(withIdentifiers: removed)
         }
-        // Новые и изменённые: снять старое и поставить заново, если нужно
+        // У новых и изменённых снять старое и поставить заново, если нужно
         for task in updated.items {
             if let old = previousById[task.id], old == task {
                 continue

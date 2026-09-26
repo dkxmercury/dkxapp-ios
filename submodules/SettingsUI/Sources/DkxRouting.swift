@@ -18,7 +18,7 @@ struct DkxRoadRoute {
     let source: String
 }
 
-// Больше точек не храним: путь лежит в настройках и читается при каждой
+// Больше точек не храним. Путь лежит в настройках и читается при каждой
 // их правке. На городских маршрутах точность от прореживания не страдает.
 private let dkxMaxRoutePoints = 1500
 
@@ -53,7 +53,7 @@ func dkxComputeRoadRoute(from: CLLocationCoordinate2D, to: CLLocationCoordinate2
     }
     |> map { route -> DkxRoadRoute? in
         if let route = route {
-            DkxLog.write("гео", "маршрут по дорогам: \(route.source), точек \(route.path.count / 2)")
+            DkxLog.write("гео", "маршрут по дорогам проложил \(route.source), точек \(route.path.count / 2)")
         } else {
             DkxLog.write("гео", "маршрут по дорогам не получен, едем по прямой")
         }
@@ -77,7 +77,7 @@ private func dkxAppleRoute(from: CLLocationCoordinate2D, to: CLLocationCoordinat
                 subscriber.putNext(path.count >= 4 ? DkxRoadRoute(path: path, source: "Apple") : nil)
             } else {
                 if let error = error {
-                    DkxLog.write("гео", "Apple не проложил маршрут: \(error.localizedDescription)")
+                    DkxLog.write("гео", "Apple не проложил маршрут, \(error.localizedDescription)")
                 }
                 subscriber.putNext(nil)
             }
@@ -120,7 +120,7 @@ private func dkxOsrmRoute(from: CLLocationCoordinate2D, to: CLLocationCoordinate
                     result = DkxRoadRoute(path: path, source: "OpenStreetMap")
                 }
             } else if let error = error {
-                DkxLog.write("гео", "OSRM не ответил: \(error.localizedDescription)")
+                DkxLog.write("гео", "OSRM не ответил, \(error.localizedDescription)")
             }
             subscriber.putNext(result)
             subscriber.putCompletion()
