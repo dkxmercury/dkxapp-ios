@@ -90,6 +90,8 @@ public struct DkxSettings: Codable, Equatable {
     public var labelColors: [Int32]
     public var labelPeers: [Int64]
     public var labelPeerLabels: [Int32]
+    // Своё закрепление чатов, только на этом телефоне. Первый в списке выше всех
+    public var localPins: [Int64]
 
     // Панель подмены на экране карты. Выключенная прячет панель, и
     // приложение отдаёт настоящую геопозицию.
@@ -155,6 +157,7 @@ public struct DkxSettings: Codable, Equatable {
         self.labelColors = []
         self.labelPeers = []
         self.labelPeerLabels = []
+        self.localPins = []
         self.spoofPanel = true
         self.spoofLocation = false
         self.spoofMode = .point
@@ -249,6 +252,7 @@ public struct DkxSettings: Codable, Equatable {
         self.labelColors = (try container.decodeIfPresent([Int32].self, forKey: "labelColors")) ?? defaults.labelColors
         self.labelPeers = (try container.decodeIfPresent([Int64].self, forKey: "labelPeers")) ?? defaults.labelPeers
         self.labelPeerLabels = (try container.decodeIfPresent([Int32].self, forKey: "labelPeerLabels")) ?? defaults.labelPeerLabels
+        self.localPins = (try container.decodeIfPresent([Int64].self, forKey: "localPins")) ?? defaults.localPins
         self.spoofPanel = (try container.decodeIfPresent(Int32.self, forKey: "spoofPanel")).map { $0 != 0 } ?? defaults.spoofPanel
         self.spoofLocation = (try container.decodeIfPresent(Int32.self, forKey: "spoofLocation") ?? 0) != 0
         self.spoofMode = SpoofMode(rawValue: (try container.decodeIfPresent(Int32.self, forKey: "spoofMode")) ?? defaults.spoofMode.rawValue) ?? defaults.spoofMode
@@ -300,6 +304,7 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode(self.labelColors, forKey: "labelColors")
         try container.encode(self.labelPeers, forKey: "labelPeers")
         try container.encode(self.labelPeerLabels, forKey: "labelPeerLabels")
+        try container.encode(self.localPins, forKey: "localPins")
         try container.encode((self.spoofPanel ? 1 : 0) as Int32, forKey: "spoofPanel")
         try container.encode((self.spoofLocation ? 1 : 0) as Int32, forKey: "spoofLocation")
         try container.encode(self.spoofMode.rawValue, forKey: "spoofMode")
@@ -327,6 +332,12 @@ public final class DkxRuntime {
     // Строки списка чатов спрашивают метки на каждой перерисовке, поэтому
     // готовая раскладка по чатам, а не проход по парам каждый раз
     private static var labelsByPeer: [Int64: [DkxChatLabel]] = [:]
+    // Главный список чатов подписан на своё закрепление, ему нужен сигнал
+    private static let localPinsPromise = ValuePromise<[Int64]>([], ignoreRepeated: true)
+
+    public static var localPinsSignal: Signal<[Int64], NoError> {
+        return localPinsPromise.get()
+    }
 
     public static var current: DkxSettings {
         lock.lock()
@@ -341,6 +352,7 @@ public final class DkxRuntime {
         value = settings
         labelsByPeer = labels
         lock.unlock()
+        localPinsPromise.set(settings.localPins)
     }
 
     public static func chatLabels(forPeer peerId: Int64) -> [DkxChatLabel] {

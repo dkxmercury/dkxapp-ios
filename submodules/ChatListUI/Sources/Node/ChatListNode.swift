@@ -2179,7 +2179,7 @@ public final class ChatListNode: ListViewImpl {
         |> map { sharedData -> String in
             let settings = sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
             DkxRuntime.update(settings)
-            return "\(settings.labelIds)|\(settings.labelTitles)|\(settings.labelColors)|\(settings.labelPeers)|\(settings.labelPeerLabels)"
+            return "\(settings.labelIds)|\(settings.labelTitles)|\(settings.labelColors)|\(settings.labelPeers)|\(settings.labelPeerLabels)|\(settings.localPins)"
         }
         |> distinctUntilChanged
         let previousDkxLabelsVersion = Atomic<String?>(value: nil)
@@ -4324,9 +4324,15 @@ private func dkxChatLabelTags(location: ChatListControllerLocation, peerId: Engi
     guard case .chatList = location else {
         return []
     }
-    return DkxRuntime.chatLabels(forPeer: peerId.toInt64()).map { label in
-        return ChatListItemContent.Tag(id: 1_000_000 + label.id, title: ChatFolderTitle(text: label.title, entities: [], enableAnimations: false), colorId: label.colorId)
+    var tags: [ChatListItemContent.Tag] = []
+    // Своё закрепление без значка скрепки, поэтому отмечаем его тегом
+    if DkxRuntime.current.localPins.contains(peerId.toInt64()) {
+        tags.append(ChatListItemContent.Tag(id: 999_999, title: ChatFolderTitle(text: "Закреплён", entities: [], enableAnimations: false), colorId: 5))
     }
+    for label in DkxRuntime.chatLabels(forPeer: peerId.toInt64()) {
+        tags.append(ChatListItemContent.Tag(id: 1_000_000 + label.id, title: ChatFolderTitle(text: label.title, entities: [], enableAnimations: false), colorId: label.colorId))
+    }
+    return tags
 }
 
 func chatListItemTags(location: ChatListControllerLocation, accountPeerId: EnginePeer.Id, isPremium: Bool, peer: EnginePeer?, isUnread: Bool, isMuted: Bool, isContact: Bool, hasUnseenMentions: Bool, chatListFilters: [ChatListFilter]?) -> [ChatListItemContent.Tag] {

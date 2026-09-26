@@ -585,6 +585,22 @@ func chatContextMenuItems(context: AccountContext, peerId: EnginePeer.Id, promoI
                             })))
                         }
                         
+                        // MARK: DKX своё закрепление, только на этом телефоне и без лимита
+                        if case .chatList = source, peerId.namespace != Namespaces.Peer.SecretChat {
+                            let dkxPinned = DkxRuntime.current.localPins.contains(peerId.toInt64())
+                            items.append(.action(ContextMenuActionItem(text: dkxPinned ? "Открепить у себя" : "Закрепить у себя", icon: { theme in generateTintedImage(image: UIImage(bundleImageName: dkxPinned ? "Chat/Context Menu/Unpin" : "Chat/Context Menu/Pin"), color: theme.contextMenu.primaryColor) }, action: { _, f in
+                                f(.default)
+                                let _ = updateDkxSettingsInteractively(accountManager: context.sharedContext.accountManager, { current in
+                                    var updated = current
+                                    updated.localPins.removeAll(where: { $0 == peerId.toInt64() })
+                                    if !dkxPinned {
+                                        updated.localPins.insert(peerId.toInt64(), at: 0)
+                                    }
+                                    return updated
+                                }).start()
+                            })))
+                        }
+
                         // MARK: DKX свои метки на чат
                         if case .chatList = source {
                             let dkxTitle = peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)

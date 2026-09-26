@@ -195,7 +195,16 @@ public func chatListFilterPredicate(filter: ChatListFilterData, accountPeerId: E
     })
 }
 
+// MARK: DKX своё закрепление подмешивается только в главный список без папки
 public func chatListViewForLocation(chatListLocation: ChatListControllerLocation, location: ChatListNodeLocation, account: Account, shouldLoadCanMessagePeer: Bool) -> Signal<ChatListNodeViewUpdate, NoError> {
+    let signal = dkxOriginalChatListViewForLocation(chatListLocation: chatListLocation, location: location, account: account, shouldLoadCanMessagePeer: shouldLoadCanMessagePeer)
+    guard case .chatList(groupId: .root) = chatListLocation, location.filter == nil else {
+        return signal
+    }
+    return dkxWithLocalPins(signal, account: account)
+}
+
+private func dkxOriginalChatListViewForLocation(chatListLocation: ChatListControllerLocation, location: ChatListNodeLocation, account: Account, shouldLoadCanMessagePeer: Bool) -> Signal<ChatListNodeViewUpdate, NoError> {
     let accountPeerId = account.peerId
     
     switch chatListLocation {
