@@ -398,6 +398,9 @@ func infoItems(
             if let dkxExportItem = dkxExportChatItem(id: 6098, peerId: user.id, context: context, interaction: interaction) {
                 items[currentPeerInfoSection]!.append(dkxExportItem)
             }
+            if let dkxDriveItem = dkxChatMediaDriveItem(id: 6097, peerId: user.id, context: context, interaction: interaction) {
+                items[currentPeerInfoSection]!.append(dkxDriveItem)
+            }
             
             if !data.isContact, user.botInfo == nil {
                 items[currentPeerInfoSection]!.append(PeerInfoScreenActionItem(id: ItemAddToContacts, text: presentationData.strings.PeerInfo_AddToContacts, action: {
@@ -848,6 +851,9 @@ func infoItems(
         if let dkxExportItem = dkxExportChatItem(id: 98, peerId: channel.id, context: context, interaction: interaction) {
             items[.peerInfo]!.append(dkxExportItem)
         }
+        if let dkxDriveItem = dkxChatMediaDriveItem(id: 97, peerId: channel.id, context: context, interaction: interaction) {
+            items[.peerInfo]!.append(dkxDriveItem)
+        }
     } else if case let .legacyGroup(group) = data.peer {
         if let cachedData = data.cachedData as? CachedGroupData {
             let aboutText: String?
@@ -875,6 +881,9 @@ func infoItems(
         }
         if let dkxExportItem = dkxExportChatItem(id: 98, peerId: group.id, context: context, interaction: interaction) {
             items[.peerInfo]!.append(dkxExportItem)
+        }
+        if let dkxDriveItem = dkxChatMediaDriveItem(id: 97, peerId: group.id, context: context, interaction: interaction) {
+            items[.peerInfo]!.append(dkxDriveItem)
         }
     }
     

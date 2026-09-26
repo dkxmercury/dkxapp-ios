@@ -10,6 +10,7 @@ import TelegramUIPreferences
 import PresentationDataUtils
 import OverlayStatusController
 import UndoUI
+import SettingsUI
 
 // MARK: DKX. Выгрузка чата в текстовый файл. Пункт в профиле собеседника,
 // группы или канала. Догружает с сервера всю историю, собирает текст с
@@ -25,6 +26,19 @@ func dkxExportChatItem(id: AnyHashable, peerId: EnginePeer.Id, context: AccountC
             return
         }
         dkxRunChatExport(context: context, peerId: peerId, controller: controller)
+    })
+}
+
+// MARK: DKX все медиа чата за период на Google Drive, экран в SettingsUI
+func dkxChatMediaDriveItem(id: AnyHashable, peerId: EnginePeer.Id, context: AccountContext, interaction: PeerInfoInteraction) -> PeerInfoScreenItem? {
+    guard DkxRuntime.current.driveEnabled else {
+        return nil
+    }
+    return PeerInfoScreenActionItem(id: id, text: "Медиа в Google Drive", action: { [weak interaction] in
+        guard let controller = interaction?.getController() else {
+            return
+        }
+        controller.push(dkxChatMediaDriveController(context: context, peerId: peerId))
     })
 }
 

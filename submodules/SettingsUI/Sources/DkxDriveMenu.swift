@@ -8,15 +8,14 @@ import AccountContext
 import TelegramPresentationData
 import PresentationDataUtils
 import UndoUI
-import SettingsUI
 import TelegramUIPreferences
 
-// MARK: DKX связка меню сообщения с выгрузкой в Google Drive. Движок входа и
-// загрузки живёт в SettingsUI, тут только достаём файл сообщения и показываем
-// ход и результат.
+// MARK: DKX связка меню сообщения и профиля чата с выгрузкой в Google Drive.
+// Тут достаём файл сообщения и показываем ход и результат, движок входа и
+// загрузки рядом, в DkxGoogleDrive и DkxGoogleDriveUpload.
 
 // У альбома в меню приходят все его сообщения, пункт выгружает их разом
-func dkxDriveMenuApplicable(messages: [Message]) -> Bool {
+public func dkxDriveMenuApplicable(messages: [Message]) -> Bool {
     guard DkxRuntime.current.driveEnabled, DkxGoogleDrive.isConfigured, DkxGoogleDrive.isConnected else {
         return false
     }
@@ -53,7 +52,7 @@ private func dkxDrivePickMedia(message: Message) -> DkxDriveMedia? {
     return nil
 }
 
-func dkxUploadMessagesToDrive(context: AccountContext, messages: [Message], present: @escaping (ViewController, Any?) -> Void) {
+public func dkxUploadMessagesToDrive(context: AccountContext, messages: [Message], present: @escaping (ViewController, Any?) -> Void) {
     let presentationData = context.sharedContext.currentPresentationData.with { $0 }
     let showToast: (String) -> Void = { text in
         let presentationData = context.sharedContext.currentPresentationData.with { $0 }
