@@ -14,6 +14,10 @@ import SwiftSignalKit
 // в init(), чтение в init(from:) через decodeIfPresent и запись в encode.
 // Старые сохранённые настройки без нового поля читаются со значением по
 // умолчанию.
+//
+// Кодировщик Postbox не умеет словари со строковыми ключами и массивы Double,
+// чтение таких полей роняет приложение. Храним только Int32, Int64, String,
+// Bool через Int32 и массивы Int32, Int64, String.
 public struct DkxSettings: Codable, Equatable {
     public enum SpoofMode: Int32 {
         // Координата стоит в одной точке
@@ -29,10 +33,6 @@ public struct DkxSettings: Codable, Equatable {
     // Главные правки форка: удалённые остаются, правки сохраняются
     public var antiDelete: Bool
     public var editHistory: Bool
-    // Личные заметки на чаты. Ключ это идентификатор собеседника строкой,
-    // потому что Codable плохо работает со словарями с числовыми ключами.
-    // Заметка видна только владельцу и на сервер не уходит.
-    public var chatNotes: [String: String]
 
     // Мелкие добавки в интерфейс, у каждой свой тумблер
     public var showContactBadge: Bool
@@ -82,7 +82,7 @@ public struct DkxSettings: Codable, Equatable {
     public var routeStartedAt: Int32
     // Ехать по дорогам. Путь из маршрутизатора, широта и долгота подряд.
     // Пустой путь значит прямую из А в Б. routePathSource для показа, кто
-    // проложил маршрут.
+    // проложил маршрут. На диск путь пишется строкой через запятую.
     public var routeByRoads: Bool
     public var routePath: [Double]
     public var routePathSource: String
@@ -96,7 +96,6 @@ public struct DkxSettings: Codable, Equatable {
         self.hidePremiumPromo = false
         self.antiDelete = true
         self.editHistory = true
-        self.chatNotes = [:]
         self.showContactBadge = true
         self.showNoteInHeader = true
         self.showPeerId = true
@@ -122,13 +121,6 @@ public struct DkxSettings: Codable, Equatable {
         self.routeByRoads = true
         self.routePath = []
         self.routePathSource = ""
-    }
-
-    public func note(for peerId: Int64) -> String? {
-        if let value = self.chatNotes[String(peerId)], !value.isEmpty {
-            return value
-        }
-        return nil
     }
 
     // Разбирает строку вида «48.858370, 2.294481». Точка с запятой и
@@ -161,6 +153,14 @@ public struct DkxSettings: Codable, Equatable {
         return [from.latitude, from.longitude, to.latitude, to.longitude]
     }
 
+    static func encodePath(_ path: [Double]) -> String {
+        return path.map { String($0) }.joined(separator: ",")
+    }
+
+    static func decodePath(_ text: String) -> [Double] {
+        return text.split(separator: ",").compactMap { Double($0) }
+    }
+
     public static func formatCoordinate(latitude: Double, longitude: Double) -> String {
         return String(format: "%.6f, %.6f", latitude, longitude)
     }
@@ -172,7 +172,6 @@ public struct DkxSettings: Codable, Equatable {
         self.hidePremiumPromo = (try container.decodeIfPresent(Int32.self, forKey: "hidePremiumPromo") ?? 0) != 0
         self.antiDelete = (try container.decodeIfPresent(Int32.self, forKey: "antiDelete")).map { $0 != 0 } ?? defaults.antiDelete
         self.editHistory = (try container.decodeIfPresent(Int32.self, forKey: "editHistory")).map { $0 != 0 } ?? defaults.editHistory
-        self.chatNotes = (try container.decodeIfPresent([String: String].self, forKey: "chatNotes")) ?? defaults.chatNotes
         self.showContactBadge = (try container.decodeIfPresent(Int32.self, forKey: "showContactBadge")).map { $0 != 0 } ?? defaults.showContactBadge
         self.showNoteInHeader = (try container.decodeIfPresent(Int32.self, forKey: "showNoteInHeader")).map { $0 != 0 } ?? defaults.showNoteInHeader
         self.showPeerId = (try container.decodeIfPresent(Int32.self, forKey: "showPeerId")).map { $0 != 0 } ?? defaults.showPeerId
@@ -196,7 +195,7 @@ public struct DkxSettings: Codable, Equatable {
         self.routeSpeed = (try container.decodeIfPresent(Int32.self, forKey: "routeSpeed")) ?? defaults.routeSpeed
         self.routeStartedAt = (try container.decodeIfPresent(Int32.self, forKey: "routeStartedAt")) ?? defaults.routeStartedAt
         self.routeByRoads = (try container.decodeIfPresent(Int32.self, forKey: "routeByRoads")).map { $0 != 0 } ?? defaults.routeByRoads
-        self.routePath = (try container.decodeIfPresent([Double].self, forKey: "routePath")) ?? defaults.routePath
+        self.routePath = (try container.decodeIfPresent(String.self, forKey: "routePathText")).map(DkxSettings.decodePath) ?? defaults.routePath
         self.routePathSource = (try container.decodeIfPresent(String.self, forKey: "routePathSource")) ?? defaults.routePathSource
     }
 
@@ -206,7 +205,6 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode((self.hidePremiumPromo ? 1 : 0) as Int32, forKey: "hidePremiumPromo")
         try container.encode((self.antiDelete ? 1 : 0) as Int32, forKey: "antiDelete")
         try container.encode((self.editHistory ? 1 : 0) as Int32, forKey: "editHistory")
-        try container.encode(self.chatNotes, forKey: "chatNotes")
         try container.encode((self.showContactBadge ? 1 : 0) as Int32, forKey: "showContactBadge")
         try container.encode((self.showNoteInHeader ? 1 : 0) as Int32, forKey: "showNoteInHeader")
         try container.encode((self.showPeerId ? 1 : 0) as Int32, forKey: "showPeerId")
@@ -230,7 +228,7 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode(self.routeSpeed, forKey: "routeSpeed")
         try container.encode(self.routeStartedAt, forKey: "routeStartedAt")
         try container.encode((self.routeByRoads ? 1 : 0) as Int32, forKey: "routeByRoads")
-        try container.encode(self.routePath, forKey: "routePath")
+        try container.encode(DkxSettings.encodePath(self.routePath), forKey: "routePathText")
         try container.encode(self.routePathSource, forKey: "routePathSource")
     }
 }
