@@ -535,6 +535,16 @@ private let dkxStringsJSON = #"""
   "uk": "Telegram для бізнесу",
   "uz": "Telegram Biznes"
  },
+ "Telegram не отдал историю сообщений. Так бывает, когда сервер просит подождать. Попробуйте ещё раз через минуту.": {
+  "en": "Telegram did not return the message history. This happens when the server asks to wait. Try again in a minute.",
+  "uk": "Telegram не віддав історію повідомлень. Так буває, коли сервер просить зачекати. Спробуйте ще раз за хвилину.",
+  "uz": "Telegram xabarlar tarixini bermadi. Server kutishni soʻraganda shunday boʻladi. Bir daqiqadan keyin yana urinib koʻring."
+ },
+ "Telegram отдал не всю историю, в расчёте последние {} сообщений. Можно загрузить заново.": {
+  "en": "Telegram did not return the full history, the latest {} messages are counted. You can load again.",
+  "uk": "Telegram віддав не всю історію, у розрахунку останні {} повідомлень. Можна завантажити заново.",
+  "uz": "Telegram tarixni toʻliq bermadi, hisobda oxirgi {} ta xabar. Qayta yuklash mumkin."
+ },
  "[аудио]": {
   "ar": "[ملف صوتي]",
   "be": "[аўдыя]",
@@ -1759,6 +1769,11 @@ private let dkxStringsJSON = #"""
   "tr": "Google hesabına giriş yap",
   "uk": "Увійти в Google",
   "uz": "Google hisobiga kirish"
+ },
+ "Впишите название модели.": {
+  "en": "Type the model name.",
+  "uk": "Впишіть назву моделі.",
+  "uz": "Model nomini yozing."
  },
  "Впишите номер аккаунта Cloudflare.": {
   "en": "Enter the Cloudflare account ID.",
@@ -3039,6 +3054,11 @@ private let dkxStringsJSON = #"""
   "en": "Only the latest {} messages were loaded, earlier ones are not counted",
   "uk": "Завантажено останні {} повідомлень, раніші не враховано",
   "uz": "Oxirgi {} ta xabar yuklandi, oldingilari hisobga olinmadi"
+ },
+ "Загрузить заново": {
+  "en": "Load again",
+  "uk": "Завантажити заново",
+  "uz": "Qayta yuklash"
  },
  "Закрепить у себя": {
   "ar": "تثبيت لديّ فقط",
@@ -4620,10 +4640,15 @@ private let dkxStringsJSON = #"""
   "uk": "Моделі {}",
   "uz": "{} modellari"
  },
- "Модель {} не ответила, {}.": {
-  "en": "Model {} did not answer, {}.",
-  "uk": "Модель {} не відповіла, {}.",
-  "uz": "{} modeli javob bermadi, {}."
+ "Модель {} выбрана, но сейчас не ответила, {}. У бесплатных моделей так бывает, при сбое запрос уйдёт в другой подключённый сервис.": {
+  "en": "Model {} is selected, but it did not answer now, {}. This happens with free models, on failure the request will go to another connected service.",
+  "uk": "Модель {} вибрано, але зараз вона не відповіла, {}. У безкоштовних моделей так буває, у разі збою запит піде до іншого підключеного сервісу.",
+  "uz": "{} modeli tanlandi, lekin hozir javob bermadi, {}. Bepul modellarda bu boʻlib turadi, nosozlikda soʻrov boshqa ulangan xizmatga oʻtadi."
+ },
+ "Модель {} не подходит, {}.": {
+  "en": "Model {} does not fit, {}.",
+  "uk": "Модель {} не підходить, {}.",
+  "uz": "{} modeli mos emas, {}."
  },
  "Модель {} отвечает и выбрана.": {
   "en": "Model {} answers and is selected.",
@@ -6650,6 +6675,16 @@ private let dkxStringsJSON = #"""
   "uk": "Перевірити ключ і завантажити моделі",
   "uz": "Kalitni tekshirib, modellarni yuklash"
  },
+ "Проверяю модель {}, это до минуты…": {
+  "en": "Checking model {}, it takes up to a minute…",
+  "uk": "Перевіряю модель {}, це до хвилини…",
+  "uz": "{} modeli tekshirilmoqda, bu bir daqiqagacha…"
+ },
+ "Проверяю модель {}…": {
+  "en": "Checking model {}…",
+  "uk": "Перевіряю модель {}…",
+  "uz": "{} modeli tekshirilmoqda…"
+ },
  "Проверяю…": {
   "ar": "جارٍ التحقق…",
   "be": "Правяраю…",
@@ -7560,6 +7595,11 @@ private let dkxStringsJSON = #"""
   "uk": "Повідомлень {}",
   "uz": "Xabarlar {}"
  },
+ "Сообщений {}. Считаю и жду статистику Telegram, до 15 секунд": {
+  "en": "Messages {}. Calculating and waiting for Telegram statistics, up to 15 seconds",
+  "uk": "Повідомлень {}. Рахую й чекаю статистику Telegram, до 15 секунд",
+  "uz": "Xabarlar {}. Hisoblanmoqda va Telegram statistikasi kutilmoqda, 15 soniyagacha"
+ },
  "Сообщений в день": {
   "en": "Messages per day",
   "uk": "Повідомлень на день",
@@ -7710,10 +7750,10 @@ private let dkxStringsJSON = #"""
   "uk": "Список моделей не отримано, {}. Якщо ключ правильний, впишіть модель вручну нижче, ключ збережеться разом із нею.",
   "uz": "Modellar roʻyxati olinmadi, {}. Agar kalit toʻgʻri boʻlsa, modelni pastda qoʻlda yozing, kalit u bilan birga saqlanadi."
  },
- "Список моделей приходит от самого сервиса по вашему ключу. Если сервис список не отдаёт, впишите название модели с его сайта. Перед выбором модель проверяется коротким запросом.": {
-  "en": "The model list comes from the service itself using your key. If the service does not return a list, type the model name from its website. Before selection the model is checked with a short request.",
-  "uk": "Список моделей надходить від самого сервісу за вашим ключем. Якщо сервіс список не віддає, впишіть назву моделі з його сайту. Перед вибором модель перевіряється коротким запитом.",
-  "uz": "Modellar roʻyxati kalitingiz boʻyicha xizmatning oʻzidan keladi. Agar xizmat roʻyxat bermasa, model nomini uning saytidan yozing. Tanlashdan oldin model qisqa soʻrov bilan tekshiriladi."
+ "Список моделей приходит от самого сервиса по вашему ключу. Модели для картинок, звука и эмбеддингов в нём скрыты, текст они не пишут. Если сервис список не отдаёт, впишите название модели с его сайта. Перед выбором модель проверяется коротким запросом.": {
+  "en": "The model list comes from the service itself using your key. Models for images, sound and embeddings are hidden, they do not write text. If the service does not return a list, type the model name from its website. Before selection the model is checked with a short request.",
+  "uk": "Список моделей надходить від самого сервісу за вашим ключем. Моделі для картинок, звуку й ембедингів у ньому приховано, текст вони не пишуть. Якщо сервіс список не віддає, впишіть назву моделі з його сайту. Перед вибором модель перевіряється коротким запитом.",
+  "uz": "Modellar roʻyxati kalitingiz boʻyicha xizmatning oʻzidan keladi. Rasm, tovush va embedding modellari yashirilgan, ular matn yozmaydi. Agar xizmat roʻyxat bermasa, model nomini uning saytidan yozing. Tanlashdan oldin model qisqa soʻrov bilan tekshiriladi."
  },
  "Список открывается долгим нажатием на вкладку «Чаты». В нём личные чаты, где последним написал собеседник, без ботов и архива. Сверху те, кто ждёт дольше всех.": {
   "ar": "تُفتح القائمة بالضغط المطوّل على علامة التبويب «المحادثات». تضم المحادثات الخاصة التي كان آخر من كتب فيها هو الطرف الآخر، دون البوتات والأرشيف. في الأعلى من ينتظر أطول مدة.",
@@ -7865,10 +7905,10 @@ private let dkxStringsJSON = #"""
   "uk": "Стоп",
   "uz": "Toʻxtatish"
  },
- "Страница {} из {}, моделей {}. Нажмите на модель, она проверится и станет рабочей.": {
-  "en": "Page {} of {}, models {}. Tap a model, it will be checked and become active.",
-  "uk": "Сторінка {} з {}, моделей {}. Натисніть на модель, вона перевіриться й стане робочою.",
-  "uz": "{}-sahifa, jami {}, modellar {}. Modelni bosing, u tekshiriladi va ishga tushadi."
+ "Страница {} из {}, моделей {}. Нажмите на модель, она проверится и станет рабочей. Экран закроется сам, когда модель выбрана.": {
+  "en": "Page {} of {}, models {}. Tap a model, it will be checked and become active. The screen closes by itself when the model is selected.",
+  "uk": "Сторінка {} з {}, моделей {}. Натисніть на модель, вона перевіриться й стане робочою. Екран закриється сам, коли модель вибрано.",
+  "uz": "{}-sahifa, jami {}, modellar {}. Modelni bosing, u tekshiriladi va ishga tushadi. Model tanlanganda ekran oʻzi yopiladi."
  },
  "Таблица .xlsx для Google Таблиц.": {
   "en": "An .xlsx spreadsheet for Google Sheets.",
@@ -9550,10 +9590,10 @@ private let dkxStringsJSON = #"""
   "uk": "немає номера акаунта",
   "uz": "hisob raqami yoʻq"
  },
- "нет подключённого сервиса. Добавьте ключ и модель в Dkx, раздел «API ИИ»": {
-  "en": "no connected service. Add a key and model in Dkx, section “AI API”",
-  "uk": "немає підключеного сервісу. Додайте ключ і модель у Dkx, розділ «API ШІ»",
-  "uz": "ulangan xizmat yoʻq. Dkxda «SI API» boʻlimiga kalit va model qoʻshing"
+ "нет подключённого сервиса ИИ. Откройте «API ИИ», вставьте ключ любого сервиса и выберите модель": {
+  "en": "no AI service connected. Open “AI API”, paste a key of any service and choose a model",
+  "uk": "немає підключеного сервісу ШІ. Відкрийте «API ШІ», вставте ключ будь-якого сервісу й виберіть модель",
+  "uz": "ulangan SI xizmati yoʻq. «SI API»ni oching, istalgan xizmat kalitini qoʻying va model tanlang"
  },
  "нет связи с сервисом": {
   "ar": "لا اتصال بالخدمة",
