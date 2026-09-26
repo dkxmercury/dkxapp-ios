@@ -29,9 +29,6 @@ public enum DkxHiddenSection: String, CaseIterable {
     case sendGift = "settings.sendGift"
     case passport = "settings.passport"
     case watch = "settings.watch"
-    case support = "settings.support"
-    case faq = "settings.faq"
-    case tips = "settings.tips"
 
     public var isTab: Bool {
         switch self {
@@ -90,12 +87,6 @@ public enum DkxHiddenSection: String, CaseIterable {
             return "Telegram Passport"
         case .watch:
             return "Apple Watch"
-        case .support:
-            return "Задать вопрос"
-        case .faq:
-            return "Вопросы о Telegram"
-        case .tips:
-            return "Возможности Telegram"
         }
     }
 }
