@@ -261,6 +261,8 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
     
     private let titleAccessoryPanelContainer: ChatControllerTitlePanelNodeContainer
     private var currentTitleAccessoryPanelNode: ChatTitleAccessoryPanelNode?
+    // MARK: DKX ряд меток Избранного живёт отдельной панелью, пока открыто Избранное
+    private var dkxSavedLabelsPanelNode: DkxSavedLabelsTitlePanelNode?
     
     private var floatingTopicsPanelContainer: ChatControllerTitlePanelNodeContainer
     private var floatingTopicsPanel: (view: ComponentView<ChatSidePanelEnvironment>, component: ChatFloatingTopicsPanel)?
@@ -1618,6 +1620,30 @@ class ChatControllerNode: ASDisplayNode, ASScrollViewDelegate {
             )
         } else {
             self.currentTitleAccessoryPanelNode = nil
+        }
+        
+        // MARK: DKX ряд своих меток под закрепом, отдельной панелью, чтобы закреп его не вытеснял
+        if !hideTopPanels, self.chatPresentationInterfaceState.search == nil, dkxSavedLabelsPanelApplicable(self.chatPresentationInterfaceState, context: self.context) {
+            let dkxPanel: DkxSavedLabelsTitlePanelNode
+            if let current = self.dkxSavedLabelsPanelNode {
+                dkxPanel = current
+            } else {
+                dkxPanel = DkxSavedLabelsTitlePanelNode(context: self.context)
+                self.dkxSavedLabelsPanelNode = dkxPanel
+            }
+            dkxPanel.interfaceInteraction = self.interfaceInteraction
+            if dkxPanel.hasLabels {
+                headerPanels.append(HeaderPanelContainerComponent.Panel(
+                    key: "dkxSavedLabels",
+                    orderIndex: 4,
+                    component: AnyComponent(LegacyChatHeaderPanelComponent(
+                        panelNode: dkxPanel,
+                        interfaceState: self.chatPresentationInterfaceState
+                    )))
+                )
+            }
+        } else {
+            self.dkxSavedLabelsPanelNode = nil
         }
         
         var displayFeePanel: (value: Int64, peer: EnginePeer)?

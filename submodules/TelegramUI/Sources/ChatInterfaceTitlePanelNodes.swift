@@ -237,16 +237,6 @@ func titlePanelForChatPresentationInterfaceState(_ chatPresentationInterfaceStat
         }
     }
     
-    // MARK: DKX ряд своих меток под заголовком Избранного, если нет панели важнее
-    if chatPresentationInterfaceState.chatLocation.peerId == context.account.peerId, case .standard(.default) = chatPresentationInterfaceState.mode, chatPresentationInterfaceState.subject == nil, !DkxSavedLabelsStore.current.labels.isEmpty {
-        if let currentPanel = currentPanel as? DkxSavedLabelsTitlePanelNode {
-            return currentPanel
-        }
-        let panel = DkxSavedLabelsTitlePanelNode(context: context)
-        panel.interfaceInteraction = interfaceInteraction
-        return panel
-    }
-    
     return nil
 }
 

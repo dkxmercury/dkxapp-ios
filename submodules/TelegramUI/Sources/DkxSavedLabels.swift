@@ -27,6 +27,16 @@ private func dkxSavedLabelDot(context: AccountContext, colorId: Int32, theme: Pr
     return generateFilledCircleImage(diameter: 14.0, color: dkxSavedLabelColor(context: context, colorId: colorId, dark: theme.overallDarkAppearance))
 }
 
+func dkxSavedLabelsPanelApplicable(_ state: ChatPresentationInterfaceState, context: AccountContext) -> Bool {
+    guard state.chatLocation.peerId == context.account.peerId, state.subject == nil else {
+        return false
+    }
+    if case .standard(.default) = state.mode {
+        return true
+    }
+    return false
+}
+
 func dkxSavedLabelsApplicable(context: AccountContext, message: Message) -> Bool {
     return message.id.peerId == context.account.peerId && message.id.namespace == Namespaces.Message.Cloud
 }
@@ -556,9 +566,14 @@ final class DkxSavedLabelsTitlePanelNode: ChatTitleAccessoryPanelNode {
     private var disposable: Disposable?
     private var lastLayout: (width: CGFloat, leftInset: CGFloat, rightInset: CGFloat, theme: PresentationTheme)?
 
+    var hasLabels: Bool {
+        return !self.labels.isEmpty
+    }
+
     init(context: AccountContext) {
         self.context = context
         self.scrollView = UIScrollView()
+        self.labels = DkxSavedLabelsStore.current.labels
 
         super.init()
 
@@ -575,8 +590,13 @@ final class DkxSavedLabelsTitlePanelNode: ChatTitleAccessoryPanelNode {
             guard let self else {
                 return
             }
+            let hadLabels = !self.labels.isEmpty
             self.labels = value.labels
             self.layoutChips()
+            // Первая метка или удалена последняя, чату надо добавить или убрать панель
+            if hadLabels != !self.labels.isEmpty {
+                self.interfaceInteraction?.requestLayout(.animated(duration: 0.25, curve: .easeInOut))
+            }
         })
     }
 
