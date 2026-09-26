@@ -19,41 +19,71 @@ public func dkxSupportedSpeechLocales() -> [(id: String, title: String)] {
     return dkxSpeechLocaleCandidates.filter { supported.contains($0.id) }
 }
 
+public func dkxSpeechAccessDenied() -> Bool {
+    let status = SFSpeechRecognizer.authorizationStatus()
+    return status == .denied || status == .restricted
+}
+
+private func dkxRecognize(recognizer: SFSpeechRecognizer, url: URL, onDevice: Bool, completion: @escaping (String?) -> Void) -> SFSpeechRecognitionTask {
+    let request = SFSpeechURLRecognitionRequest(url: url)
+    if #available(iOS 16.0, *) {
+        request.addsPunctuation = true
+    }
+    request.taskHint = .dictation
+    request.requiresOnDeviceRecognition = onDevice
+    request.shouldReportPartialResults = false
+    var finished = false
+    return recognizer.recognitionTask(with: request, resultHandler: { result, _ in
+        if finished {
+            return
+        }
+        if let result {
+            if result.isFinal {
+                finished = true
+                completion(result.bestTranscription.formattedString)
+            }
+        } else {
+            finished = true
+            completion(nil)
+        }
+    })
+}
+
 public func dkxTranscribeAudio(path: String, locale: String) -> Signal<LocallyTranscribedAudio?, NoError> {
     return Signal { subscriber in
         let disposable = MetaDisposable()
         SFSpeechRecognizer.requestAuthorization { status in
             Queue.mainQueue().async {
-                guard status == .authorized, let recognizer = SFSpeechRecognizer(locale: Locale(identifier: locale)), recognizer.isAvailable else {
+                guard status == .authorized, let recognizer = SFSpeechRecognizer(locale: Locale(identifier: locale)) else {
                     subscriber.putNext(nil)
                     subscriber.putCompletion()
                     return
                 }
-                let request = SFSpeechURLRecognitionRequest(url: URL(fileURLWithPath: path))
-                if #available(iOS 16.0, *) {
-                    request.addsPunctuation = true
-                }
-                request.taskHint = .dictation
-                request.requiresOnDeviceRecognition = recognizer.supportsOnDeviceRecognition
-                request.shouldReportPartialResults = false
-
-                let task = recognizer.recognitionTask(with: request, resultHandler: { result, _ in
-                    guard let result = result else {
-                        subscriber.putNext(nil)
-                        subscriber.putCompletion()
-                        return
-                    }
-                    guard result.isFinal else {
-                        return
-                    }
-                    let text = result.bestTranscription.formattedString.trimmingCharacters(in: .whitespacesAndNewlines)
-                    subscriber.putNext(text.isEmpty ? nil : LocallyTranscribedAudio(text: text, isFinal: true))
+                let url = URL(fileURLWithPath: path)
+                let finish: (String?) -> Void = { text in
+                    let trimmed = text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    subscriber.putNext(trimmed.isEmpty ? nil : LocallyTranscribedAudio(text: trimmed, isFinal: true))
                     subscriber.putCompletion()
+                }
+                // Без скачанной модели языка распознавание на телефоне падает с ошибкой, тогда второй заход через серверы Apple
+                let onDevice = recognizer.supportsOnDeviceRecognition
+                let first = dkxRecognize(recognizer: recognizer, url: url, onDevice: onDevice, completion: { text in
+                    if text != nil || !onDevice {
+                        finish(text)
+                        return
+                    }
+                    Queue.mainQueue().async {
+                        let second = dkxRecognize(recognizer: recognizer, url: url, onDevice: false, completion: finish)
+                        disposable.set(ActionDisposable {
+                            let _ = recognizer
+                            second.cancel()
+                        })
+                    }
                 })
                 disposable.set(ActionDisposable {
                     // Распознаватель держим до конца задачи, иначе она обрывается
                     let _ = recognizer
-                    task.cancel()
+                    first.cancel()
                 })
             }
         }
