@@ -209,6 +209,7 @@ private enum DkxSettingsSection: Int32 {
     case chats
     case unanswered
     case transcription
+    case ai
     case improve
     case location
     case features
@@ -239,9 +240,12 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case transcriptionLocale(index: Int32, id: String, title: String, checked: Bool)
     case transcriptionFooter(String)
 
+    case aiHeader
+    case aiServices(String)
+    case aiFooter(String)
+
     case improveHeader
     case improveToggle(Bool)
-    case improveKeys(String)
     case improveFooter(String)
 
     case locationHeader
@@ -274,7 +278,9 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return DkxSettingsSection.unanswered.rawValue
         case .transcriptionHeader, .transcription, .transcriptionLocale, .transcriptionFooter:
             return DkxSettingsSection.transcription.rawValue
-        case .improveHeader, .improveToggle, .improveKeys, .improveFooter:
+        case .aiHeader, .aiServices, .aiFooter:
+            return DkxSettingsSection.ai.rawValue
+        case .improveHeader, .improveToggle, .improveFooter:
             return DkxSettingsSection.improve.rawValue
         case .locationHeader, .spoofPanel, .locationFooter:
             return DkxSettingsSection.location.rawValue
@@ -329,12 +335,16 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 302 + index
         case .transcriptionFooter:
             return 399
+        case .aiHeader:
+            return 390
+        case .aiServices:
+            return 391
+        case .aiFooter:
+            return 392
         case .improveHeader:
             return 400
         case .improveToggle:
             return 401
-        case .improveKeys:
-            return 402
         case .improveFooter:
             return 499
         case .locationHeader:
@@ -443,10 +453,14 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Кнопка в поле ввода"), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateImproveText(value)
             })
-        case let .improveKeys(label):
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Ключи Gemini и GLM"), label: label, sectionId: self.section, style: .blocks, action: {
+        case .aiHeader:
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("API ИИ"), sectionId: self.section)
+        case let .aiServices(label):
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Сервисы и ключи"), label: label, sectionId: self.section, style: .blocks, action: {
                 arguments.openImproveKeys()
             })
+        case let .aiFooter(text):
+            return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case let .improveFooter(text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case .unansweredFooter:
@@ -556,15 +570,17 @@ private func dkxSettingsControllerEntries(settings: DkxSettings) -> [DkxSettings
         entries.append(.transcriptionFooter(DkxStrings.tr("Без Premium кнопки расшифровки не будет.")))
     }
 
+    entries.append(.aiHeader)
+    entries.append(.aiServices(dkxAISummary()))
+    entries.append(.aiFooter(DkxStrings.tr("Свой ключ от DeepSeek, Qwen, GLM, OpenAI, Claude, Xiaomi, Cloudflare, Mistral, Gemini или OpenRouter. Через него работают «Улучшить текст» и «Совет ИИ» в аналитике каналов.")))
+
     entries.append(.improveHeader)
     entries.append(.improveToggle(settings.improveText))
     if settings.improveText {
-        let keys = DkxAIKeys.Provider.allCases.filter { DkxAIKeys.key($0) != nil }.map { $0.title }
-        entries.append(.improveKeys(keys.isEmpty ? DkxStrings.tr("нет") : keys.joined(separator: DkxStrings.tr(" и "))))
         let now = Calendar.current.dateComponents([.year, .month, .day], from: Date())
         let today = Int32((now.year ?? 0) * 10000 + (now.month ?? 0) * 100 + (now.day ?? 0))
         let count = settings.improveDay == today ? settings.improveCount : 0
-        entries.append(.improveFooter(DkxStrings.tr("Кнопка с волшебной палочкой появляется в поле ввода, когда там есть текст. Стиль, смайлики, обращение и язык выбираются на её экране, последний выбор запоминается. Ключи хранятся в Keychain этого телефона и переживают переустановку приложения. Сегодня запросов {}.", count)))
+        entries.append(.improveFooter(DkxStrings.tr("Кнопка с волшебной палочкой появляется в поле ввода, когда там есть текст. Стиль, смайлики, обращение и язык выбираются на её экране, последний выбор запоминается. Работает через сервисы из раздела «API ИИ». Сегодня запросов {}.", count)))
     } else {
         entries.append(.improveFooter(DkxStrings.tr("Кнопки «Улучшить текст» в поле ввода не будет.")))
     }

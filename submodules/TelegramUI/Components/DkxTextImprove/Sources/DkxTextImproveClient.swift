@@ -2,9 +2,9 @@ import Foundation
 import SwiftSignalKit
 import TelegramUIPreferences
 
-// MARK: DKX запросы «Улучшить текст». GLM-4.5-Flash для русского и
-// английского, Gemini Flash-Lite для узбекского, он единственный из
-// бесплатных держит узбекский язык. Упал один сервис, запрос уходит в другой.
+// Запросы «Улучшить текст» через сервисы из раздела «API ИИ». Для узбекского
+// первым идёт Gemini, он лучше других держит узбекский. Упал один сервис,
+// запрос уходит в следующий.
 
 public var dkxImproveStyles: [String] {
     return [DkxStrings.tr("Исправить ошибки"), DkxStrings.tr("Деловой"), DkxStrings.tr("Дружелюбный"), DkxStrings.tr("Короче"), DkxStrings.tr("Подробнее"), DkxStrings.tr("Продающий"), DkxStrings.tr("Вежливый отказ"), DkxStrings.tr("Свой стиль")]
@@ -64,11 +64,6 @@ public struct DkxImproveOptions: Equatable {
     }
 }
 
-public enum DkxImproveError {
-    case noKeys
-    case failed(String)
-}
-
 private func dkxPick(_ list: [String], _ index: Int32) -> String {
     return list[max(0, min(Int(index), list.count - 1))]
 }
@@ -105,119 +100,10 @@ public func dkxLooksUzbek(_ text: String) -> Bool {
     return words.intersection(common).count >= 2
 }
 
-private func dkxErrorText(status: Int) -> String {
-    switch status {
-    case 400:
-        return DkxStrings.tr("сервис не принял запрос")
-    case 401, 403:
-        return DkxStrings.tr("ключ не подходит")
-    case 429:
-        return DkxStrings.tr("лимит на сегодня или сервис перегружен")
-    default:
-        return DkxStrings.tr("ответ {}", status)
-    }
-}
-
-private func dkxRequest(provider: DkxAIKeys.Provider, key: String, system: String, text: String, temperature: Double) -> Signal<String, DkxImproveError> {
-    return Signal { subscriber in
-        var request: URLRequest
-        let body: [String: Any]
-        switch provider {
-        case .gemini:
-            request = URLRequest(url: URL(string: "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent")!)
-            request.setValue(key, forHTTPHeaderField: "x-goog-api-key")
-            body = [
-                "systemInstruction": ["parts": [["text": system]]],
-                "contents": [["role": "user", "parts": [["text": text]]]],
-                "generationConfig": ["temperature": temperature]
-            ]
-        case .glm:
-            request = URLRequest(url: URL(string: "https://api.z.ai/api/paas/v4/chat/completions")!)
-            request.setValue("Bearer " + key, forHTTPHeaderField: "Authorization")
-            body = [
-                "model": "glm-4.5-flash",
-                "messages": [["role": "system", "content": system], ["role": "user", "content": text]],
-                "thinking": ["type": "disabled"],
-                "temperature": temperature
-            ]
-        }
-        request.httpMethod = "POST"
-        request.timeoutInterval = 30.0
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
-
-        let task = URLSession.shared.dataTask(with: request, completionHandler: { data, response, error in
-            if let error = error {
-                subscriber.putError(.failed((error as NSError).code == NSURLErrorTimedOut ? DkxStrings.tr("сервис не ответил за 30 секунд") : DkxStrings.tr("нет связи с сервисом")))
-                return
-            }
-            let status = (response as? HTTPURLResponse)?.statusCode ?? 0
-            guard status == 200, let data = data, let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                subscriber.putError(.failed(dkxErrorText(status: status)))
-                return
-            }
-            var result: String?
-            switch provider {
-            case .gemini:
-                if let candidates = json["candidates"] as? [[String: Any]], let content = candidates.first?["content"] as? [String: Any], let parts = content["parts"] as? [[String: Any]] {
-                    result = parts.compactMap { $0["text"] as? String }.joined()
-                }
-            case .glm:
-                if let choices = json["choices"] as? [[String: Any]], let message = choices.first?["message"] as? [String: Any] {
-                    result = message["content"] as? String
-                }
-            }
-            let trimmed = result?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-            if trimmed.isEmpty {
-                subscriber.putError(.failed(DkxStrings.tr("сервис вернул пустой ответ")))
-            } else {
-                subscriber.putNext(trimmed)
-                subscriber.putCompletion()
-            }
-        })
-        task.resume()
-        return ActionDisposable {
-            task.cancel()
-        }
-    }
-}
-
 // Отдаёт готовый текст и сервис, который его написал
 public func dkxImproveText(_ text: String, options: DkxImproveOptions, variant: Int) -> Signal<(String, DkxAIKeys.Provider), DkxImproveError> {
     let preferGemini = options.language == 2 || (options.language == 0 && dkxLooksUzbek(text))
-    let order: [DkxAIKeys.Provider] = preferGemini ? [.gemini, .glm] : [.glm, .gemini]
-    let available: [(DkxAIKeys.Provider, String)] = order.compactMap { provider in
-        return DkxAIKeys.key(provider).map { (provider, $0) }
-    }
-    guard !available.isEmpty else {
-        return .fail(.noKeys)
-    }
-    let system = dkxSystemPrompt(options)
     // «Ещё вариант» просит сервис быть смелее, иначе он повторит тот же текст
     let temperature = variant == 0 ? 0.4 : 0.9
-    var signal: Signal<(String, DkxAIKeys.Provider), DkxImproveError> = .fail(.failed(DkxStrings.tr("нет сервиса")))
-    for (index, item) in available.enumerated().reversed() {
-        let attempt = dkxRequest(provider: item.0, key: item.1, system: system, text: text, temperature: temperature)
-        |> map { result -> (String, DkxAIKeys.Provider) in
-            return (result, item.0)
-        }
-        if index == available.count - 1 {
-            signal = attempt
-        } else {
-            let fallback = signal
-            signal = attempt
-            |> `catch` { _ -> Signal<(String, DkxAIKeys.Provider), DkxImproveError> in
-                return fallback
-            }
-        }
-    }
-    return signal
-}
-
-// Проверка ключа перед сохранением, короткий запрос без расхода лимита на текст
-public func dkxCheckKey(provider: DkxAIKeys.Provider, key: String) -> Signal<Void, DkxImproveError> {
-    return dkxRequest(provider: provider, key: key, system: "Ответь одним словом.", text: "Скажи ок", temperature: 0.0)
-    |> map { _ -> Void in
-        return Void()
-    }
+    return dkxAIComplete(system: dkxSystemPrompt(options), text: text, temperature: temperature, maxTokens: 2048, timeout: 45.0, preferring: preferGemini ? .gemini : nil)
 }

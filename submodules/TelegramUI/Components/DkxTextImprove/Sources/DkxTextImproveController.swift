@@ -276,7 +276,7 @@ public func dkxTextImproveController(context: AccountContext, text: String, appl
             updateState { state in
                 switch error {
                 case .noKeys:
-                    state.status = .failed(DkxStrings.tr("нет ключей. Вставьте ключ Gemini или GLM в Dkx, раздел «Улучшить текст»"))
+                    state.status = .failed(DkxStrings.tr("нет подключённого сервиса. Добавьте ключ и модель в Dkx, раздел «API ИИ»"))
                 case let .failed(reason):
                     state.status = .failed(reason)
                 }
