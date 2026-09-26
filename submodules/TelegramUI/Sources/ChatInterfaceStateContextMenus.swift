@@ -1562,21 +1562,6 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             }
         }
         
-        var downloadableMediaResourceInfos: [String] = []
-        for media in message.effectiveMedia {
-            if let file = media as? TelegramMediaFile {
-                if let info = extractMediaResourceDebugInfo(resource: file.resource) {
-                    downloadableMediaResourceInfos.append(info)
-                }
-            } else if let image = media as? TelegramMediaImage {
-                for representation in image.representations {
-                    if let info = extractMediaResourceDebugInfo(resource: representation.resource) {
-                        downloadableMediaResourceInfos.append(info)
-                    }
-                }
-            }
-        }
-        
         if !isCopyProtected {
             for media in message.effectiveMedia {
                 if let file = media as? TelegramMediaFile {
@@ -1618,16 +1603,7 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             })))
         }
         
-        if (loggingSettings.logToFile || loggingSettings.logToConsole) && !downloadableMediaResourceInfos.isEmpty {
-            actions.append(.action(ContextMenuActionItem(text: "Send Logs", icon: { theme in
-                return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Message"), color: theme.actionSheet.primaryTextColor)
-            }, action: { _, f in
-                triggerDebugSendLogsUI(context: context, additionalInfo: "User has requested download logs for \(downloadableMediaResourceInfos)", pushController: { c in
-                    controllerInteraction.navigationController()?.pushViewController(c)
-                })
-                f(.default)
-            })))
-        }
+        // MARK: DKX пункт «Send Logs» убран, логи Telegram отправляются из отладочного меню
         
         var threadId: Int64?
         var threadMessageCount: Int = 0

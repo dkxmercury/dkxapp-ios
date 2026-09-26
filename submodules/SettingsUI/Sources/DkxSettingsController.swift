@@ -505,7 +505,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
                 arguments.openDebug()
             })
         case .debugFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Журнал Dkx пишется всегда и показывает, что делали правки форка, плюс отчёты о падениях.\n\nПолные логи Telegram пишутся только по запросу. В отладочном меню включите Log to File, повторите проблему и нажмите Send Logs."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain("Полные логи Telegram пишутся только по запросу. В отладочном меню включите Log to File, повторите проблему и нажмите Send Logs там же."), sectionId: self.section)
         }
     }
 }
@@ -599,7 +599,8 @@ private func dkxSettingsControllerEntries(settings: DkxSettings) -> [DkxSettings
     }
 
     entries.append(.debugHeader)
-    entries.append(.openLog)
+    // Экран журнала Dkx убран по просьбе владельца. Запись идёт дальше, тихо,
+    // по ней разбираем падения
     entries.append(.openDebug)
     entries.append(.debugFooter)
 
