@@ -101,9 +101,9 @@ private enum DkxChatLabelsEntry: ItemListNodeEntry {
 public func dkxChatLabelsSettingsController(context: AccountContext) -> ViewController {
     var pushImpl: ((ViewController) -> Void)?
     let arguments = DkxChatLabelsArguments(context: context, open: { id in
-        pushImpl?(dkxChatLabelEditorController(context: context, labelId: id, assignTo: nil))
+        pushImpl?(dkxChatLabelEditorController(context: context, labelId: id, assignTo: []))
     }, add: {
-        pushImpl?(dkxChatLabelEditorController(context: context, labelId: nil, assignTo: nil))
+        pushImpl?(dkxChatLabelEditorController(context: context, labelId: nil, assignTo: []))
     })
 
     let signal = combineLatest(queue: .mainQueue(), context.sharedContext.presentationData, dkxSettingsSignal(context: context))
@@ -229,7 +229,7 @@ private enum DkxChatLabelEditorEntry: ItemListNodeEntry {
     }
 }
 
-func dkxChatLabelEditorController(context: AccountContext, labelId: Int32?, assignTo: EnginePeer.Id?) -> ViewController {
+func dkxChatLabelEditorController(context: AccountContext, labelId: Int32?, assignTo: [EnginePeer.Id]) -> ViewController {
     let existing = labelId.flatMap { id in DkxRuntime.current.chatLabels.first(where: { $0.id == id }) }
     let usedColors = Set(DkxRuntime.current.chatLabels.map { $0.colorId })
     let freeColor = dkxChatLabelColors.first(where: { !usedColors.contains($0.id) })?.id ?? 5
@@ -299,8 +299,8 @@ func dkxChatLabelEditorController(context: AccountContext, labelId: Int32?, assi
                 let id = settings.nextChatLabelId
                 labels.append(DkxChatLabel(id: id, title: title, colorId: state.colorId))
                 settings.setChatLabels(labels)
-                if let assignTo {
-                    settings.setChatLabel(id, peer: assignTo.toInt64(), assigned: true)
+                for peerId in assignTo {
+                    settings.setChatLabel(id, peer: peerId.toInt64(), assigned: true)
                 }
             }
         })
@@ -355,7 +355,7 @@ private final class DkxChatLabelsPickerArguments {
 }
 
 private enum DkxChatLabelsPickerEntry: ItemListNodeEntry {
-    case label(index: Int32, label: DkxChatLabel, checked: Bool)
+    case label(index: Int32, label: DkxChatLabel, checked: Bool, partial: String?)
     case add
     case footer(String)
 
@@ -365,7 +365,7 @@ private enum DkxChatLabelsPickerEntry: ItemListNodeEntry {
 
     var stableId: Int32 {
         switch self {
-        case let .label(index, _, _):
+        case let .label(index, _, _, _):
             return index
         case .add:
             return 10000
@@ -381,8 +381,9 @@ private enum DkxChatLabelsPickerEntry: ItemListNodeEntry {
     func item(presentationData: ItemListPresentationData, arguments: Any) -> ListViewItem {
         let arguments = arguments as! DkxChatLabelsPickerArguments
         switch self {
-        case let .label(_, label, checked):
-            return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, icon: dkxChatLabelDot(context: arguments.context, colorId: label.colorId, theme: presentationData.theme), title: label.title, style: .right, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
+        case let .label(_, label, checked, partial):
+            let title = partial.map { label.title + " · " + $0 } ?? label.title
+            return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, icon: dkxChatLabelDot(context: arguments.context, colorId: label.colorId, theme: presentationData.theme), title: title, style: .right, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.toggle(label.id, !checked)
             })
         case .add:
@@ -396,25 +397,37 @@ private enum DkxChatLabelsPickerEntry: ItemListNodeEntry {
 }
 
 func dkxChatLabelsPickerController(context: AccountContext, peerId: EnginePeer.Id, title: String) -> ViewController {
+    return dkxChatLabelsPickerController(context: context, peerIds: [peerId], title: title)
+}
+
+// Метка отмечена, только если стоит на всех выбранных чатах. Нажатие ставит её всем или снимает со всех
+func dkxChatLabelsPickerController(context: AccountContext, peerIds: [EnginePeer.Id], title: String?) -> ViewController {
     var pushImpl: ((ViewController) -> Void)?
     let arguments = DkxChatLabelsPickerArguments(context: context, toggle: { labelId, assigned in
         dkxUpdateSettings(context: context, { settings in
-            settings.setChatLabel(labelId, peer: peerId.toInt64(), assigned: assigned)
+            for peerId in peerIds {
+                settings.setChatLabel(labelId, peer: peerId.toInt64(), assigned: assigned)
+            }
         })
     }, add: {
-        pushImpl?(dkxChatLabelEditorController(context: context, labelId: nil, assignTo: peerId))
+        pushImpl?(dkxChatLabelEditorController(context: context, labelId: nil, assignTo: peerIds))
     })
 
     let signal = combineLatest(queue: .mainQueue(), context.sharedContext.presentationData, dkxSettingsSignal(context: context))
     |> map { presentationData, settings -> (ItemListControllerState, (ItemListNodeState, Any)) in
         var entries: [DkxChatLabelsPickerEntry] = []
-        let assigned = settings.chatLabelIds(forPeer: peerId.toInt64())
         let labels = settings.chatLabels
         for (index, label) in labels.enumerated() {
-            entries.append(.label(index: Int32(index), label: label, checked: assigned.contains(label.id)))
+            let count = peerIds.filter { settings.chatLabelIds(forPeer: $0.toInt64()).contains(label.id) }.count
+            let partial = count > 0 && count < peerIds.count ? DkxStrings.tr("у {} из {}", count, peerIds.count) : nil
+            entries.append(.label(index: Int32(index), label: label, checked: !peerIds.isEmpty && count == peerIds.count, partial: partial))
         }
         entries.append(.add)
-        entries.append(.footer(labels.isEmpty ? DkxStrings.tr("Меток пока нет. Создайте первую, она сразу встанет на «{}».", title) : DkxStrings.tr("Отмеченные метки видны под именем «{}» в списке чатов. Цвет и название меняются в Dkx, раздел «Метки».", title)))
+        if let title, peerIds.count == 1 {
+            entries.append(.footer(labels.isEmpty ? DkxStrings.tr("Меток пока нет. Создайте первую, она сразу встанет на «{}».", title) : DkxStrings.tr("Отмеченные метки видны под именем «{}» в списке чатов. Цвет и название меняются в Dkx, раздел «Метки».", title)))
+        } else {
+            entries.append(.footer(labels.isEmpty ? DkxStrings.tr("Меток пока нет. Создайте первую, она сразу встанет на выбранные чаты.") : DkxStrings.tr("Отмеченные метки стоят на всех выбранных чатах. Нажатие ставит метку всем или снимает со всех.")))
+        }
         let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Метки")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: true)
         return (controllerState, (listState, arguments))

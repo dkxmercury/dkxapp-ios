@@ -7220,7 +7220,19 @@ private final class ChatListLocationContext {
         
         if stateAndFilterId.state.editing {
             if case .chatList(.root) = self.location {
-                self.rightButton = nil
+                // MARK: DKX метки сразу на все выделенные чаты
+                let dkxSelected = Array(stateAndFilterId.state.selectedPeerIds)
+                if dkxSelected.isEmpty {
+                    self.rightButton = nil
+                } else {
+                    let dkxContext = self.context
+                    self.rightButton = AnyComponentWithIdentity(id: "dkxLabels", component: AnyComponent(NavigationButtonComponent(
+                        content: .text(title: DkxStrings.tr("Метки"), isBold: false),
+                        pressed: { [weak self] _ in
+                            self?.parentController?.push(dkxChatLabelsPickerController(context: dkxContext, peerIds: dkxSelected, title: nil))
+                        }
+                    )))
+                }
                 self.storyButton = nil
                 self.proxyButton = nil
             }

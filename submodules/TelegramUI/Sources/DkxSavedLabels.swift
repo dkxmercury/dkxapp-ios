@@ -31,6 +31,19 @@ func dkxSavedLabelsApplicable(context: AccountContext, message: Message) -> Bool
     return message.id.peerId == context.account.peerId && message.id.namespace == Namespaces.Message.Cloud
 }
 
+// Кнопка тегов в панели выделения Избранного. Штатные теги остаются тем, у кого Premium и они не спрятаны
+func dkxSavedLabelsSelectionOverride(context: AccountContext, controller: ViewController, messageIds: [EngineMessage.Id], isPremium: Bool) -> Bool {
+    if isPremium && !DkxRuntime.current.isHidden(.savedTags) {
+        return false
+    }
+    let ids = messageIds.filter { $0.peerId == context.account.peerId && $0.namespace == Namespaces.Message.Cloud }
+    if ids.isEmpty {
+        return false
+    }
+    controller.push(dkxSavedLabelsPickerController(context: context, messageIds: ids))
+    return true
+}
+
 // MARK: - Выбор меток для сообщения
 
 private final class DkxSavedLabelsPickerArguments {
@@ -46,7 +59,7 @@ private final class DkxSavedLabelsPickerArguments {
 }
 
 private enum DkxSavedLabelsPickerEntry: ItemListNodeEntry {
-    case label(index: Int32, label: DkxSavedLabel, checked: Bool)
+    case label(index: Int32, label: DkxSavedLabel, checked: Bool, partial: String?)
     case add
     case footer(String)
 
@@ -56,7 +69,7 @@ private enum DkxSavedLabelsPickerEntry: ItemListNodeEntry {
 
     var stableId: Int32 {
         switch self {
-        case let .label(index, _, _):
+        case let .label(index, _, _, _):
             return index
         case .add:
             return 10000
@@ -72,8 +85,9 @@ private enum DkxSavedLabelsPickerEntry: ItemListNodeEntry {
     func item(presentationData: ItemListPresentationData, arguments: Any) -> ListViewItem {
         let arguments = arguments as! DkxSavedLabelsPickerArguments
         switch self {
-        case let .label(_, label, checked):
-            return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, icon: dkxSavedLabelDot(context: arguments.context, colorId: label.colorId, theme: presentationData.theme), title: label.title, style: .right, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
+        case let .label(_, label, checked, partial):
+            let title = partial.map { label.title + " · " + $0 } ?? label.title
+            return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, icon: dkxSavedLabelDot(context: arguments.context, colorId: label.colorId, theme: presentationData.theme), title: title, style: .right, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.toggle(label.id, !checked)
             })
         case .add:
@@ -87,25 +101,36 @@ private enum DkxSavedLabelsPickerEntry: ItemListNodeEntry {
 }
 
 func dkxSavedLabelsPickerController(context: AccountContext, messageId: EngineMessage.Id) -> ViewController {
-    let account = messageId.peerId.toInt64()
+    return dkxSavedLabelsPickerController(context: context, messageIds: [messageId])
+}
+
+// Метка отмечена, только если стоит на всех выбранных сообщениях. Нажатие ставит её всем или снимает со всех
+func dkxSavedLabelsPickerController(context: AccountContext, messageIds: [EngineMessage.Id]) -> ViewController {
     var pushImpl: ((ViewController) -> Void)?
     let arguments = DkxSavedLabelsPickerArguments(context: context, toggle: { labelId, assigned in
         DkxSavedLabelsStore.update { labels in
-            labels.set(label: labelId, account: account, message: messageId.id, assigned: assigned)
+            for messageId in messageIds {
+                labels.set(label: labelId, account: messageId.peerId.toInt64(), message: messageId.id, assigned: assigned)
+            }
         }
     }, add: {
-        pushImpl?(dkxSavedLabelEditorController(context: context, labelId: nil, assignTo: messageId))
+        pushImpl?(dkxSavedLabelEditorController(context: context, labelId: nil, assignTo: messageIds))
     })
 
     let signal = combineLatest(queue: .mainQueue(), context.sharedContext.presentationData, DkxSavedLabelsStore.signal)
     |> map { presentationData, labels -> (ItemListControllerState, (ItemListNodeState, Any)) in
         var entries: [DkxSavedLabelsPickerEntry] = []
-        let assigned = labels.labelIds(account: account, message: messageId.id)
         for (index, label) in labels.labels.enumerated() {
-            entries.append(.label(index: Int32(index), label: label, checked: assigned.contains(label.id)))
+            let count = messageIds.filter { labels.labelIds(account: $0.peerId.toInt64(), message: $0.id).contains(label.id) }.count
+            let partial = count > 0 && count < messageIds.count ? DkxStrings.tr("у {} из {}", count, messageIds.count) : nil
+            entries.append(.label(index: Int32(index), label: label, checked: !messageIds.isEmpty && count == messageIds.count, partial: partial))
         }
         entries.append(.add)
-        entries.append(.footer(labels.labels.isEmpty ? DkxStrings.tr("Меток пока нет. Создайте первую, она сразу встанет на это сообщение.") : DkxStrings.tr("Метки видны рядом под заголовком Избранного, нажатие на метку показывает её сообщения. Название, цвет и порядок меняются там же, кнопкой «Изменить». Метки хранятся на этом телефоне и не пропадают при переустановке.")))
+        if messageIds.count == 1 {
+            entries.append(.footer(labels.labels.isEmpty ? DkxStrings.tr("Меток пока нет. Создайте первую, она сразу встанет на это сообщение.") : DkxStrings.tr("Метки видны рядом под заголовком Избранного, нажатие на метку показывает её сообщения. Название, цвет и порядок меняются там же, кнопкой «Изменить». Метки хранятся на этом телефоне и не пропадают при переустановке.")))
+        } else {
+            entries.append(.footer(labels.labels.isEmpty ? DkxStrings.tr("Меток пока нет. Создайте первую, она сразу встанет на выбранные сообщения.") : DkxStrings.tr("Отмеченные метки стоят на всех выбранных сообщениях. Нажатие ставит метку всем или снимает со всех.")))
+        }
         let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Метки")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: true)
         return (controllerState, (listState, arguments))
@@ -217,7 +242,7 @@ private enum DkxSavedLabelEditorEntry: ItemListNodeEntry {
     }
 }
 
-func dkxSavedLabelEditorController(context: AccountContext, labelId: Int32?, assignTo: EngineMessage.Id?) -> ViewController {
+func dkxSavedLabelEditorController(context: AccountContext, labelId: Int32?, assignTo: [EngineMessage.Id]) -> ViewController {
     let current = DkxSavedLabelsStore.current
     let existing = labelId.flatMap { id in current.labels.first(where: { $0.id == id }) }
     let usedColors = Set(current.labels.map { $0.colorId })
@@ -288,8 +313,8 @@ func dkxSavedLabelEditorController(context: AccountContext, labelId: Int32?, ass
                 let id = labels.nextLabelId
                 list.append(DkxSavedLabel(id: id, title: title, colorId: state.colorId))
                 labels.setLabels(list)
-                if let assignTo {
-                    labels.set(label: id, account: assignTo.peerId.toInt64(), message: assignTo.id, assigned: true)
+                for messageId in assignTo {
+                    labels.set(label: id, account: messageId.peerId.toInt64(), message: messageId.id, assigned: true)
                 }
             }
         }
@@ -483,7 +508,7 @@ func dkxSavedLabelMessagesController(context: AccountContext, labelId: Int32) ->
             entries.append(.status(DkxStrings.tr("Ищу…")))
         }
         let rightButton = ItemListNavigationButton(content: .text(DkxStrings.tr("Изменить")), style: .regular, enabled: true, action: {
-            pushImpl?(dkxSavedLabelEditorController(context: context, labelId: labelId, assignTo: nil))
+            pushImpl?(dkxSavedLabelEditorController(context: context, labelId: labelId, assignTo: []))
         })
         let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(title), leftNavigationButton: nil, rightNavigationButton: rightButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: false)

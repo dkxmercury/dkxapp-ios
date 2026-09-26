@@ -196,6 +196,9 @@ public final class ChatMessageSelectionInputPanelNode: ChatInputPanelNode {
     
     private let canDeleteMessagesDisposable = MetaDisposable()
     
+    // MARK: DKX кнопка тегов в Избранном ставит свои метки Dkx. Подставляет TelegramUI, true значит обработано
+    public var dkxTagButtonOverride: ((AccountContext, ViewController, [EngineMessage.Id], Bool) -> Bool)?
+
     public var selectedMessages = Set<EngineMessage.Id>() {
         didSet {
             if oldValue != self.selectedMessages {
@@ -328,6 +331,10 @@ public final class ChatMessageSelectionInputPanelNode: ChatInputPanelNode {
     
     @objc private func tagButtonPressed() {
         guard let context = self.context else {
+            return
+        }
+
+        if let dkxOverride = self.dkxTagButtonOverride, let chatController = self.interfaceInteraction?.chatController(), dkxOverride(context, chatController, Array(self.selectedMessages), self.presentationInterfaceState?.isPremium ?? false) {
             return
         }
         

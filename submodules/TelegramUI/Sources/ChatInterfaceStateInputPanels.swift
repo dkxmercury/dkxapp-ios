@@ -79,6 +79,7 @@ func inputPanelForChatPresentationIntefaceState(_ chatPresentationInterfaceState
                 selectionPanel = currentPanel
             } else {
                 let panel = ChatMessageSelectionInputPanelNode(theme: chatPresentationInterfaceState.theme, strings: chatPresentationInterfaceState.strings)
+                panel.dkxTagButtonOverride = dkxSavedLabelsSelectionOverride
                 panel.context = context
                 panel.selectedMessages = selectionState.selectedIds
                 panel.chatControllerInteraction = chatControllerInteraction
@@ -134,6 +135,7 @@ func inputPanelForChatPresentationIntefaceState(_ chatPresentationInterfaceState
                 return (currentPanel, nil)
             } else {
                 let panel = ChatMessageSelectionInputPanelNode(theme: chatPresentationInterfaceState.theme, strings: chatPresentationInterfaceState.strings)
+                panel.dkxTagButtonOverride = dkxSavedLabelsSelectionOverride
                 panel.context = context
                 panel.selectedMessages = selectionState.selectedIds
                 panel.chatControllerInteraction = chatControllerInteraction
