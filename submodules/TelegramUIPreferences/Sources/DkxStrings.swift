@@ -5,8 +5,13 @@ public enum DkxStrings {
         return translation(ru).text
     }
 
-    public static func tr(_ ru: String, _ args: CustomStringConvertible...) -> String {
-        return fill(translation(ru).text, args.map { $0.description })
+    public static func tr(_ ru: String, _ args: Any...) -> String {
+        return fill(translation(ru).text, args.map { String(describing: $0) })
+    }
+
+    // Даты на языке найденного перевода, чтобы месяц не остался русским посреди английского текста
+    public static var locale: Locale {
+        return Locale(identifier: displayLanguage())
     }
 
     // Ключ это три русские формы через «|», в переводе формы языка через «|» по dkxPluralIndex
@@ -15,6 +20,22 @@ public enum DkxStrings {
         let forms = text.components(separatedBy: "|")
         let index = min(dkxPluralIndex(language, count), forms.count - 1)
         return fill(forms[index], ["\(count)"])
+    }
+
+    private static let languages: Set<String> = ["ru", "en", "ar", "be", "ca", "de", "es", "fa", "fr", "id", "it", "ko", "ms", "nl", "pl", "pt", "tr", "uk", "uz"]
+
+    private static func displayLanguage() -> String {
+        let language = DkxRuntime.languageCode
+        if language.isEmpty {
+            return "ru"
+        }
+        if languages.contains(language) {
+            return language
+        }
+        if let base = language.split(separator: "-").first.map(String.init), languages.contains(base) {
+            return base
+        }
+        return "en"
     }
 
     private static func translation(_ ru: String) -> (text: String, language: String) {

@@ -63,7 +63,7 @@ private enum DkxQuickRepliesEntry: ItemListNodeEntry {
         let arguments = arguments as! DkxQuickRepliesArguments
         switch self {
         case .add:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Добавить шаблон", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Добавить шаблон"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.add()
             })
         case let .header(text):
@@ -73,7 +73,7 @@ private enum DkxQuickRepliesEntry: ItemListNodeEntry {
                 arguments.edit(Int(index))
             })
         case .footer:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("В чате шаблоны открываются кнопкой в поле ввода, рядом со стикерами. Выбранный текст вставляется туда, где стоит курсор, и его можно дописать перед отправкой. Порядок в меню тот же, что здесь."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("В чате шаблоны открываются кнопкой в поле ввода, рядом со стикерами. Выбранный текст вставляется туда, где стоит курсор, и его можно дописать перед отправкой. Порядок в меню тот же, что здесь.")), sectionId: self.section)
         }
     }
 }
@@ -104,14 +104,14 @@ public func dkxQuickRepliesController(context: AccountContext) -> ViewController
         let settings = sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
         var entries: [DkxQuickRepliesEntry] = [.add]
         if !settings.quickReplyTemplates.isEmpty {
-            entries.append(.header("ШАБЛОНЫ \(settings.quickReplyTemplates.count)"))
+            entries.append(.header(DkxStrings.tr("ШАБЛОНЫ {}", settings.quickReplyTemplates.count)))
             for (index, text) in settings.quickReplyTemplates.enumerated() {
                 entries.append(.template(index: Int32(index), preview: dkxTemplatePreview(text)))
             }
         }
         entries.append(.footer)
 
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Шаблоны"), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Шаблоны")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: true)
         return (controllerState, (listState, arguments))
     }
@@ -168,13 +168,13 @@ private enum DkxQuickReplyEditEntry: ItemListNodeEntry {
         let arguments = arguments as! DkxQuickReplyEditArguments
         switch self {
         case let .text(text):
-            return ItemListMultilineInputItem(presentationData: presentationData, systemStyle: .glass, text: text, placeholder: "Текст шаблона", maxLength: ItemListMultilineInputItemTextLimit(value: Int(dkxQuickReplyMaxLength), display: false), sectionId: self.section, style: .blocks, minimalHeight: 120.0, textUpdated: { value in
+            return ItemListMultilineInputItem(presentationData: presentationData, systemStyle: .glass, text: text, placeholder: DkxStrings.tr("Текст шаблона"), maxLength: ItemListMultilineInputItemTextLimit(value: Int(dkxQuickReplyMaxLength), display: false), sectionId: self.section, style: .blocks, minimalHeight: 120.0, textUpdated: { value in
                 arguments.updateText(value)
             })
         case .info:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Можно в несколько строк. Переносы сохранятся."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Можно в несколько строк. Переносы сохранятся.")), sectionId: self.section)
         case .delete:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Удалить шаблон", kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Удалить шаблон"), kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.delete()
             })
         }
@@ -241,7 +241,7 @@ private func dkxQuickReplyEditController(context: AccountContext, index: Int?, i
         let rightButton = ItemListNavigationButton(content: .text(presentationData.strings.Common_Done), style: .bold, enabled: canSave, action: {
             save()
         })
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(index == nil ? "Новый шаблон" : "Шаблон"), leftNavigationButton: nil, rightNavigationButton: rightButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(index == nil ? DkxStrings.tr("Новый шаблон") : DkxStrings.tr("Шаблон")), leftNavigationButton: nil, rightNavigationButton: rightButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: false)
         return (controllerState, (listState, arguments))
     }

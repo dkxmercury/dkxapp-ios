@@ -18,15 +18,17 @@ public struct DkxChatLabel: Equatable {
 
 // Те же семь цветов, что у тегов папок Telegram, номера из PeerNameColor.
 // Список чатов красит метки штатной палитрой тегов.
-public let dkxChatLabelColors: [(id: Int32, title: String)] = [
-    (0, "Красный"),
-    (1, "Оранжевый"),
-    (2, "Фиолетовый"),
-    (3, "Зелёный"),
-    (4, "Бирюзовый"),
-    (5, "Синий"),
-    (6, "Розовый")
-]
+public var dkxChatLabelColors: [(id: Int32, title: String)] {
+    return [
+        (0, DkxStrings.tr("Красный")),
+        (1, DkxStrings.tr("Оранжевый")),
+        (2, DkxStrings.tr("Фиолетовый")),
+        (3, DkxStrings.tr("Зелёный")),
+        (4, DkxStrings.tr("Бирюзовый")),
+        (5, DkxStrings.tr("Синий")),
+        (6, DkxStrings.tr("Розовый"))
+    ]
+}
 
 public extension DkxSettings {
     var chatLabels: [DkxChatLabel] {

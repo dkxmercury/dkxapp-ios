@@ -18,7 +18,9 @@ import ItemListDatePickerItem
 
 private let dkxChatMediaCap = 3000
 
-private let dkxChatMediaPeriods: [String] = ["Сегодня", "7 дней", "30 дней", "Всё время", "Свои даты"]
+private var dkxChatMediaPeriods: [String] {
+    return [DkxStrings.tr("Сегодня"), DkxStrings.tr("7 дней"), DkxStrings.tr("30 дней"), DkxStrings.tr("Всё время"), DkxStrings.tr("Свои даты")]
+}
 
 private enum DkxChatMediaKind: Int32 {
     case photos
@@ -28,11 +30,11 @@ private enum DkxChatMediaKind: Int32 {
     var title: String {
         switch self {
         case .photos:
-            return "Фото и видео"
+            return DkxStrings.tr("Фото и видео")
         case .files:
-            return "Файлы"
+            return DkxStrings.tr("Файлы")
         case .voice:
-            return "Голосовые и кружки"
+            return DkxStrings.tr("Голосовые и кружки")
         }
     }
 
@@ -128,35 +130,35 @@ private enum DkxChatMediaEntry: ItemListNodeEntry {
         let arguments = arguments as! DkxChatMediaArguments
         switch self {
         case .periodHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ПЕРИОД", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ПЕРИОД"), sectionId: self.section)
         case let .period(index, title, checked):
             return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.selectPeriod(index)
             })
         case let .fromDate(dateTimeFormat, date, showing):
-            return ItemListDatePickerItem(presentationData: presentationData, systemStyle: .glass, dateTimeFormat: dateTimeFormat, date: date, title: "С", displayingDateSelection: showing, displayingTimeSelection: false, sectionId: self.section, style: .blocks, toggleDateSelection: {
+            return ItemListDatePickerItem(presentationData: presentationData, systemStyle: .glass, dateTimeFormat: dateTimeFormat, date: date, title: DkxStrings.tr("С"), displayingDateSelection: showing, displayingTimeSelection: false, sectionId: self.section, style: .blocks, toggleDateSelection: {
                 arguments.toggleFrom()
             }, toggleTimeSelection: nil, updated: { value in
                 arguments.updateFrom(value)
             })
         case let .toDate(dateTimeFormat, date, showing):
-            return ItemListDatePickerItem(presentationData: presentationData, systemStyle: .glass, dateTimeFormat: dateTimeFormat, date: date, title: "По", displayingDateSelection: showing, displayingTimeSelection: false, sectionId: self.section, style: .blocks, toggleDateSelection: {
+            return ItemListDatePickerItem(presentationData: presentationData, systemStyle: .glass, dateTimeFormat: dateTimeFormat, date: date, title: DkxStrings.tr("По"), displayingDateSelection: showing, displayingTimeSelection: false, sectionId: self.section, style: .blocks, toggleDateSelection: {
                 arguments.toggleTo()
             }, toggleTimeSelection: nil, updated: { value in
                 arguments.updateTo(value)
             })
         case .kindsHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ЧТО ВЫГРУЖАТЬ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ЧТО ВЫГРУЖАТЬ"), sectionId: self.section)
         case let .kind(kind, value):
             return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: kind.title, value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.toggleKind(kind, value)
             })
         case let .start(searching, enabled):
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: searching ? "Ищу…" : "Найти и выгрузить", kind: enabled && !searching ? .generic : .disabled, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: searching ? DkxStrings.tr("Ищу…") : DkxStrings.tr("Найти и выгрузить"), kind: enabled && !searching ? .generic : .disabled, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.start()
             })
         case .footer:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Поиск идёт на сервере Telegram, поэтому находится и то, что не загружено на телефон. Перед выгрузкой покажу, сколько нашлось. Файлы грузятся фоном, ход виден в полосе вверху экрана, повторы на диск не попадут. За один раз до \(dkxChatMediaCap) файлов."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Поиск идёт на сервере Telegram, поэтому находится и то, что не загружено на телефон. Перед выгрузкой покажу, сколько нашлось. Файлы грузятся фоном, ход виден в полосе вверху экрана, повторы на диск не попадут. За один раз до {} файлов.", dkxChatMediaCap)), sectionId: self.section)
         }
     }
 }
@@ -205,9 +207,9 @@ private func dkxLoadChatMedia(context: AccountContext, peerId: EnginePeer.Id, ta
 private func dkxSizeText(_ bytes: Int64) -> String {
     let megabytes = Double(bytes) / 1_048_576.0
     if megabytes >= 1024.0 {
-        return String(format: "%.1f ГБ", megabytes / 1024.0).replacingOccurrences(of: ".", with: ",")
+        return String(format: DkxStrings.tr("%.1f ГБ"), megabytes / 1024.0).replacingOccurrences(of: ".", with: ",")
     }
-    return "\(max(1, Int(megabytes.rounded()))) МБ"
+    return DkxStrings.tr("{} МБ", max(1, Int(megabytes.rounded())))
 }
 
 public func dkxChatMediaDriveController(context: AccountContext, peerId: EnginePeer.Id) -> ViewController {
@@ -226,7 +228,7 @@ public func dkxChatMediaDriveController(context: AccountContext, peerId: EngineP
     let searchDisposable = MetaDisposable()
 
     let showAlert: (String, String) -> Void = { title, text in
-        presentControllerImpl?(textAlertController(context: context, title: title, text: text, actions: [TextAlertAction(type: .defaultAction, title: "Понятно", action: {})]))
+        presentControllerImpl?(textAlertController(context: context, title: title, text: text, actions: [TextAlertAction(type: .defaultAction, title: DkxStrings.tr("Понятно"), action: {})]))
     }
 
     let arguments = DkxChatMediaArguments(selectPeriod: { index in
@@ -259,7 +261,7 @@ public func dkxChatMediaDriveController(context: AccountContext, peerId: EngineP
             return
         }
         guard DkxRuntime.current.driveEnabled, DkxGoogleDrive.isConfigured, DkxGoogleDrive.isConnected else {
-            showAlert("Google Drive не подключён", "Включите Google Drive в настройках Dkx и войдите в Google.")
+            showAlert(DkxStrings.tr("Google Drive не подключён"), DkxStrings.tr("Включите Google Drive в настройках Dkx и войдите в Google."))
             return
         }
 
@@ -317,7 +319,7 @@ public func dkxChatMediaDriveController(context: AccountContext, peerId: EngineP
             DkxLog.write("drive", "найдено медиа \(filtered.count)")
 
             guard !filtered.isEmpty else {
-                showAlert("Ничего не нашлось", "За этот период в чате нет медиа выбранных типов.")
+                showAlert(DkxStrings.tr("Ничего не нашлось"), DkxStrings.tr("За этот период в чате нет медиа выбранных типов."))
                 return
             }
             var bytes: Int64 = 0
@@ -328,17 +330,17 @@ public func dkxChatMediaDriveController(context: AccountContext, peerId: EngineP
                     }
                 }
             }
-            var text = "Файлов \(filtered.count)"
+            var text = DkxStrings.tr("Файлов {}", filtered.count)
             if bytes > 0 {
-                text += ", объём около \(dkxSizeText(bytes))"
+                text += DkxStrings.tr(", объём около {}", dkxSizeText(bytes))
             }
             if filtered.count >= dkxChatMediaCap {
-                text += ". Это предел за один раз, остальное выгрузите следующим заходом"
+                text += DkxStrings.tr(". Это предел за один раз, остальное выгрузите следующим заходом")
             }
             text += "."
-            presentControllerImpl?(textAlertController(context: context, title: "Выгрузить на Google Drive?", text: text, actions: [
-                TextAlertAction(type: .genericAction, title: "Отмена", action: {}),
-                TextAlertAction(type: .defaultAction, title: "Выгрузить", action: {
+            presentControllerImpl?(textAlertController(context: context, title: DkxStrings.tr("Выгрузить на Google Drive?"), text: text, actions: [
+                TextAlertAction(type: .genericAction, title: DkxStrings.tr("Отмена"), action: {}),
+                TextAlertAction(type: .defaultAction, title: DkxStrings.tr("Выгрузить"), action: {
                     dkxUploadMessagesToDrive(context: context, messages: filtered, present: { controller, _ in
                         presentControllerImpl?(controller)
                     })
@@ -349,7 +351,7 @@ public func dkxChatMediaDriveController(context: AccountContext, peerId: EngineP
 
     let signal = combineLatest(queue: .mainQueue(), context.sharedContext.presentationData, statePromise.get())
     |> map { presentationData, state -> (ItemListControllerState, (ItemListNodeState, Any)) in
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Медиа в Google Drive"), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Медиа в Google Drive")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: dkxChatMediaEntries(state: state, dateTimeFormat: presentationData.dateTimeFormat), style: .blocks, animateChanges: true)
         return (controllerState, (listState, arguments))
     }

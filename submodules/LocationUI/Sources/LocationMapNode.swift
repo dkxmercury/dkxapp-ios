@@ -5,6 +5,7 @@ import Display
 import SwiftSignalKit
 import MapKit
 import DeviceLocationManager
+import TelegramUIPreferences
 
 private let pinOffset = CGPoint(x: 0.0, y: 33.0)
 
@@ -1000,13 +1001,13 @@ extension LocationMapNode {
 
         var annotations: [DkxSpoofAnnotation] = []
         if let point = point {
-            annotations.append(DkxSpoofAnnotation(kind: .point, coordinate: point, title: "Точка", glyph: "•", tint: UIColor(rgb: 0xFF9500)))
+            annotations.append(DkxSpoofAnnotation(kind: .point, coordinate: point, title: DkxStrings.tr("Точка"), glyph: "•", tint: UIColor(rgb: 0xFF9500)))
         }
         if let from = from {
-            annotations.append(DkxSpoofAnnotation(kind: .from, coordinate: from, title: "А", glyph: "А", tint: UIColor(rgb: 0x34C759)))
+            annotations.append(DkxSpoofAnnotation(kind: .from, coordinate: from, title: DkxStrings.tr("А"), glyph: DkxStrings.tr("А"), tint: UIColor(rgb: 0x34C759)))
         }
         if let to = to {
-            annotations.append(DkxSpoofAnnotation(kind: .to, coordinate: to, title: "Б", glyph: "Б", tint: UIColor(rgb: 0xFF3B30)))
+            annotations.append(DkxSpoofAnnotation(kind: .to, coordinate: to, title: DkxStrings.tr("Б"), glyph: DkxStrings.tr("Б"), tint: UIColor(rgb: 0xFF3B30)))
         }
         mapView.addAnnotations(annotations)
 

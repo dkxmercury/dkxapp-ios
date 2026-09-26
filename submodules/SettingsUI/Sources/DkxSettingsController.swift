@@ -38,12 +38,14 @@ private enum DkxToggle: Int32 {
     case remindLater
 }
 
-private let dkxUnansweredThresholds: [(hours: Int32, title: String)] = [
-    (0, "Сразу"),
-    (1, "Ждёт больше часа"),
-    (3, "Ждёт больше 3 часов"),
-    (24, "Ждёт больше суток")
-]
+private var dkxUnansweredThresholds: [(hours: Int32, title: String)] {
+    return [
+        (0, DkxStrings.tr("Сразу")),
+        (1, DkxStrings.tr("Ждёт больше часа")),
+        (3, DkxStrings.tr("Ждёт больше 3 часов")),
+        (24, DkxStrings.tr("Ждёт больше суток"))
+    ]
+}
 
 private func dkxToggleValue(_ toggle: DkxToggle, _ settings: DkxSettings) -> Bool {
     switch toggle {
@@ -106,29 +108,29 @@ private func dkxToggleUpdate(_ toggle: DkxToggle, _ value: Bool, _ settings: ino
 private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
     switch toggle {
     case .contactBadge:
-        return "Метка «сохранил»"
+        return DkxStrings.tr("Метка «сохранил»")
     case .noteInHeader:
-        return "Заметка в шапке чата"
+        return DkxStrings.tr("Заметка в шапке чата")
     case .peerId:
-        return "Telegram ID в профиле"
+        return DkxStrings.tr("Telegram ID в профиле")
     case .unanswered:
-        return "Список «Без ответа»"
+        return DkxStrings.tr("Список «Без ответа»")
     case .quickReplies:
-        return "Шаблоны быстрых ответов"
+        return DkxStrings.tr("Шаблоны быстрых ответов")
     case .authorMessages:
-        return "Все сообщения автора в группе"
+        return DkxStrings.tr("Все сообщения автора в группе")
     case .chatExport:
-        return "Выгрузка чата в файл"
+        return DkxStrings.tr("Выгрузка чата в файл")
     case .mediaNoCompression:
-        return "Фото и видео без сжатия"
+        return DkxStrings.tr("Фото и видео без сжатия")
     case .chatLock:
-        return "Face ID на отдельные чаты"
+        return DkxStrings.tr("Face ID на отдельные чаты")
     case .todo:
-        return "«Мои дела» в настройках"
+        return DkxStrings.tr("«Мои дела» в настройках")
     case .passwords:
-        return "«Пароли» в настройках"
+        return DkxStrings.tr("«Пароли» в настройках")
     case .remindLater:
-        return "«Напомнить позже» у чатов и сообщений"
+        return DkxStrings.tr("«Напомнить позже» у чатов и сообщений")
     }
 }
 
@@ -380,53 +382,53 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         let arguments = arguments as! DkxSettingsControllerArguments
         switch self {
         case .interfaceHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ИНТЕРФЕЙС", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ИНТЕРФЕЙС"), sectionId: self.section)
         case let .hideStories(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Скрыть ленту историй", value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Скрыть ленту историй"), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateHideStories(value)
             })
         case let .hidePremiumPromo(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Убрать навязывание премиума", value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Убрать навязывание премиума"), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateHidePremiumPromo(value)
             })
         case .openAppIcon:
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Значок приложения", label: "", sectionId: self.section, style: .blocks, action: {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Значок приложения"), label: "", sectionId: self.section, style: .blocks, action: {
                 arguments.openAppIcon()
             })
         case let .openHiddenSections(count):
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Скрыть разделы", label: count == 0 ? "нет" : "\(count)", sectionId: self.section, style: .blocks, action: {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Скрыть разделы"), label: count == 0 ? DkxStrings.tr("нет") : "\(count)", sectionId: self.section, style: .blocks, action: {
                 arguments.openHiddenSections()
             })
         case .interfaceFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Лента историй над списком чатов исчезнет полностью. Сами истории останутся доступны в профилях.\n\nБез навязывания пропадут плашки и экраны покупки Premium, пункты Premium, Business и подарков в настройках, значки подарков в поле ввода, а при наборе будут предлагаться только ваши стикеры, без чужих паков. Если Premium уже есть, он продолжит работать. Покупка Stars остаётся. Применяется при следующем открытии экрана."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Лента историй над списком чатов исчезнет полностью. Сами истории останутся доступны в профилях.\n\nБез навязывания пропадут плашки и экраны покупки Premium, пункты Premium, Business и подарков в настройках, значки подарков в поле ввода, а при наборе будут предлагаться только ваши стикеры, без чужих паков. Если Premium уже есть, он продолжит работать. Покупка Stars остаётся. Применяется при следующем открытии экрана.")), sectionId: self.section)
 
         case .chatsHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "КОНТАКТЫ И ЧАТЫ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("КОНТАКТЫ И ЧАТЫ"), sectionId: self.section)
         case let .toggle(toggle, value):
             return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: dkxToggleTitle(toggle), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateToggle(toggle, value)
             })
         case let .openQuickReplies(count):
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Шаблоны", label: count == 0 ? "нет" : "\(count)", sectionId: self.section, style: .blocks, action: {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Шаблоны"), label: count == 0 ? DkxStrings.tr("нет") : "\(count)", sectionId: self.section, style: .blocks, action: {
                 arguments.openQuickReplies()
             })
         case let .openChatLabels(count):
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Метки на чаты", label: count == 0 ? "нет" : "\(count)", sectionId: self.section, style: .blocks, action: {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Метки на чаты"), label: count == 0 ? DkxStrings.tr("нет") : "\(count)", sectionId: self.section, style: .blocks, action: {
                 arguments.openChatLabels()
             })
         case .chatsFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Метка «сохранил» или «не сохранил» видна в шапке чата и в профиле собеседника, только для тех, кого вы сами сохранили.\n\nЗаметка в шапке чата это первая строка вашей заметки из профиля собеседника. Правится в профиле через «Изменить».\n\nШаблоны вставляются кнопкой в поле ввода, она появляется после добавления первого шаблона. «Все сообщения автора» есть в меню долгого нажатия на сообщение в группе. «Выгрузить чат в файл» в профиле собеседника, группы или канала. Там вся история текстом, с пометками удалённых и прежними версиями изменённых.\n\nБез сжатия фото и видео из галереи уходят оригиналом, файлом, как через «Отправить файлом». Получатель увидит файл, а не картинку в ленте. Предел размера 2 ГБ держит сервер Telegram, его не поднять.\n\nFace ID на чат ставится долгим нажатием на чат в списке, пункт «Закрыть Face ID». У закрытого чата скрыт текст последнего сообщения и предпросмотр, открывается он после проверки и снова закрывается, когда приложение уходит в фон. Снять замок или выключить эту настройку можно только после проверки.\n\n«Мои дела» открываются из главных настроек, строка под «Моим профилем». Вид меняется кнопкой вверху, это лента, день по часам и месяц. Выключенный тумблер прячет строку, сами дела и напоминания остаются. «Пароли» там же, открываются по Face ID, записи лежат в Keychain только на этом телефоне.\n\n«Напомнить позже» есть в меню долгого нажатия на чат в списке и на сообщение. Напоминание ложится делом в «Мои дела», уведомление открывает этот чат.\n\nВключённое или выключенное применяется при следующем открытии экрана."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Метка «сохранил» или «не сохранил» видна в шапке чата и в профиле собеседника, только для тех, кого вы сами сохранили.\n\nЗаметка в шапке чата это первая строка вашей заметки из профиля собеседника. Правится в профиле через «Изменить».\n\nШаблоны вставляются кнопкой в поле ввода, она появляется после добавления первого шаблона. «Все сообщения автора» есть в меню долгого нажатия на сообщение в группе. «Выгрузить чат в файл» в профиле собеседника, группы или канала. Там вся история текстом, с пометками удалённых и прежними версиями изменённых.\n\nБез сжатия фото и видео из галереи уходят оригиналом, файлом, как через «Отправить файлом». Получатель увидит файл, а не картинку в ленте. Предел размера 2 ГБ держит сервер Telegram, его не поднять.\n\nFace ID на чат ставится долгим нажатием на чат в списке, пункт «Закрыть Face ID». У закрытого чата скрыт текст последнего сообщения и предпросмотр, открывается он после проверки и снова закрывается, когда приложение уходит в фон. Снять замок или выключить эту настройку можно только после проверки.\n\n«Мои дела» открываются из главных настроек, строка под «Моим профилем». Вид меняется кнопкой вверху, это лента, день по часам и месяц. Выключенный тумблер прячет строку, сами дела и напоминания остаются. «Пароли» там же, открываются по Face ID, записи лежат в Keychain только на этом телефоне.\n\n«Напомнить позже» есть в меню долгого нажатия на чат в списке и на сообщение. Напоминание ложится делом в «Мои дела», уведомление открывает этот чат.\n\nВключённое или выключенное применяется при следующем открытии экрана.")), sectionId: self.section)
 
         case .unansweredHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "БЕЗ ОТВЕТА", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("БЕЗ ОТВЕТА"), sectionId: self.section)
         case let .unansweredThreshold(index, title, checked):
             return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.updateUnansweredHours(dkxUnansweredThresholds[Int(index)].hours)
             })
         case .transcriptionHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "РАСШИФРОВКА ГОЛОСОВЫХ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("РАСШИФРОВКА ГОЛОСОВЫХ"), sectionId: self.section)
         case let .transcription(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Расшифровка без Premium", value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Расшифровка без Premium"), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateTranscription(value)
             })
         case let .transcriptionLocale(_, id, title, checked):
@@ -436,76 +438,76 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         case let .transcriptionFooter(text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case .improveHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "УЛУЧШИТЬ ТЕКСТ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("УЛУЧШИТЬ ТЕКСТ"), sectionId: self.section)
         case let .improveToggle(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Кнопка в поле ввода", value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Кнопка в поле ввода"), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateImproveText(value)
             })
         case let .improveKeys(label):
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Ключи Gemini и GLM", label: label, sectionId: self.section, style: .blocks, action: {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Ключи Gemini и GLM"), label: label, sectionId: self.section, style: .blocks, action: {
                 arguments.openImproveKeys()
             })
         case let .improveFooter(text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case .unansweredFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Список открывается долгим нажатием на вкладку «Чаты». В нём личные чаты, где последним написал собеседник, без ботов и архива. Сверху те, кто ждёт дольше всех."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Список открывается долгим нажатием на вкладку «Чаты». В нём личные чаты, где последним написал собеседник, без ботов и архива. Сверху те, кто ждёт дольше всех.")), sectionId: self.section)
 
         case .locationHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ГЕОПОЗИЦИЯ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ГЕОПОЗИЦИЯ"), sectionId: self.section)
         case let .spoofPanel(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Панель подмены на карте", value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Панель подмены на карте"), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateSpoofPanel(value)
             })
         case let .locationFooter(text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
 
         case .featuresHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "СООБЩЕНИЯ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("СООБЩЕНИЯ"), sectionId: self.section)
         case let .antiDelete(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Сохранять удалённые", value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Сохранять удалённые"), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateAntiDelete(value)
             })
         case let .editHistory(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Сохранять историю правок", value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Сохранять историю правок"), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateEditHistory(value)
             })
         case .featuresFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Удалённые собеседником сообщения остаются в чате с пометкой «удалено». У отредактированных в контекстном меню доступна история правок.\n\nСекретные чаты и самоуничтожающиеся сообщения не затрагиваются."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Удалённые собеседником сообщения остаются в чате с пометкой «удалено». У отредактированных в контекстном меню доступна история правок.\n\nСекретные чаты и самоуничтожающиеся сообщения не затрагиваются.")), sectionId: self.section)
 
         case .driveHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: "GOOGLE DRIVE", sectionId: self.section)
         case let .driveToggle(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Выгрузка в Google Drive", value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Выгрузка в Google Drive"), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateDriveEnabled(value)
             })
         case let .driveAccount(text, isConnected):
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: isConnected ? "Аккаунт" : "Войти в Google", label: text, sectionId: self.section, style: .blocks, disclosureStyle: isConnected ? .none : .arrow, action: {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: isConnected ? DkxStrings.tr("Аккаунт") : DkxStrings.tr("Войти в Google"), label: text, sectionId: self.section, style: .blocks, disclosureStyle: isConnected ? .none : .arrow, action: {
                 if !isConnected {
                     arguments.connectDrive()
                 }
             })
         case .driveSwitch:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Привязать другой аккаунт", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Привязать другой аккаунт"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.switchDriveAccount()
             })
         case .driveDisconnect:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Отвязать аккаунт", kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Отвязать аккаунт"), kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.disconnectDrive()
             })
         case let .driveFooter(text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case .debugHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ОТЛАДКА", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ОТЛАДКА"), sectionId: self.section)
         case .openLog:
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Журнал Dkx", label: "", sectionId: self.section, style: .blocks, action: {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Журнал Dkx"), label: "", sectionId: self.section, style: .blocks, action: {
                 arguments.openLog()
             })
         case .openDebug:
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Отладочное меню Telegram", label: "", sectionId: self.section, style: .blocks, action: {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Отладочное меню Telegram"), label: "", sectionId: self.section, style: .blocks, action: {
                 arguments.openDebug()
             })
         case .debugFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Полные логи Telegram пишутся только по запросу. В отладочном меню включите Log to File, повторите проблему и нажмите Send Logs там же."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Полные логи Telegram пишутся только по запросу. В отладочном меню включите Log to File, повторите проблему и нажмите Send Logs там же.")), sectionId: self.section)
         }
     }
 }
@@ -543,36 +545,36 @@ private func dkxSettingsControllerEntries(settings: DkxSettings) -> [DkxSettings
     if settings.localTranscription {
         let locales = dkxSupportedSpeechLocales()
         for (index, locale) in locales.enumerated() {
-            entries.append(.transcriptionLocale(index: Int32(index), id: locale.id, title: locale.title, checked: locale.id == settings.transcriptionLocale))
+            entries.append(.transcriptionLocale(index: Int32(index), id: locale.id, title: DkxStrings.tr(locale.title), checked: locale.id == settings.transcriptionLocale))
         }
-        var text = "Кнопка расшифровки появляется у голосовых и кружков. Есть Premium, расшифровывает Telegram. Нет Premium, расшифровывает сам телефон на выбранном языке, на сервер Telegram ничего не уходит. Если язык не скачан на телефон, iOS распознаёт через серверы Apple."
+        var text = DkxStrings.tr("Кнопка расшифровки появляется у голосовых и кружков. Есть Premium, расшифровывает Telegram. Нет Premium, расшифровывает сам телефон на выбранном языке, на сервер Telegram ничего не уходит. Если язык не скачан на телефон, iOS распознаёт через серверы Apple.")
         if !locales.contains(where: { $0.id == "uz-UZ" }) {
-            text += "\n\nУзбекский iOS пока не распознаёт, поэтому его нет в списке."
+            text += DkxStrings.tr("\n\nУзбекский iOS пока не распознаёт, поэтому его нет в списке.")
         }
         entries.append(.transcriptionFooter(text))
     } else {
-        entries.append(.transcriptionFooter("Без Premium кнопки расшифровки не будет."))
+        entries.append(.transcriptionFooter(DkxStrings.tr("Без Premium кнопки расшифровки не будет.")))
     }
 
     entries.append(.improveHeader)
     entries.append(.improveToggle(settings.improveText))
     if settings.improveText {
         let keys = DkxAIKeys.Provider.allCases.filter { DkxAIKeys.key($0) != nil }.map { $0.title }
-        entries.append(.improveKeys(keys.isEmpty ? "нет" : keys.joined(separator: " и ")))
+        entries.append(.improveKeys(keys.isEmpty ? DkxStrings.tr("нет") : keys.joined(separator: DkxStrings.tr(" и "))))
         let now = Calendar.current.dateComponents([.year, .month, .day], from: Date())
         let today = Int32((now.year ?? 0) * 10000 + (now.month ?? 0) * 100 + (now.day ?? 0))
         let count = settings.improveDay == today ? settings.improveCount : 0
-        entries.append(.improveFooter("Кнопка с волшебной палочкой появляется в поле ввода, когда там есть текст. Стиль, смайлики, обращение и язык выбираются на её экране, последний выбор запоминается. Ключи хранятся в Keychain этого телефона и переживают переустановку приложения. Сегодня запросов \(count)."))
+        entries.append(.improveFooter(DkxStrings.tr("Кнопка с волшебной палочкой появляется в поле ввода, когда там есть текст. Стиль, смайлики, обращение и язык выбираются на её экране, последний выбор запоминается. Ключи хранятся в Keychain этого телефона и переживают переустановку приложения. Сегодня запросов {}.", count)))
     } else {
-        entries.append(.improveFooter("Кнопки «Улучшить текст» в поле ввода не будет."))
+        entries.append(.improveFooter(DkxStrings.tr("Кнопки «Улучшить текст» в поле ввода не будет.")))
     }
 
     entries.append(.locationHeader)
     entries.append(.spoofPanel(settings.spoofPanel))
     if settings.spoofPanel {
-        entries.append(.locationFooter("Подмена настраивается прямо на карте, в экране отправки геопозиции. Там переключатель Настоящая, Точка или Маршрут, точки ставятся долгим нажатием на карту. Трансляция сама запускает движение по маршруту.\n\nДействует на трансляцию, отправку местоположения и запросы ботов. На системные карты и другие приложения не влияет."))
+        entries.append(.locationFooter(DkxStrings.tr("Подмена настраивается прямо на карте, в экране отправки геопозиции. Там переключатель Настоящая, Точка или Маршрут, точки ставятся долгим нажатием на карту. Трансляция сама запускает движение по маршруту.\n\nДействует на трансляцию, отправку местоположения и запросы ботов. На системные карты и другие приложения не влияет.")))
     } else {
-        entries.append(.locationFooter("Панель на карте скрыта, приложение отдаёт настоящую геопозицию."))
+        entries.append(.locationFooter(DkxStrings.tr("Панель на карте скрыта, приложение отдаёт настоящую геопозицию.")))
     }
 
     entries.append(.featuresHeader)
@@ -584,18 +586,18 @@ private func dkxSettingsControllerEntries(settings: DkxSettings) -> [DkxSettings
     entries.append(.driveToggle(settings.driveEnabled))
     if settings.driveEnabled {
         if !DkxGoogleDrive.isConfigured {
-            entries.append(.driveFooter("Client ID не задан в сборке. Выгрузка недоступна."))
+            entries.append(.driveFooter(DkxStrings.tr("Client ID не задан в сборке. Выгрузка недоступна.")))
         } else if DkxGoogleDrive.isConnected {
-            entries.append(.driveAccount(DkxGoogleDrive.connectedEmail ?? "подключён", true))
+            entries.append(.driveAccount(DkxGoogleDrive.connectedEmail ?? DkxStrings.tr("подключён"), true))
             entries.append(.driveSwitch)
             entries.append(.driveDisconnect)
-            entries.append(.driveFooter("У любого фото, видео, голосового или файла в меню долгого нажатия есть пункт «В Google Drive». Файлы грузятся фоном, ход виден в полосе вверху экрана. Папка Dkx, внутри по чатам, только на ваш диск. Права ограничены файлами, которые загрузило это приложение."))
+            entries.append(.driveFooter(DkxStrings.tr("У любого фото, видео, голосового или файла в меню долгого нажатия есть пункт «В Google Drive». Файлы грузятся фоном, ход виден в полосе вверху экрана. Папка Dkx, внутри по чатам, только на ваш диск. Права ограничены файлами, которые загрузило это приложение.")))
         } else {
-            entries.append(.driveAccount("не подключён", false))
-            entries.append(.driveFooter("Войдите в свой Google-аккаунт, чтобы выгружать медиа на Google Drive."))
+            entries.append(.driveAccount(DkxStrings.tr("не подключён"), false))
+            entries.append(.driveFooter(DkxStrings.tr("Войдите в свой Google-аккаунт, чтобы выгружать медиа на Google Drive.")))
         }
     } else {
-        entries.append(.driveFooter("Пункт «В Google Drive» в меню медиа. Файлы уходят только на ваш диск, в папку Dkx."))
+        entries.append(.driveFooter(DkxStrings.tr("Пункт «В Google Drive» в меню медиа. Файлы уходят только на ваш диск, в папку Dkx.")))
     }
 
     entries.append(.debugHeader)
@@ -656,7 +658,7 @@ public func dkxSettingsController(context: AccountContext) -> ViewController {
             if toggle == .chatLock && !value {
                 // Выключить замки может только владелец, иначе их снимали бы
                 // здесь в обход проверки
-                let _ = (DkxChatLock.authenticate(reason: "Выключить Face ID на чатах")
+                let _ = (DkxChatLock.authenticate(reason: DkxStrings.tr("Выключить Face ID на чатах"))
                 |> deliverOnMainQueue).start(next: { success in
                     if success {
                         update { dkxToggleUpdate(toggle, value, &$0) }

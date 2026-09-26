@@ -21,7 +21,7 @@ func dkxExportChatItem(id: AnyHashable, peerId: EnginePeer.Id, context: AccountC
     guard DkxRuntime.current.chatExport else {
         return nil
     }
-    return PeerInfoScreenActionItem(id: id, text: "Выгрузить чат в файл", action: { [weak interaction] in
+    return PeerInfoScreenActionItem(id: id, text: DkxStrings.tr("Выгрузить чат в файл"), action: { [weak interaction] in
         guard let controller = interaction?.getController() else {
             return
         }
@@ -34,7 +34,7 @@ func dkxChatMediaDriveItem(id: AnyHashable, peerId: EnginePeer.Id, context: Acco
     guard DkxRuntime.current.driveEnabled else {
         return nil
     }
-    return PeerInfoScreenActionItem(id: id, text: "Медиа в Google Drive", action: { [weak interaction] in
+    return PeerInfoScreenActionItem(id: id, text: DkxStrings.tr("Медиа в Google Drive"), action: { [weak interaction] in
         guard let controller = interaction?.getController() else {
             return
         }
@@ -77,7 +77,7 @@ private func dkxRunChatExport(context: AccountContext, peerId: EnginePeer.Id, co
         dismissStatus?()
         DkxLog.write("выгрузка", "с сервера догружено \(loaded), всего в файле \(messages.count)")
 
-        let title = peer?.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder) ?? "чат"
+        let title = peer?.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder) ?? DkxStrings.tr("чат")
         let text = dkxFormatChatExport(title: title, messages: messages, accountPeerId: account.peerId, presentationData: presentationData)
 
         let dateFormatter = DateFormatter()
@@ -86,13 +86,13 @@ private func dkxRunChatExport(context: AccountContext, peerId: EnginePeer.Id, co
         let safeTitle = String(title.map { ch -> Character in
             return "/\\:?*\"<>|".contains(ch) ? "_" : ch
         }.prefix(60))
-        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("Чат \(safeTitle) \(dateFormatter.string(from: Date())).txt")
+        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(DkxStrings.tr("Чат {} {}.txt", safeTitle, dateFormatter.string(from: Date())))
         do {
             let _ = try? FileManager.default.removeItem(at: url)
             try text.data(using: .utf8)?.write(to: url, options: .atomic)
         } catch {
             DkxLog.write("выгрузка", "не удалось записать файл, \(error.localizedDescription)")
-            controller.present(UndoOverlayController(presentationData: presentationData, content: .info(title: nil, text: "Не удалось записать файл", timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return false }), in: .current)
+            controller.present(UndoOverlayController(presentationData: presentationData, content: .info(title: nil, text: DkxStrings.tr("Не удалось записать файл"), timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return false }), in: .current)
             return
         }
         let activityController = UIActivityViewController(activityItems: [url], applicationActivities: nil)
@@ -109,11 +109,11 @@ private func dkxFormatChatExport(title: String, messages: [Message], accountPeer
     shortFormatter.dateFormat = "dd.MM HH:mm"
 
     var lines: [String] = []
-    lines.append("Чат \(title)")
-    lines.append("Выгружено \(dateFormatter.string(from: Date()))")
-    lines.append("Сообщений \(messages.count)")
+    lines.append(DkxStrings.tr("Чат {}", title))
+    lines.append(DkxStrings.tr("Выгружено {}", dateFormatter.string(from: Date())))
+    lines.append(DkxStrings.tr("Сообщений {}", messages.count))
     if messages.count >= DkxChatExport.maxBatches * 100 {
-        lines.append("Выгрузка упёрлась в предел, самые старые сообщения могли не попасть.")
+        lines.append(DkxStrings.tr("Выгрузка упёрлась в предел, самые старые сообщения могли не попасть."))
     }
     lines.append("")
 
@@ -122,7 +122,7 @@ private func dkxFormatChatExport(title: String, messages: [Message], accountPeer
         let author: String
         if let peer = message.author {
             if peer.id == accountPeerId {
-                author = "Я"
+                author = DkxStrings.tr("Я")
             } else {
                 author = EnginePeer(peer).displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
             }
@@ -132,8 +132,8 @@ private func dkxFormatChatExport(title: String, messages: [Message], accountPeer
 
         var parts: [String] = []
         if let forwardInfo = message.forwardInfo {
-            let source = forwardInfo.author.flatMap { EnginePeer($0).displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder) } ?? forwardInfo.authorSignature ?? "неизвестно"
-            parts.append("(переслано от \(source))")
+            let source = forwardInfo.author.flatMap { EnginePeer($0).displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder) } ?? forwardInfo.authorSignature ?? DkxStrings.tr("неизвестно")
+            parts.append(DkxStrings.tr("(переслано от {})", source))
         }
         for media in message.media {
             if let label = dkxExportMediaLabel(media) {
@@ -144,15 +144,15 @@ private func dkxFormatChatExport(title: String, messages: [Message], accountPeer
             parts.append(message.text)
         }
         if parts.isEmpty {
-            parts.append("[пусто]")
+            parts.append(DkxStrings.tr("[пусто]"))
         }
 
         var line = "[\(date)] \(author): " + parts.joined(separator: " ")
         for attribute in message.attributes {
             if let deleted = attribute as? DkxDeletedMessageAttribute {
-                line += "\n    (удалено \(shortFormatter.string(from: Date(timeIntervalSince1970: Double(deleted.deletionDate)))))"
+                line += DkxStrings.tr("\n    (удалено {})", shortFormatter.string(from: Date(timeIntervalSince1970: Double(deleted.deletionDate))))
             } else if let history = attribute as? DkxEditHistoryAttribute, !history.texts.isEmpty {
-                line += "\n    (изменено, прежние версии"
+                line += DkxStrings.tr("\n    (изменено, прежние версии")
                 for i in 0 ..< min(history.texts.count, history.dates.count) {
                     let when = shortFormatter.string(from: Date(timeIntervalSince1970: Double(history.dates[i])))
                     line += "\n     \(when): \(history.texts[i])"
@@ -167,28 +167,28 @@ private func dkxFormatChatExport(title: String, messages: [Message], accountPeer
 
 private func dkxExportMediaLabel(_ media: Media) -> String? {
     if media is TelegramMediaImage {
-        return "[фото]"
+        return DkxStrings.tr("[фото]")
     } else if let file = media as? TelegramMediaFile {
         if file.isVoice {
-            return "[голосовое]"
+            return DkxStrings.tr("[голосовое]")
         } else if file.isInstantVideo {
-            return "[кружок]"
+            return DkxStrings.tr("[кружок]")
         } else if file.isVideo {
-            return "[видео]"
+            return DkxStrings.tr("[видео]")
         } else if file.isSticker || file.isAnimatedSticker {
-            return "[стикер]"
+            return DkxStrings.tr("[стикер]")
         } else if file.isMusic {
-            return "[аудио]"
+            return DkxStrings.tr("[аудио]")
         }
-        return "[файл \(file.fileName ?? "")]"
+        return DkxStrings.tr("[файл {}]", file.fileName ?? "")
     } else if let map = media as? TelegramMediaMap {
-        return "[геопозиция \(map.latitude), \(map.longitude)]"
+        return DkxStrings.tr("[геопозиция {}, {}]", map.latitude, map.longitude)
     } else if let contact = media as? TelegramMediaContact {
-        return "[контакт \(contact.firstName) \(contact.lastName) \(contact.phoneNumber)]"
+        return DkxStrings.tr("[контакт {} {} {}]", contact.firstName, contact.lastName, contact.phoneNumber)
     } else if media is TelegramMediaPoll {
-        return "[опрос]"
+        return DkxStrings.tr("[опрос]")
     } else if media is TelegramMediaAction {
-        return "[служебное]"
+        return DkxStrings.tr("[служебное]")
     } else if media is TelegramMediaWebpage {
         // Превью ссылки, сама ссылка уже есть в тексте
         return nil

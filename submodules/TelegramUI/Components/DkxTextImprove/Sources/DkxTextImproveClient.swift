@@ -1,14 +1,23 @@
 import Foundation
 import SwiftSignalKit
+import TelegramUIPreferences
 
 // MARK: DKX запросы «Улучшить текст». GLM-4.5-Flash для русского и
 // английского, Gemini Flash-Lite для узбекского, он единственный из
 // бесплатных держит узбекский язык. Упал один сервис, запрос уходит в другой.
 
-public let dkxImproveStyles: [String] = ["Исправить ошибки", "Деловой", "Дружелюбный", "Короче", "Подробнее", "Продающий", "Вежливый отказ", "Свой стиль"]
-public let dkxImproveEmoji: [String] = ["Без смайликов", "Как в тексте", "Добавить уместные"]
-public let dkxImproveAddress: [String] = ["На «вы»", "На «ты»", "Как в тексте"]
-public let dkxImproveLanguages: [String] = ["Как в тексте", "Русский", "Узбекский", "Английский"]
+public var dkxImproveStyles: [String] {
+    return [DkxStrings.tr("Исправить ошибки"), DkxStrings.tr("Деловой"), DkxStrings.tr("Дружелюбный"), DkxStrings.tr("Короче"), DkxStrings.tr("Подробнее"), DkxStrings.tr("Продающий"), DkxStrings.tr("Вежливый отказ"), DkxStrings.tr("Свой стиль")]
+}
+public var dkxImproveEmoji: [String] {
+    return [DkxStrings.tr("Без смайликов"), DkxStrings.tr("Как в тексте"), DkxStrings.tr("Добавить уместные")]
+}
+public var dkxImproveAddress: [String] {
+    return [DkxStrings.tr("На «вы»"), DkxStrings.tr("На «ты»"), DkxStrings.tr("Как в тексте")]
+}
+public var dkxImproveLanguages: [String] {
+    return [DkxStrings.tr("Как в тексте"), DkxStrings.tr("Русский"), DkxStrings.tr("Узбекский"), DkxStrings.tr("Английский")]
+}
 
 private let dkxStylePrompts: [String] = [
     "Исправь только ошибки, опечатки и пунктуацию. Слова, порядок слов и смысл не меняй.",
@@ -99,13 +108,13 @@ public func dkxLooksUzbek(_ text: String) -> Bool {
 private func dkxErrorText(status: Int) -> String {
     switch status {
     case 400:
-        return "сервис не принял запрос"
+        return DkxStrings.tr("сервис не принял запрос")
     case 401, 403:
-        return "ключ не подходит"
+        return DkxStrings.tr("ключ не подходит")
     case 429:
-        return "лимит на сегодня или сервис перегружен"
+        return DkxStrings.tr("лимит на сегодня или сервис перегружен")
     default:
-        return "ответ \(status)"
+        return DkxStrings.tr("ответ {}", status)
     }
 }
 
@@ -139,7 +148,7 @@ private func dkxRequest(provider: DkxAIKeys.Provider, key: String, system: Strin
 
         let task = URLSession.shared.dataTask(with: request, completionHandler: { data, response, error in
             if let error = error {
-                subscriber.putError(.failed((error as NSError).code == NSURLErrorTimedOut ? "сервис не ответил за 30 секунд" : "нет связи с сервисом"))
+                subscriber.putError(.failed((error as NSError).code == NSURLErrorTimedOut ? DkxStrings.tr("сервис не ответил за 30 секунд") : DkxStrings.tr("нет связи с сервисом")))
                 return
             }
             let status = (response as? HTTPURLResponse)?.statusCode ?? 0
@@ -160,7 +169,7 @@ private func dkxRequest(provider: DkxAIKeys.Provider, key: String, system: Strin
             }
             let trimmed = result?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
             if trimmed.isEmpty {
-                subscriber.putError(.failed("сервис вернул пустой ответ"))
+                subscriber.putError(.failed(DkxStrings.tr("сервис вернул пустой ответ")))
             } else {
                 subscriber.putNext(trimmed)
                 subscriber.putCompletion()
@@ -186,7 +195,7 @@ public func dkxImproveText(_ text: String, options: DkxImproveOptions, variant: 
     let system = dkxSystemPrompt(options)
     // «Ещё вариант» просит сервис быть смелее, иначе он повторит тот же текст
     let temperature = variant == 0 ? 0.4 : 0.9
-    var signal: Signal<(String, DkxAIKeys.Provider), DkxImproveError> = .fail(.failed("нет сервиса"))
+    var signal: Signal<(String, DkxAIKeys.Provider), DkxImproveError> = .fail(.failed(DkxStrings.tr("нет сервиса")))
     for (index, item) in available.enumerated().reversed() {
         let attempt = dkxRequest(provider: item.0, key: item.1, system: system, text: text, temperature: temperature)
         |> map { result -> (String, DkxAIKeys.Provider) in

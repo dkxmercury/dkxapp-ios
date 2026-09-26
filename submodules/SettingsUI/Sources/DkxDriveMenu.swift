@@ -103,9 +103,9 @@ public func dkxUploadMessagesToDrive(context: AccountContext, messages: [Message
         // По отдельному файлу говорим только об ошибке, остальное одним итогом.
         DkxGoogleDriveUploadQueue.enqueue(DkxGoogleDriveUploadJob(fileName: fileName, mimeType: media.mimeType, chatId: message.id.peerId.toInt64(), chatTitle: chatTitle, messageId: message.id.id, force: force, prepare: prepare, completion: { result, summary in
             if case let .failed(reason) = result {
-                showToast("Не удалось загрузить \(fileName). \(reason)")
+                showToast(DkxStrings.tr("Не удалось загрузить {}. {}", fileName, reason))
             } else if case .notConnected = result, summary != nil {
-                showToast("Сначала войдите в Google в настройках Dkx")
+                showToast(DkxStrings.tr("Сначала войдите в Google в настройках Dkx"))
             }
             if let summary = summary, let text = dkxDriveSummaryText(summary) {
                 showToast(text)
@@ -113,33 +113,33 @@ public func dkxUploadMessagesToDrive(context: AccountContext, messages: [Message
         }))
     }
     if count == 1 {
-        showToast("Файл в очереди на Google Drive, ход загрузки вверху экрана")
+        showToast(DkxStrings.tr("Файл в очереди на Google Drive, ход загрузки вверху экрана"))
     } else if count > 1 {
-        showToast("Файлов в очереди на Google Drive \(count), ход загрузки вверху экрана")
+        showToast(DkxStrings.tr("Файлов в очереди на Google Drive {}, ход загрузки вверху экрана", count))
     }
 }
 
 private func dkxDriveSummaryText(_ summary: DkxGoogleDriveBatchSummary) -> String? {
     if summary.failed == 0 && summary.duplicates == 0 {
         if summary.uploaded == 1 {
-            return "Загружено в Google Drive"
+            return DkxStrings.tr("Загружено в Google Drive")
         } else if summary.uploaded > 1 {
-            return "Загружено в Google Drive, файлов \(summary.uploaded)"
+            return DkxStrings.tr("Загружено в Google Drive, файлов {}", summary.uploaded)
         }
         return nil
     }
     if summary.uploaded == 0 && summary.failed == 0 {
-        return summary.duplicates == 1 ? "Уже было в Google Drive" : "Всё это уже было в Google Drive"
+        return summary.duplicates == 1 ? DkxStrings.tr("Уже было в Google Drive") : DkxStrings.tr("Всё это уже было в Google Drive")
     }
     var parts: [String] = []
     if summary.uploaded > 0 {
-        parts.append("загружено \(summary.uploaded)")
+        parts.append(DkxStrings.tr("загружено {}", summary.uploaded))
     }
     if summary.duplicates > 0 {
-        parts.append("уже были \(summary.duplicates)")
+        parts.append(DkxStrings.tr("уже были {}", summary.duplicates))
     }
     if summary.failed > 0 {
-        parts.append("не удалось \(summary.failed)")
+        parts.append(DkxStrings.tr("не удалось {}", summary.failed))
     }
     return "Google Drive, " + parts.joined(separator: ", ")
 }

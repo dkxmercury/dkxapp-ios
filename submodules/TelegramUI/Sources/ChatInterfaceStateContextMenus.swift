@@ -1307,7 +1307,7 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
         // требуют прогона GenerateStrings.py, а это отдельный шаг сборки
         // ради форка на несколько устройств.
         if messages.count == 1, let dkxHistory = message.attributes.first(where: { $0 is DkxEditHistoryAttribute }) as? DkxEditHistoryAttribute, !dkxHistory.texts.isEmpty {
-            actions.append(.action(ContextMenuActionItem(text: "История правок", icon: { theme in
+            actions.append(.action(ContextMenuActionItem(text: DkxStrings.tr("История правок"), icon: { theme in
                 return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Edit"), color: theme.actionSheet.primaryTextColor)
             }, action: { c, _ in
                 c?.dismiss(completion: {
@@ -1320,10 +1320,10 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
                         let dkxDate = Date(timeIntervalSince1970: Double(dkxHistory.dates[i]))
                         dkxLines.append(dkxFormatter.string(from: dkxDate) + "\n" + dkxHistory.texts[i])
                     }
-                    dkxLines.append("сейчас\n" + message.text)
+                    dkxLines.append(DkxStrings.tr("сейчас\n") + message.text)
                     controllerInteraction.presentController(textAlertController(
                         context: context,
-                        title: "История правок",
+                        title: DkxStrings.tr("История правок"),
                         text: dkxLines.joined(separator: "\n\n"),
                         actions: [
                             TextAlertAction(type: .defaultAction, title: presentationData.strings.Common_OK, action: {})
@@ -1344,7 +1344,7 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
                 dkxIsGroup = true
             }
             if dkxIsGroup {
-                actions.append(.action(ContextMenuActionItem(text: "Все сообщения автора", icon: { theme in
+                actions.append(.action(ContextMenuActionItem(text: DkxStrings.tr("Все сообщения автора"), icon: { theme in
                     return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Search"), color: theme.actionSheet.primaryTextColor)
                 }, action: { c, _ in
                     c?.dismiss(completion: {
@@ -1581,7 +1581,7 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
         // MARK: DKX выгрузка медиа в Google Drive
         if dkxDriveMenuApplicable(messages: messages) {
             let dkxAlreadyUploaded = dkxDriveAlreadyUploaded(messages: messages)
-            actions.append(.action(ContextMenuActionItem(text: dkxAlreadyUploaded ? "Повторно загрузить в Google Drive" : "В Google Drive", icon: { theme in
+            actions.append(.action(ContextMenuActionItem(text: dkxAlreadyUploaded ? DkxStrings.tr("Повторно загрузить в Google Drive") : DkxStrings.tr("В Google Drive"), icon: { theme in
                 return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Download"), color: theme.actionSheet.primaryTextColor)
             }, action: { _, f in
                 f(.default)
@@ -1593,7 +1593,7 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
         
         // MARK: DKX «Напомнить позже» про это сообщение
         if dkxRemindLaterApplicable(message: message) {
-            actions.append(.action(ContextMenuActionItem(text: "Напомнить позже", icon: { theme in
+            actions.append(.action(ContextMenuActionItem(text: DkxStrings.tr("Напомнить позже"), icon: { theme in
                 return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Schedule"), color: theme.actionSheet.primaryTextColor)
             }, action: { _, f in
                 f(.default)

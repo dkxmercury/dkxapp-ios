@@ -8,6 +8,7 @@ import GlassBackgroundComponent
 import ComponentFlow
 import LottieAnimationComponent
 import LottieComponent
+import TelegramUIPreferences
 
 private let accessoryButtonFont = Font.medium(14.0)
 
@@ -174,10 +175,10 @@ final class AccessoryItemIconButton: HighlightTrackingButton, GlassBackgroundVie
             case .dkxTemplates:
                 // MARK: DKX своей картинки для шаблонов в проекте нет, берём системную
                 let configuration = UIImage.SymbolConfiguration(pointSize: 19.0, weight: .regular)
-                return (UIImage(systemName: "text.bubble", withConfiguration: configuration)?.withRenderingMode(.alwaysTemplate), nil, "Шаблоны ответов", 1.0, UIEdgeInsets())
+                return (UIImage(systemName: "text.bubble", withConfiguration: configuration)?.withRenderingMode(.alwaysTemplate), nil, DkxStrings.tr("Шаблоны ответов"), 1.0, UIEdgeInsets())
             case .dkxImprove:
                 let configuration = UIImage.SymbolConfiguration(pointSize: 18.0, weight: .regular)
-                return (UIImage(systemName: "wand.and.stars", withConfiguration: configuration)?.withRenderingMode(.alwaysTemplate), nil, "Улучшить текст", 1.0, UIEdgeInsets())
+                return (UIImage(systemName: "wand.and.stars", withConfiguration: configuration)?.withRenderingMode(.alwaysTemplate), nil, DkxStrings.tr("Улучшить текст"), 1.0, UIEdgeInsets())
         }
     }
     

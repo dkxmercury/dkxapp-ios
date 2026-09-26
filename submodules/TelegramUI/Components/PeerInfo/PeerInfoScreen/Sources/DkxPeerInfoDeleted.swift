@@ -33,7 +33,7 @@ func dkxPeerHistoryItems(firstId: Int, user: TelegramUser, context: AccountConte
     var items: [PeerInfoScreenItem] = []
     let peerId = user.id
     if DkxRuntime.current.antiDelete {
-        items.append(PeerInfoScreenActionItem(id: firstId, text: "Удалённое", action: { [weak interaction] in
+        items.append(PeerInfoScreenActionItem(id: firstId, text: DkxStrings.tr("Удалённое"), action: { [weak interaction] in
             guard let controller = interaction?.getController() else {
                 return
             }
@@ -41,7 +41,7 @@ func dkxPeerHistoryItems(firstId: Int, user: TelegramUser, context: AccountConte
         }))
     }
     if DkxRuntime.current.editHistory {
-        items.append(PeerInfoScreenActionItem(id: firstId + 1, text: "Изменённое", action: { [weak interaction] in
+        items.append(PeerInfoScreenActionItem(id: firstId + 1, text: DkxStrings.tr("Изменённое"), action: { [weak interaction] in
             guard let controller = interaction?.getController() else {
                 return
             }
@@ -62,37 +62,37 @@ private struct DkxFoundMessage: Equatable {
 private func dkxMediaDescription(_ message: Message) -> String {
     for media in message.media {
         if media is TelegramMediaImage {
-            return "Фото"
+            return DkxStrings.tr("Фото")
         }
         if let file = media as? TelegramMediaFile {
             if file.isVoice {
-                return "Голосовое"
+                return DkxStrings.tr("Голосовое")
             }
             if file.isInstantVideo {
-                return "Кружок"
+                return DkxStrings.tr("Кружок")
             }
             if file.isSticker || file.isAnimatedSticker {
-                return "Стикер"
+                return DkxStrings.tr("Стикер")
             }
             if file.isVideo {
-                return "Видео"
+                return DkxStrings.tr("Видео")
             }
             if file.isMusic {
-                return "Аудио"
+                return DkxStrings.tr("Аудио")
             }
-            return "Файл"
+            return DkxStrings.tr("Файл")
         }
         if media is TelegramMediaMap {
-            return "Геопозиция"
+            return DkxStrings.tr("Геопозиция")
         }
         if media is TelegramMediaContact {
-            return "Контакт"
+            return DkxStrings.tr("Контакт")
         }
         if media is TelegramMediaPoll {
-            return "Опрос"
+            return DkxStrings.tr("Опрос")
         }
     }
-    return "Сообщение"
+    return DkxStrings.tr("Сообщение")
 }
 
 // Общие группы грузятся с сервера страницами, берём до двух сотен
@@ -138,7 +138,7 @@ private func dkxScanPeerHistory(context: AccountContext, authorId: EnginePeer.Id
                 continue
             }
             let isPrivate = chatId == authorId
-            let chatTitle = isPrivate ? "Личный чат" : (transaction.getPeer(chatId).map { EnginePeer($0).compactDisplayTitle } ?? "Группа")
+            let chatTitle = isPrivate ? DkxStrings.tr("Личный чат") : (transaction.getPeer(chatId).map { EnginePeer($0).compactDisplayTitle } ?? DkxStrings.tr("Группа"))
             for id in candidates {
                 guard let message = transaction.getMessage(id) else {
                     continue
@@ -236,26 +236,26 @@ private func dkxPeerHistoryController(context: AccountContext, peerId: EnginePee
         }
     )
 
-    let title = mode == .deleted ? "Удалённое" : "Изменённое"
+    let title = mode == .deleted ? DkxStrings.tr("Удалённое") : DkxStrings.tr("Изменённое")
     let signal = combineLatest(queue: .mainQueue(), context.sharedContext.presentationData, found)
     |> map { presentationData, found -> (ItemListControllerState, (ItemListNodeState, Any)) in
         var entries: [DkxPeerHistoryEntry] = []
         if let found {
             if found.isEmpty {
-                entries.append(.status(mode == .deleted ? "Удалённых сообщений нет. Сохраняются только те, что собеседник удалил при включённом «Сохранять удалённые», и только если телефон успел их получить." : "Изменённых сообщений нет. Прежние версии сохраняются при включённой «Истории правок»."))
+                entries.append(.status(mode == .deleted ? DkxStrings.tr("Удалённых сообщений нет. Сохраняются только те, что собеседник удалил при включённом «Сохранять удалённые», и только если телефон успел их получить.") : DkxStrings.tr("Изменённых сообщений нет. Прежние версии сохраняются при включённой «Истории правок».")))
             } else {
-                entries.append(.status("Найдено \(found.count). Личный чат и общие группы, нажатие открывает сообщение."))
+                entries.append(.status(DkxStrings.tr("Найдено {}. Личный чат и общие группы, нажатие открывает сообщение.", found.count)))
                 for (index, item) in found.enumerated() {
                     let date = stringForMediumDate(timestamp: item.date, strings: presentationData.strings, dateTimeFormat: presentationData.dateTimeFormat)
                     var label = "\(item.chatTitle) · \(date)"
                     if mode == .edited {
-                        label += " · правок \(item.versions)"
+                        label += DkxStrings.tr(" · правок {}", item.versions)
                     }
                     entries.append(.message(index: Int32(index), label: label, text: item.text, id: item.id))
                 }
             }
         } else {
-            entries.append(.status("Ищу в личном чате и общих группах…"))
+            entries.append(.status(DkxStrings.tr("Ищу в личном чате и общих группах…")))
         }
         let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(title), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: false)

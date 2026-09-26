@@ -76,17 +76,17 @@ private enum DkxHiddenSectionsEntry: ItemListNodeEntry {
         let arguments = arguments as! DkxHiddenSectionsArguments
         switch self {
         case .tabsHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ВКЛАДКИ ВНИЗУ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ВКЛАДКИ ВНИЗУ"), sectionId: self.section)
         case let .item(_, section, hidden):
             return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: section.title, value: hidden, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.update(section, value)
             })
         case .tabsFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Сами экраны не пропадают. Контакты открываются из списка чатов при создании чата, звонки из «Недавних звонков» в настройках, если эта строка не спрятана."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Сами экраны не пропадают. Контакты открываются из списка чатов при создании чата, звонки из «Недавних звонков» в настройках, если эта строка не спрятана.")), sectionId: self.section)
         case .settingsHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ГЛАВНЫЙ ЭКРАН НАСТРОЕК", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ГЛАВНЫЙ ЭКРАН НАСТРОЕК"), sectionId: self.section)
         case .settingsFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Включённый тумблер прячет строку. Вкладки «Чаты» и «Настройки» и строка Dkx не прячутся, иначе спрятанное было бы не вернуть. Строки, которых у вас и так нет, например Прокси без настроенного прокси, не появятся и при выключенном тумблере."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Включённый тумблер прячет строку. Вкладки «Чаты» и «Настройки» и строка Dkx не прячутся, иначе спрятанное было бы не вернуть. Строки, которых у вас и так нет, например Прокси без настроенного прокси, не появятся и при выключенном тумблере.")), sectionId: self.section)
         }
     }
 }
@@ -126,7 +126,7 @@ func dkxHiddenSectionsController(context: AccountContext) -> ViewController {
     )
     |> map { presentationData, sharedData -> (ItemListControllerState, (ItemListNodeState, Any)) in
         let settings = sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Скрыть разделы"), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Скрыть разделы")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: dkxHiddenSectionsEntries(settings: settings), style: .blocks, animateChanges: false)
         return (controllerState, (listState, arguments))
     }

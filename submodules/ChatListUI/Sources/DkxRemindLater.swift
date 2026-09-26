@@ -19,14 +19,14 @@ public func dkxPresentRemindLater(context: AccountContext, peerId: EnginePeer.Id
     let now = Date()
 
     var options: [(String, Date)] = []
-    options.append(("Через час", now.addingTimeInterval(3600.0)))
-    options.append(("Через 3 часа", now.addingTimeInterval(3.0 * 3600.0)))
+    options.append((DkxStrings.tr("Через час"), now.addingTimeInterval(3600.0)))
+    options.append((DkxStrings.tr("Через 3 часа"), now.addingTimeInterval(3.0 * 3600.0)))
     // Вечер предлагаем, только пока до него есть хотя бы полчаса
     if let evening = calendar.date(bySettingHour: 19, minute: 0, second: 0, of: now), evening.timeIntervalSince(now) > 30.0 * 60.0 {
-        options.append(("Сегодня в 19:00", evening))
+        options.append((DkxStrings.tr("Сегодня в 19:00"), evening))
     }
     if let tomorrow = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: now)), let morning = calendar.date(bySettingHour: 9, minute: 0, second: 0, of: tomorrow) {
-        options.append(("Завтра в 9:00", morning))
+        options.append((DkxStrings.tr("Завтра в 9:00"), morning))
     }
 
     let schedule: (Date) -> Void = { date in
@@ -34,14 +34,14 @@ public func dkxPresentRemindLater(context: AccountContext, peerId: EnginePeer.Id
     }
 
     let actionSheet = ActionSheetController(presentationData: presentationData)
-    var items: [ActionSheetItem] = [ActionSheetTextItem(title: "Напомнить позже")]
+    var items: [ActionSheetItem] = [ActionSheetTextItem(title: DkxStrings.tr("Напомнить позже"))]
     for (label, date) in options {
         items.append(ActionSheetButtonItem(title: label, color: .accent, action: { [weak actionSheet] in
             actionSheet?.dismissAnimated()
             schedule(date)
         }))
     }
-    items.append(ActionSheetButtonItem(title: "Выбрать дату и время", color: .accent, action: { [weak actionSheet] in
+    items.append(ActionSheetButtonItem(title: DkxStrings.tr("Выбрать дату и время"), color: .accent, action: { [weak actionSheet] in
         actionSheet?.dismissAnimated()
         let controller = ChatScheduleTimeController(context: context, mode: .reminders, style: .default, currentTime: nil, minimalTime: Int32(Date().timeIntervalSince1970) + 60, dismissByTapOutside: true, completion: { time in
             schedule(Date(timeIntervalSince1970: Double(time)))
@@ -82,8 +82,8 @@ private func dkxAddReminder(context: AccountContext, peerId: EnginePeer.Id, mess
     }).start()
 
     let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "ru_RU")
-    formatter.dateFormat = Calendar.current.isDateInToday(date) ? "'сегодня в' H:mm" : "d MMMM 'в' H:mm"
+    formatter.locale = DkxStrings.locale
+    formatter.dateFormat = Calendar.current.isDateInToday(date) ? DkxStrings.tr("'сегодня в' H:mm") : DkxStrings.tr("d MMMM 'в' H:mm")
     let presentationData = context.sharedContext.currentPresentationData.with { $0 }
-    present(UndoOverlayController(presentationData: presentationData, content: .info(title: nil, text: "Напомню \(formatter.string(from: date)). Дело лежит в «Моих делах».", timeout: nil, customUndoText: nil), elevatedLayout: false, animateInAsReplacement: false, action: { _ in return false }))
+    present(UndoOverlayController(presentationData: presentationData, content: .info(title: nil, text: DkxStrings.tr("Напомню {}. Дело лежит в «Моих делах».", formatter.string(from: date)), timeout: nil, customUndoText: nil), elevatedLayout: false, animateInAsReplacement: false, action: { _ in return false }))
 }

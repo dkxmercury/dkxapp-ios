@@ -57,7 +57,7 @@ struct DkxPasswordEntry: Codable, Equatable {
                 return trimmed
             }
         }
-        return "Без названия"
+        return DkxStrings.tr("Без названия")
     }
 
     var subtitle: String {
@@ -72,12 +72,12 @@ struct DkxPasswordEntry: Codable, Equatable {
 
     var filledFieldsLabel: String {
         var names: [String] = []
-        if !self.url.isEmpty { names.append("ссылка") }
-        if !self.login.isEmpty { names.append("логин") }
-        if !self.password.isEmpty { names.append("пароль") }
-        if !self.email.isEmpty { names.append("почта") }
-        if !self.phone.isEmpty { names.append("номер") }
-        if !self.note.isEmpty { names.append("заметка") }
+        if !self.url.isEmpty { names.append(DkxStrings.tr("ссылка")) }
+        if !self.login.isEmpty { names.append(DkxStrings.tr("логин")) }
+        if !self.password.isEmpty { names.append(DkxStrings.tr("пароль")) }
+        if !self.email.isEmpty { names.append(DkxStrings.tr("почта")) }
+        if !self.phone.isEmpty { names.append(DkxStrings.tr("номер")) }
+        if !self.note.isEmpty { names.append(DkxStrings.tr("заметка")) }
         return names.joined(separator: " · ")
     }
 }
@@ -177,7 +177,7 @@ private func dkxPasswordsSignal() -> Signal<[DkxPasswordEntry], NoError> {
 // Открывает раздел после Face ID. Вызывается снаружи с функцией показа
 // экрана, чтобы проверка шла до того, как список попадёт на экран.
 public func dkxOpenPasswords(context: AccountContext, push: @escaping (ViewController) -> Void) {
-    let _ = (DkxChatLock.authenticate(reason: "Открыть пароли")
+    let _ = (DkxChatLock.authenticate(reason: DkxStrings.tr("Открыть пароли"))
     |> deliverOnMainQueue).start(next: { success in
         if success {
             push(dkxPasswordsController(context: context))
@@ -251,22 +251,22 @@ private enum DkxPasswordsEntry: ItemListNodeEntry {
         let arguments = arguments as! DkxPasswordsArguments
         switch self {
         case .add:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Новая запись", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Новая запись"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.add()
             })
         case .empty:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Записей пока нет. Все поля необязательны, но хотя бы одно нужно заполнить."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Записей пока нет. Все поля необязательны, но хотя бы одно нужно заполнить.")), sectionId: self.section)
         case let .card(_, entry):
             let detail = entry.filledFieldsLabel
             return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: entry.displayTitle, label: "", additionalDetailLabel: [entry.subtitle, detail].filter { !$0.isEmpty }.joined(separator: "\n"), sectionId: self.section, style: .blocks, action: {
                 arguments.open(entry.id)
             })
         case let .copyLogin(_, id):
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Скопировать логин", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Скопировать логин"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.copyLogin(id)
             })
         case let .copyPassword(_, id):
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Скопировать пароль", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Скопировать пароль"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.copyPassword(id)
             })
         case let .footer(text):
@@ -301,13 +301,13 @@ private func dkxPasswordsController(context: AccountContext) -> ViewController {
         }
         let value = !entry.login.isEmpty ? entry.login : entry.email
         dkxCopySecret(value)
-        showCopied("Логин скопирован")
+        showCopied(DkxStrings.tr("Логин скопирован"))
     }, copyPassword: { id in
         guard let entry = currentEntries.with({ $0 }).first(where: { $0.id == id }) else {
             return
         }
         dkxCopySecret(entry.password)
-        showCopied("Пароль скопирован, буфер очистится через 2 минуты")
+        showCopied(DkxStrings.tr("Пароль скопирован, буфер очистится через 2 минуты"))
     })
 
     let signal = combineLatest(queue: .mainQueue(),
@@ -332,9 +332,9 @@ private func dkxPasswordsController(context: AccountContext) -> ViewController {
             }
         }
         if !entries.isEmpty {
-            items.append(.footer("Записей \(entries.count). Хранятся в Keychain только на этом телефоне и не уходят ни на сервер Telegram, ни в iCloud."))
+            items.append(.footer(DkxStrings.tr("Записей {}. Хранятся в Keychain только на этом телефоне и не уходят ни на сервер Telegram, ни в iCloud.", entries.count)))
         }
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Пароли"), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Пароли")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: items, style: .blocks, animateChanges: false)
         return (controllerState, (listState, arguments))
     }
@@ -435,25 +435,25 @@ private enum DkxPasswordDetailsEntry: ItemListNodeEntry {
                 arguments.copy(value, copyName)
             })
         case let .passwordField(shown):
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Пароль", label: shown, sectionId: self.section, style: .blocks, disclosureStyle: .none, action: {
-                arguments.copy("", "Пароль")
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Пароль"), label: shown, sectionId: self.section, style: .blocks, disclosureStyle: .none, action: {
+                arguments.copy("", DkxStrings.tr("Пароль"))
             })
         case let .reveal(revealed):
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: revealed ? "Скрыть пароль" : "Показать пароль", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: revealed ? DkxStrings.tr("Скрыть пароль") : DkxStrings.tr("Показать пароль"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.toggleReveal()
             })
         case let .openUrl(url):
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Открыть ссылку", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Открыть ссылку"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.openUrl(url)
             })
         case .noteHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ЗАМЕТКА", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ЗАМЕТКА"), sectionId: self.section)
         case let .note(text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case let .updated(text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case .delete:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Удалить запись", kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Удалить запись"), kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.delete()
             })
         }
@@ -471,7 +471,7 @@ private func dkxPasswordDetailsController(context: AccountContext, entryId: Stri
 
     let arguments = DkxPasswordDetailsArguments(copy: { value, name in
         var text = value
-        if name == "Пароль" {
+        if name == DkxStrings.tr("Пароль") {
             text = currentEntry.with { $0 }?.password ?? ""
         }
         if text.isEmpty {
@@ -479,7 +479,7 @@ private func dkxPasswordDetailsController(context: AccountContext, entryId: Stri
         }
         dkxCopySecret(text)
         let presentationData = context.sharedContext.currentPresentationData.with { $0 }
-        let toast = name == "Пароль" ? "Пароль скопирован, буфер очистится через 2 минуты" : "\(name): скопировано"
+        let toast = name == DkxStrings.tr("Пароль") ? DkxStrings.tr("Пароль скопирован, буфер очистится через 2 минуты") : DkxStrings.tr("{}: скопировано", name)
         presentControllerImpl?(UndoOverlayController(presentationData: presentationData, content: .copy(text: toast), elevatedLayout: false, animateInAsReplacement: false, action: { _ in return false }), false)
     }, toggleReveal: {
         revealedPromise.set(revealedValue.modify { !$0 })
@@ -493,9 +493,9 @@ private func dkxPasswordDetailsController(context: AccountContext, entryId: Stri
         }
     }, delete: {
         let title = currentEntry.with { $0 }?.displayTitle ?? ""
-        presentControllerImpl?(textAlertController(context: context, title: "Удалить запись?", text: title, actions: [
-            TextAlertAction(type: .genericAction, title: "Отмена", action: {}),
-            TextAlertAction(type: .destructiveAction, title: "Удалить", action: {
+        presentControllerImpl?(textAlertController(context: context, title: DkxStrings.tr("Удалить запись?"), text: title, actions: [
+            TextAlertAction(type: .genericAction, title: DkxStrings.tr("Отмена"), action: {}),
+            TextAlertAction(type: .destructiveAction, title: DkxStrings.tr("Удалить"), action: {
                 DkxPasswordStore.delete(id: entryId)
                 dkxPasswordsChanged()
                 dismissImpl?()
@@ -513,7 +513,7 @@ private func dkxPasswordDetailsController(context: AccountContext, entryId: Stri
         let _ = currentEntry.swap(entry)
         var items: [DkxPasswordDetailsEntry] = []
         if let entry = entry {
-            let fields: [(String, String)] = [("Ссылка", entry.url), ("Логин", entry.login), ("Почта", entry.email), ("Номер", entry.phone)]
+            let fields: [(String, String)] = [(DkxStrings.tr("Ссылка"), entry.url), (DkxStrings.tr("Логин"), entry.login), (DkxStrings.tr("Почта"), entry.email), (DkxStrings.tr("Номер"), entry.phone)]
             for (index, field) in fields.enumerated() where !field.1.isEmpty {
                 items.append(.field(index: Int32(index), title: field.0, value: field.1, copyName: field.0))
             }
@@ -530,13 +530,13 @@ private func dkxPasswordDetailsController(context: AccountContext, entryId: Stri
             }
             if entry.updatedAt > 0 {
                 let formatter = DateFormatter()
-                formatter.locale = Locale(identifier: "ru_RU")
+                formatter.locale = DkxStrings.locale
                 formatter.dateFormat = "d MMMM yyyy, HH:mm"
-                items.append(.updated("Изменено " + formatter.string(from: Date(timeIntervalSince1970: Double(entry.updatedAt))) + ". Нажатие на поле копирует его."))
+                items.append(.updated(DkxStrings.tr("Изменено ") + formatter.string(from: Date(timeIntervalSince1970: Double(entry.updatedAt))) + DkxStrings.tr(". Нажатие на поле копирует его.")))
             }
             items.append(.delete)
         }
-        let title = entry?.displayTitle ?? "Запись"
+        let title = entry?.displayTitle ?? DkxStrings.tr("Запись")
         let rightButton = ItemListNavigationButton(content: .text(presentationData.strings.Common_Edit), style: .regular, enabled: entry != nil, action: {
             if let entry = currentEntry.with({ $0 }) {
                 pushControllerImpl?(dkxPasswordEditController(context: context, entry: entry))
@@ -629,7 +629,7 @@ private enum DkxPasswordEditEntry: ItemListNodeEntry {
         let arguments = arguments as! DkxPasswordEditArguments
         switch self {
         case .titleHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "НАЗВАНИЕ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("НАЗВАНИЕ"), sectionId: self.section)
         case let .input(field, text, placeholder):
             let type: ItemListSingleLineInputItemType
             switch field {
@@ -650,11 +650,11 @@ private enum DkxPasswordEditEntry: ItemListNodeEntry {
                 arguments.update(field, value)
             }, action: {})
         case .fieldsHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ПОЛЯ, ВСЕ НЕОБЯЗАТЕЛЬНЫ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ПОЛЯ, ВСЕ НЕОБЯЗАТЕЛЬНЫ"), sectionId: self.section)
         case .noteHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ЗАМЕТКА", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ЗАМЕТКА"), sectionId: self.section)
         case let .note(text):
-            return ItemListMultilineInputItem(presentationData: presentationData, systemStyle: .glass, text: text, placeholder: "Необязательно", maxLength: nil, sectionId: self.section, style: .blocks, minimalHeight: 60.0, textUpdated: { value in
+            return ItemListMultilineInputItem(presentationData: presentationData, systemStyle: .glass, text: text, placeholder: DkxStrings.tr("Необязательно"), maxLength: nil, sectionId: self.section, style: .blocks, minimalHeight: 60.0, textUpdated: { value in
                 arguments.updateNote(value)
             })
         case let .hint(text):
@@ -706,18 +706,18 @@ private func dkxPasswordEditController(context: AccountContext, entry: DkxPasswo
     |> map { presentationData, current -> (ItemListControllerState, (ItemListNodeState, Any)) in
         var items: [DkxPasswordEditEntry] = [
             .titleHeader,
-            .input(.title, initial.title, "Например, Cloudflare"),
+            .input(.title, initial.title, DkxStrings.tr("Например, Cloudflare")),
             .fieldsHeader,
-            .input(.url, initial.url, "Ссылка"),
-            .input(.login, initial.login, "Логин"),
-            .input(.password, initial.password, "Пароль"),
-            .input(.email, initial.email, "Почта"),
-            .input(.phone, initial.phone, "Номер"),
+            .input(.url, initial.url, DkxStrings.tr("Ссылка")),
+            .input(.login, initial.login, DkxStrings.tr("Логин")),
+            .input(.password, initial.password, DkxStrings.tr("Пароль")),
+            .input(.email, initial.email, DkxStrings.tr("Почта")),
+            .input(.phone, initial.phone, DkxStrings.tr("Номер")),
             .noteHeader,
             .note(initial.note)
         ]
         let canSave = current.hasAnyField
-        items.append(.hint(canSave ? "Запись хранится в Keychain только на этом телефоне." : "Заполните хотя бы одно поле, иначе сохранять нечего."))
+        items.append(.hint(canSave ? DkxStrings.tr("Запись хранится в Keychain только на этом телефоне.") : DkxStrings.tr("Заполните хотя бы одно поле, иначе сохранять нечего.")))
 
         let rightButton = ItemListNavigationButton(content: .text(presentationData.strings.Common_Done), style: .bold, enabled: canSave, action: {
             var value = entryValue.with { $0 }
@@ -727,7 +727,7 @@ private func dkxPasswordEditController(context: AccountContext, entry: DkxPasswo
                 dismissImpl?()
             }
         })
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(isNew ? "Новая запись" : "Изменить"), leftNavigationButton: nil, rightNavigationButton: rightButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(isNew ? DkxStrings.tr("Новая запись") : DkxStrings.tr("Изменить")), leftNavigationButton: nil, rightNavigationButton: rightButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: items, style: .blocks, animateChanges: false)
         return (controllerState, (listState, arguments))
     }

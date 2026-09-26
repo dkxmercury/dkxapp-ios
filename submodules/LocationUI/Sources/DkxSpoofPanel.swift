@@ -18,49 +18,49 @@ private let dkxSpoofSpeeds: [Int32] = [5, 15, 40, 90]
 
 private func dkxSpoofDistance(_ meters: Double) -> String {
     if meters < 1000.0 {
-        return "\(Int(meters.rounded())) м"
+        return DkxStrings.tr("{} м", Int(meters.rounded()))
     }
-    return String(format: "%.1f км", meters / 1000.0).replacingOccurrences(of: ".", with: ",")
+    return String(format: DkxStrings.tr("%.1f км"), meters / 1000.0).replacingOccurrences(of: ".", with: ",")
 }
 
 private func dkxSpoofStatus(_ settings: DkxSettings) -> String {
     guard settings.spoofLocation else {
-        return "Отдаётся настоящая геопозиция"
+        return DkxStrings.tr("Отдаётся настоящая геопозиция")
     }
     switch settings.spoofMode {
     case .point:
         if DkxSettings.parseCoordinate(settings.spoofCoordinate) != nil {
-            return "Стоим в точке. Метку можно перетащить пальцем"
+            return DkxStrings.tr("Стоим в точке. Метку можно перетащить пальцем")
         }
-        return "Долгое нажатие на карту ставит точку"
+        return DkxStrings.tr("Долгое нажатие на карту ставит точку")
     case .route:
         let hasFrom = DkxSettings.parseCoordinate(settings.routeFrom) != nil
         let hasTo = DkxSettings.parseCoordinate(settings.routeTo) != nil
         if !hasFrom {
-            return "Долгое нажатие на карту ставит точку А"
+            return DkxStrings.tr("Долгое нажатие на карту ставит точку А")
         }
         if !hasTo {
-            return "Точка А есть. Долгое нажатие ставит Б"
+            return DkxStrings.tr("Точка А есть. Долгое нажатие ставит Б")
         }
         guard let path = settings.effectiveRoutePath else {
-            return "Долгое нажатие переставит Б"
+            return DkxStrings.tr("Долгое нажатие переставит Б")
         }
         let metersPerSecond = Double(max(1, settings.routeSpeed)) / 3.6
         let startedAt: Double? = settings.routeStartedAt > 0 ? Double(settings.routeStartedAt) : nil
         let sample = DkxLocationOverride.routeSample(path: path, metersPerSecond: metersPerSecond, startedAt: startedAt, now: Date().timeIntervalSince1970)
         var road = ""
         if settings.routeByRoads && settings.routePathSource == "…" {
-            road = ", прокладываю по дорогам"
+            road = DkxStrings.tr(", прокладываю по дорогам")
         } else if settings.routeByRoads && settings.routePath.count < 4 {
-            road = ", дорогу не нашли, едем прямо"
+            road = DkxStrings.tr(", дорогу не нашли, едем прямо")
         }
         if startedAt == nil {
-            return "Маршрут \(dkxSpoofDistance(sample.distance))\(road). Метки можно перетащить, движение начнётся с трансляцией"
+            return DkxStrings.tr("Маршрут {}{}. Метки можно перетащить, движение начнётся с трансляцией", dkxSpoofDistance(sample.distance), road)
         }
         if sample.fraction >= 1.0 {
-            return "Приехали в точку Б"
+            return DkxStrings.tr("Приехали в точку Б")
         }
-        return "В пути, \(dkxSpoofDistance(sample.distance * sample.fraction)) из \(dkxSpoofDistance(sample.distance))\(road)"
+        return DkxStrings.tr("В пути, {} из {}{}", dkxSpoofDistance(sample.distance * sample.fraction), dkxSpoofDistance(sample.distance), road)
     }
 }
 
@@ -98,7 +98,7 @@ private final class DkxSpoofChip: UIButton {
 
 final class DkxSpoofPanelView: UIView {
     private let backgroundView = UIView()
-    private let modeControl = UISegmentedControl(items: ["Настоящая", "Точка", "Маршрут"])
+    private let modeControl = UISegmentedControl(items: [DkxStrings.tr("Настоящая"), DkxStrings.tr("Точка"), DkxStrings.tr("Маршрут")])
     private let statusLabel = UILabel()
     // Кнопок больше, чем влезает в узкий экран, поэтому ряд прокручивается
     private let chipsView = UIScrollView()
@@ -196,14 +196,14 @@ final class DkxSpoofPanelView: UIView {
 
         let accent = list.itemAccentColor
         if settings.routeStartedAt > 0 {
-            self.startChip?.update(title: "Стоп", color: list.itemDestructiveColor)
+            self.startChip?.update(title: DkxStrings.tr("Стоп"), color: list.itemDestructiveColor)
         } else {
-            self.startChip?.update(title: "Поехали", color: accent)
+            self.startChip?.update(title: DkxStrings.tr("Поехали"), color: accent)
         }
-        self.speedChip?.update(title: "\(settings.routeSpeed) км/ч", color: accent)
-        self.roadsChip?.update(title: settings.routeByRoads ? "По дорогам" : "Напрямую", color: accent)
-        self.reverseChip?.update(title: "Обратно", color: accent)
-        self.resetChip?.update(title: "Заново", color: list.itemDestructiveColor)
+        self.speedChip?.update(title: DkxStrings.tr("{} км/ч", settings.routeSpeed), color: accent)
+        self.roadsChip?.update(title: settings.routeByRoads ? DkxStrings.tr("По дорогам") : DkxStrings.tr("Напрямую"), color: accent)
+        self.reverseChip?.update(title: DkxStrings.tr("Обратно"), color: accent)
+        self.resetChip?.update(title: DkxStrings.tr("Заново"), color: list.itemDestructiveColor)
 
         self.statusLabel.isHidden = !self.showsStatus
         self.chipsView.isHidden = !self.showsRouteControls
@@ -401,7 +401,7 @@ final class DkxSpoofPanelController {
                     return
                 }
                 current.routePath = route?.path ?? []
-                current.routePathSource = route?.source ?? "нет"
+                current.routePathSource = route?.source ?? DkxStrings.tr("нет")
             })
         }))
     }

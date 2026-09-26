@@ -199,7 +199,7 @@ public enum DkxTaskReminders {
             content.sound = .default
             var userInfo: [String: String] = [self.userInfoKey: String(task.id)]
             if task.isLinked {
-                content.title = "Напоминание"
+                content.title = DkxStrings.tr("Напоминание")
                 let note = task.note.trimmingCharacters(in: .whitespacesAndNewlines)
                 content.body = note.isEmpty ? task.title : task.title + ". " + note
                 userInfo[self.accountKey] = String(task.accountId)
@@ -207,7 +207,7 @@ public enum DkxTaskReminders {
                 userInfo[self.messageNamespaceKey] = String(task.messageNamespace)
                 userInfo[self.messageKey] = String(task.messageId)
             } else {
-                content.title = "Мои дела"
+                content.title = DkxStrings.tr("Мои дела")
                 content.body = task.title
             }
             content.userInfo = userInfo

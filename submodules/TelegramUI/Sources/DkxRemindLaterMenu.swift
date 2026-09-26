@@ -17,11 +17,11 @@ func dkxRemindLaterApplicable(message: Message) -> Bool {
 
 func dkxRemindLaterForMessage(context: AccountContext, message: Message, present: @escaping (ViewController) -> Void) {
     let presentationData = context.sharedContext.currentPresentationData.with { $0 }
-    let chatTitle = (message.peers[message.id.peerId].flatMap { EnginePeer($0).displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder) }) ?? "Чат"
+    let chatTitle = (message.peers[message.id.peerId].flatMap { EnginePeer($0).displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder) }) ?? DkxStrings.tr("Чат")
     let text = message.text.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: .whitespaces)
     let note: String
     if text.isEmpty {
-        note = "Сообщение с вложением"
+        note = DkxStrings.tr("Сообщение с вложением")
     } else if text.count > 200 {
         note = String(text.prefix(200)) + "…"
     } else {

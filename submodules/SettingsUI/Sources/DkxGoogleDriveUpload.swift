@@ -190,7 +190,7 @@ public enum DkxGoogleDriveUploadQueue {
         let isUploading = self.entries.contains(where: { $0.uploading })
         let total = self.entries.reduce(0.0, { $0 + $1.fraction })
         let fraction = (total / Double(count) * 100.0).rounded() / 100.0
-        let label = count == 1 ? first.job.fileName : "\(first.job.fileName) и ещё \(count - 1)"
+        let label = count == 1 ? first.job.fileName : DkxStrings.tr("{} и ещё {}", first.job.fileName, count - 1)
         let progress = DkxDriveUploadProgress(id: first.job.id, fileName: label, phase: isUploading ? .uploading : .preparing, fraction: fraction, waiting: count - 1)
         if progress != self.lastPublished {
             self.lastPublished = progress
@@ -279,7 +279,7 @@ final class DkxDriveBackgroundSession: NSObject, URLSessionDataDelegate, @unchec
             if code == 200 || code == 201 {
                 result = .uploaded
             } else {
-                result = .failed("Google ответил кодом \(code)")
+                result = .failed(DkxStrings.tr("Google ответил кодом {}", code))
             }
         }
         if let completion = completion {
@@ -337,7 +337,7 @@ public enum DkxGoogleDriveUpload {
         }
         DkxGoogleDrive.accessToken(completion: { token in
             guard let token = token else {
-                completion(.finished(DkxGoogleDrive.isConnected ? .failed("Нужно войти в Google заново") : .notConnected))
+                completion(.finished(DkxGoogleDrive.isConnected ? .failed(DkxStrings.tr("Нужно войти в Google заново")) : .notConnected))
                 return
             }
             let dedupKey = "\(job.chatId)_\(job.messageId)"
@@ -357,11 +357,11 @@ public enum DkxGoogleDriveUpload {
                 ensureFolder(token: token, chatId: job.chatId, chatTitle: job.chatTitle, completion: { folderId in
                     createUploadSession(token: token, fileName: job.fileName, mimeType: job.mimeType, parentId: folderId, dedupKey: dedupKey, completion: { sessionUrl in
                         guard let sessionUrl = sessionUrl else {
-                            completion(.finished(.failed("Google не принял загрузку")))
+                            completion(.finished(.failed(DkxStrings.tr("Google не принял загрузку"))))
                             return
                         }
                         guard let copyUrl = makeTemporaryCopy(filePath: filePath, fileName: job.fileName) else {
-                            completion(.finished(.failed("не удалось подготовить файл")))
+                            completion(.finished(.failed(DkxStrings.tr("не удалось подготовить файл"))))
                             return
                         }
                         completion(.ready(sessionUrl, copyUrl))
@@ -425,7 +425,7 @@ public enum DkxGoogleDriveUpload {
                 completion(nil)
                 return
             }
-            let safeTitle = chatTitle.isEmpty ? "Чат \(chatId)" : chatTitle
+            let safeTitle = chatTitle.isEmpty ? DkxStrings.tr("Чат {}", chatId) : chatTitle
             ensureSingleFolder(token: token, name: safeTitle, parentId: rootId, propKey: "dkxChatId", propValue: String(chatId), completion: { chatFolderId in
                 completion(chatFolderId ?? rootId)
             })

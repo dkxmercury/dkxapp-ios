@@ -83,17 +83,17 @@ private enum DkxChatLabelsEntry: ItemListNodeEntry {
         let arguments = arguments as! DkxChatLabelsArguments
         switch self {
         case .header:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "МЕТКИ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("МЕТКИ"), sectionId: self.section)
         case let .label(_, label, count):
             return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, icon: dkxChatLabelDot(context: arguments.context, colorId: label.colorId, theme: presentationData.theme), title: label.title, label: count == 0 ? "" : "\(count)", sectionId: self.section, style: .blocks, action: {
                 arguments.open(label.id)
             })
         case .add:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Новая метка", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Новая метка"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.add()
             })
         case .footer:
-            return ItemListTextItem(presentationData: presentationData, text: .plain("Метка ставится долгим нажатием на чат в списке, пункт «Метки». На одном чате может быть несколько меток, группы тоже подходят. Метки видны под именем чата и рядом над списком чатов, нажатие на метку открывает её чаты. Хранятся только на этом телефоне, собеседники их не видят."), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Метка ставится долгим нажатием на чат в списке, пункт «Метки». На одном чате может быть несколько меток, группы тоже подходят. Метки видны под именем чата и рядом над списком чатов, нажатие на метку открывает её чаты. Хранятся только на этом телефоне, собеседники их не видят.")), sectionId: self.section)
         }
     }
 }
@@ -118,7 +118,7 @@ public func dkxChatLabelsSettingsController(context: AccountContext) -> ViewCont
         }
         entries.append(.add)
         entries.append(.footer)
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Метки"), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Метки")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: true)
         return (controllerState, (listState, arguments))
     }
@@ -202,27 +202,27 @@ private enum DkxChatLabelEditorEntry: ItemListNodeEntry {
         let arguments = arguments as! DkxChatLabelEditorArguments
         switch self {
         case .titleHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "НАЗВАНИЕ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("НАЗВАНИЕ"), sectionId: self.section)
         case let .title(text):
-            return ItemListSingleLineInputItem(presentationData: presentationData, systemStyle: .glass, title: NSAttributedString(), text: text, placeholder: "Например, ждёт оплату", type: .regular(capitalization: false, autocorrection: true), sectionId: self.section, textUpdated: { value in
+            return ItemListSingleLineInputItem(presentationData: presentationData, systemStyle: .glass, title: NSAttributedString(), text: text, placeholder: DkxStrings.tr("Например, ждёт оплату"), type: .regular(capitalization: false, autocorrection: true), sectionId: self.section, textUpdated: { value in
                 arguments.updateTitle(value)
             }, action: {})
         case .colorHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ЦВЕТ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ЦВЕТ"), sectionId: self.section)
         case let .color(_, colorId, title, checked):
             return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, icon: dkxChatLabelDot(context: arguments.context, colorId: colorId, theme: presentationData.theme), title: title, style: .right, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.updateColor(colorId)
             })
         case .moveUp:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Поднять выше", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Поднять выше"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.move(-1)
             })
         case .moveDown:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Опустить ниже", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Опустить ниже"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.move(1)
             })
         case .delete:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Удалить метку", kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Удалить метку"), kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.delete()
             })
         }
@@ -272,9 +272,9 @@ func dkxChatLabelEditorController(context: AccountContext, labelId: Int32?, assi
             return
         }
         let title = stateValue.with { $0.title }
-        presentImpl?(textAlertController(context: context, title: "Удалить метку?", text: "«\(title)» снимется со всех чатов.", actions: [
-            TextAlertAction(type: .genericAction, title: "Отмена", action: {}),
-            TextAlertAction(type: .destructiveAction, title: "Удалить", action: {
+        presentImpl?(textAlertController(context: context, title: DkxStrings.tr("Удалить метку?"), text: DkxStrings.tr("«{}» снимется со всех чатов.", title), actions: [
+            TextAlertAction(type: .genericAction, title: DkxStrings.tr("Отмена"), action: {}),
+            TextAlertAction(type: .destructiveAction, title: DkxStrings.tr("Удалить"), action: {
                 dkxUpdateSettings(context: context, { settings in
                     settings.setChatLabels(settings.chatLabels.filter { $0.id != labelId })
                 })
@@ -325,7 +325,7 @@ func dkxChatLabelEditorController(context: AccountContext, labelId: Int32?, assi
         let rightButton = ItemListNavigationButton(content: .text(presentationData.strings.Common_Done), style: .bold, enabled: canSave, action: {
             save()
         })
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(labelId == nil ? "Новая метка" : "Метка"), leftNavigationButton: nil, rightNavigationButton: rightButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(labelId == nil ? DkxStrings.tr("Новая метка") : DkxStrings.tr("Метка")), leftNavigationButton: nil, rightNavigationButton: rightButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: false)
         return (controllerState, (listState, arguments))
     }
@@ -386,7 +386,7 @@ private enum DkxChatLabelsPickerEntry: ItemListNodeEntry {
                 arguments.toggle(label.id, !checked)
             })
         case .add:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Новая метка", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Новая метка"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.add()
             })
         case let .footer(text):
@@ -414,8 +414,8 @@ func dkxChatLabelsPickerController(context: AccountContext, peerId: EnginePeer.I
             entries.append(.label(index: Int32(index), label: label, checked: assigned.contains(label.id)))
         }
         entries.append(.add)
-        entries.append(.footer(labels.isEmpty ? "Меток пока нет. Создайте первую, она сразу встанет на «\(title)»." : "Отмеченные метки видны под именем «\(title)» в списке чатов. Цвет и название меняются в Dkx, раздел «Метки»."))
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Метки"), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        entries.append(.footer(labels.isEmpty ? DkxStrings.tr("Меток пока нет. Создайте первую, она сразу встанет на «{}».", title) : DkxStrings.tr("Отмеченные метки видны под именем «{}» в списке чатов. Цвет и название меняются в Dkx, раздел «Метки».", title)))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Метки")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: true)
         return (controllerState, (listState, arguments))
     }
@@ -534,12 +534,12 @@ func dkxLabelChatsController(context: AccountContext, labelId: Int32) -> ViewCon
 
     let signal = combineLatest(queue: .mainQueue(), context.sharedContext.presentationData, items, dkxSettingsSignal(context: context))
     |> map { presentationData, items, settings -> (ItemListControllerState, (ItemListNodeState, Any)) in
-        let title = settings.chatLabels.first(where: { $0.id == labelId })?.title ?? "Метка"
+        let title = settings.chatLabels.first(where: { $0.id == labelId })?.title ?? DkxStrings.tr("Метка")
         var entries: [DkxLabelChatsEntry] = []
         for (index, item) in items.enumerated() {
             entries.append(.item(index: Int32(index), item, title: item.peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)))
         }
-        entries.append(.footer(items.isEmpty ? "Чатов с этой меткой нет. Метка ставится долгим нажатием на чат, пункт «Метки»." : "Снять метку можно долгим нажатием на чат, пункт «Метки»."))
+        entries.append(.footer(items.isEmpty ? DkxStrings.tr("Чатов с этой меткой нет. Метка ставится долгим нажатием на чат, пункт «Метки».") : DkxStrings.tr("Снять метку можно долгим нажатием на чат, пункт «Метки».")))
         let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(title), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: false)
         return (controllerState, (listState, arguments))

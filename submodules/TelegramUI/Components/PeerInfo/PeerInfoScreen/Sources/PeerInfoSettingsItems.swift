@@ -166,13 +166,13 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
         }
         // MARK: DKX «Мои дела» под «Моим профилем», включается тумблером в Dkx
         if DkxRuntime.current.todoEnabled {
-            items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 50, text: "Мои дела", icon: PresentationResourcesSettings.clock, action: {
+            items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 50, text: DkxStrings.tr("Мои дела"), icon: PresentationResourcesSettings.clock, action: {
                 interaction.openSettings(.dkxTasks)
             }))
         }
         // MARK: DKX «Пароли» под «Моими делами», тумблер в Dkx
         if DkxRuntime.current.passwordsEnabled {
-            items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 51, text: "Пароли", icon: PresentationResourcesSettings.passkeys, action: {
+            items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 51, text: DkxStrings.tr("Пароли"), icon: PresentationResourcesSettings.passkeys, action: {
                 interaction.openSettings(.dkxPasswords)
             }))
         }

@@ -4327,7 +4327,7 @@ private func dkxChatLabelTags(location: ChatListControllerLocation, peerId: Engi
     var tags: [ChatListItemContent.Tag] = []
     // Своё закрепление без значка скрепки, поэтому отмечаем его тегом
     if DkxRuntime.current.localPins.contains(peerId.toInt64()) {
-        tags.append(ChatListItemContent.Tag(id: 999_999, title: ChatFolderTitle(text: "Закреплён", entities: [], enableAnimations: false), colorId: 5))
+        tags.append(ChatListItemContent.Tag(id: 999_999, title: ChatFolderTitle(text: DkxStrings.tr("Закреплён"), entities: [], enableAnimations: false), colorId: 5))
     }
     for label in DkxRuntime.chatLabels(forPeer: peerId.toInt64()) {
         tags.append(ChatListItemContent.Tag(id: 1_000_000 + label.id, title: ChatFolderTitle(text: label.title, entities: [], enableAnimations: false), colorId: label.colorId))

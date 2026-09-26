@@ -42,47 +42,47 @@ public enum DkxHiddenSection: String, CaseIterable {
     public var title: String {
         switch self {
         case .tabContacts:
-            return "Контакты"
+            return DkxStrings.tr("Контакты")
         case .tabCalls:
-            return "Звонки"
+            return DkxStrings.tr("Звонки")
         case .editButtons:
-            return "Кнопки фото, статуса и имени пользователя"
+            return DkxStrings.tr("Кнопки фото, статуса и имени пользователя")
         case .myProfile:
-            return "Мой профиль"
+            return DkxStrings.tr("Мой профиль")
         case .proxy:
-            return "Прокси"
+            return DkxStrings.tr("Прокси")
         case .apps:
-            return "Мини-приложения ботов"
+            return DkxStrings.tr("Мини-приложения ботов")
         case .savedMessages:
-            return "Избранное"
+            return DkxStrings.tr("Избранное")
         case .recentCalls:
-            return "Недавние звонки"
+            return DkxStrings.tr("Недавние звонки")
         case .devices:
-            return "Устройства"
+            return DkxStrings.tr("Устройства")
         case .chatFolders:
-            return "Папки с чатами"
+            return DkxStrings.tr("Папки с чатами")
         case .notifications:
-            return "Уведомления и звуки"
+            return DkxStrings.tr("Уведомления и звуки")
         case .privacy:
-            return "Конфиденциальность"
+            return DkxStrings.tr("Конфиденциальность")
         case .dataAndStorage:
-            return "Данные и память"
+            return DkxStrings.tr("Данные и память")
         case .appearance:
-            return "Оформление"
+            return DkxStrings.tr("Оформление")
         case .powerSaving:
-            return "Энергосбережение"
+            return DkxStrings.tr("Энергосбережение")
         case .language:
-            return "Язык"
+            return DkxStrings.tr("Язык")
         case .premium:
             return "Telegram Premium"
         case .stars:
-            return "Звёзды"
+            return DkxStrings.tr("Звёзды")
         case .ton:
             return "TON"
         case .business:
-            return "Telegram для бизнеса"
+            return DkxStrings.tr("Telegram для бизнеса")
         case .sendGift:
-            return "Отправить подарок"
+            return DkxStrings.tr("Отправить подарок")
         case .passport:
             return "Telegram Passport"
         case .watch:

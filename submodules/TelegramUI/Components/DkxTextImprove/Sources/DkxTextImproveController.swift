@@ -124,47 +124,47 @@ private enum DkxImproveEntry: ItemListNodeEntry {
         let arguments = arguments as! DkxImproveArguments
         switch self {
         case .resultHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ГОТОВЫЙ ВАРИАНТ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ГОТОВЫЙ ВАРИАНТ"), sectionId: self.section)
         case let .result(text):
-            return ItemListMultilineInputItem(presentationData: presentationData, systemStyle: .glass, text: text, placeholder: "Здесь появится улучшенный текст", maxLength: nil, sectionId: self.section, style: .blocks, minimalHeight: 80.0, textUpdated: { value in
+            return ItemListMultilineInputItem(presentationData: presentationData, systemStyle: .glass, text: text, placeholder: DkxStrings.tr("Здесь появится улучшенный текст"), maxLength: nil, sectionId: self.section, style: .blocks, minimalHeight: 80.0, textUpdated: { value in
                 arguments.updateResult(value)
             })
         case let .status(text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case let .again(enabled):
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Ещё вариант", kind: enabled ? .generic : .disabled, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Ещё вариант"), kind: enabled ? .generic : .disabled, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.again()
             })
         case .styleHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "СТИЛЬ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("СТИЛЬ"), sectionId: self.section)
         case let .style(index, title, checked):
             return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.selectStyle(index)
             })
         case let .custom(text):
-            return ItemListSingleLineInputItem(presentationData: presentationData, systemStyle: .glass, title: NSAttributedString(), text: text, placeholder: "Например, строже и без приветствия", type: .regular(capitalization: true, autocorrection: true), sectionId: self.section, textUpdated: { value in
+            return ItemListSingleLineInputItem(presentationData: presentationData, systemStyle: .glass, title: NSAttributedString(), text: text, placeholder: DkxStrings.tr("Например, строже и без приветствия"), type: .regular(capitalization: true, autocorrection: true), sectionId: self.section, textUpdated: { value in
                 arguments.updateCustom(value)
             }, action: {
                 arguments.applyCustom()
             })
         case .applyCustom:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Применить свой стиль", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Применить свой стиль"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.applyCustom()
             })
         case .emojiHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "СМАЙЛИКИ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("СМАЙЛИКИ"), sectionId: self.section)
         case let .emoji(index, title, checked):
             return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.selectEmoji(index)
             })
         case .addressHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ОБРАЩЕНИЕ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ОБРАЩЕНИЕ"), sectionId: self.section)
         case let .address(index, title, checked):
             return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.selectAddress(index)
             })
         case .languageHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "ЯЗЫК", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ЯЗЫК"), sectionId: self.section)
         case let .language(index, title, checked):
             return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.selectLanguage(index)
@@ -181,11 +181,11 @@ private func dkxImproveEntries(state: DkxImproveState, todayCount: Int32) -> [Dk
     entries.append(.result(state.result))
     switch state.status {
     case .loading:
-        entries.append(.status("Думаю…"))
+        entries.append(.status(DkxStrings.tr("Думаю…")))
     case let .done(provider):
-        entries.append(.status("Написал \(provider). Текст можно поправить здесь же, потом «Заменить» вверху."))
+        entries.append(.status(DkxStrings.tr("Написал {}. Текст можно поправить здесь же, потом «Заменить» вверху.", provider)))
     case let .failed(reason):
-        entries.append(.status("Не получилось, \(reason)."))
+        entries.append(.status(DkxStrings.tr("Не получилось, {}.", reason)))
     }
     entries.append(.again(state.status != .loading))
 
@@ -209,7 +209,7 @@ private func dkxImproveEntries(state: DkxImproveState, todayCount: Int32) -> [Dk
     for (index, title) in dkxImproveLanguages.enumerated() {
         entries.append(.language(index: Int32(index), title: title, checked: Int32(index) == state.options.language))
     }
-    entries.append(.footer("Сегодня запросов \(todayCount). Русский и английский улучшает GLM, узбекский Gemini, при сбое запрос уходит в другой сервис. Бесплатный Gemini может показывать тексты сотрудникам Google, личное туда лучше не отправлять."))
+    entries.append(.footer(DkxStrings.tr("Сегодня запросов {}. Русский и английский улучшает GLM, узбекский Gemini, при сбое запрос уходит в другой сервис. Бесплатный Gemini может показывать тексты сотрудникам Google, личное туда лучше не отправлять.", todayCount)))
     return entries
 }
 
@@ -276,7 +276,7 @@ public func dkxTextImproveController(context: AccountContext, text: String, appl
             updateState { state in
                 switch error {
                 case .noKeys:
-                    state.status = .failed("нет ключей. Вставьте ключ Gemini или GLM в Dkx, раздел «Улучшить текст»")
+                    state.status = .failed(DkxStrings.tr("нет ключей. Вставьте ключ Gemini или GLM в Dkx, раздел «Улучшить текст»"))
                 case let .failed(reason):
                     state.status = .failed(reason)
                 }
@@ -330,12 +330,12 @@ public func dkxTextImproveController(context: AccountContext, text: String, appl
         let leftButton = ItemListNavigationButton(content: .text(presentationData.strings.Common_Cancel), style: .regular, enabled: true, action: {
             dismissImpl?()
         })
-        let rightButton = ItemListNavigationButton(content: .text("Заменить"), style: .bold, enabled: canApply, action: {
+        let rightButton = ItemListNavigationButton(content: .text(DkxStrings.tr("Заменить")), style: .bold, enabled: canApply, action: {
             let result = stateValue.with { $0.result }
             apply(result)
             dismissImpl?()
         })
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Улучшить текст"), leftNavigationButton: leftButton, rightNavigationButton: rightButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Улучшить текст")), leftNavigationButton: leftButton, rightNavigationButton: rightButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: dkxImproveEntries(state: state, todayCount: todayCount), style: .blocks, animateChanges: false)
         return (controllerState, (listState, arguments))
     }

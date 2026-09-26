@@ -6,6 +6,7 @@ import SwiftSignalKit
 import TelegramPresentationData
 import AccountContext
 import AppBundle
+import TelegramUIPreferences
 
 // MARK: DKX выбор значка приложения. Значки вшиты в сборку папками .alticon в
 // Telegram/Telegram-iOS, имена перечислены в Telegram/BUILD. Штатный выбор
@@ -104,7 +105,7 @@ private final class DkxAppIconController: ViewController {
 
         self._hasGlassStyle = true
         self.statusBar.statusBarStyle = presentationData.theme.rootController.statusBarStyle.style
-        self.title = "Значок приложения"
+        self.title = DkxStrings.tr("Значок приложения")
 
         self.presentationDataDisposable = (context.sharedContext.presentationData
         |> deliverOnMainQueue).start(next: { [weak self] presentationData in
@@ -136,7 +137,7 @@ private final class DkxAppIconController: ViewController {
         self.displayNode.view.addSubview(self.scrollView)
 
         var cells: [DkxAppIconCell] = []
-        cells.append(DkxAppIconCell(name: nil, image: UIImage(bundleImageName: "Settings/DkxPrimaryIcon"), title: "Основной", action: { [weak self] in
+        cells.append(DkxAppIconCell(name: nil, image: UIImage(bundleImageName: "Settings/DkxPrimaryIcon"), title: DkxStrings.tr("Основной"), action: { [weak self] in
             self?.select(nil)
         }))
         for (index, name) in dkxAppIconNames.enumerated() {
@@ -151,7 +152,7 @@ private final class DkxAppIconController: ViewController {
 
         self.footerLabel.numberOfLines = 0
         self.footerLabel.font = UIFont.systemFont(ofSize: 13.0)
-        self.footerLabel.text = "iOS при каждой смене значка показывает окно, что значок изменён.\n\nВ Telegram свой выбор значка в «Оформлении» остался как был. Новые картинки добавляются в сборку, с телефона их не поставить."
+        self.footerLabel.text = DkxStrings.tr("iOS при каждой смене значка показывает окно, что значок изменён.\n\nВ Telegram свой выбор значка в «Оформлении» остался как был. Новые картинки добавляются в сборку, с телефона их не поставить.")
         self.scrollView.addSubview(self.footerLabel)
 
         self.applyTheme()

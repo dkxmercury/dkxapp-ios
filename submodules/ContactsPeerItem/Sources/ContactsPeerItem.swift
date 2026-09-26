@@ -1009,7 +1009,7 @@ public class ContactsPeerItemNode: ItemListRevealOptionsItemNode {
                                 let dkxMutual = dkxUser.flags.contains(.mutualContact)
                                 let dkxStatus = NSMutableAttributedString(attributedString: dkxBase)
                                 dkxStatus.append(NSAttributedString(string: " · ", font: statusFont, textColor: item.presentationData.theme.list.itemSecondaryTextColor))
-                                dkxStatus.append(NSAttributedString(string: dkxMutual ? "сохранил" : "не сохранил", font: statusFont, textColor: dkxMutual ? UIColor(rgb: 0x4CD964) : UIColor(rgb: 0xFF453A)))
+                                dkxStatus.append(NSAttributedString(string: dkxMutual ? DkxStrings.tr("сохранил") : DkxStrings.tr("не сохранил"), font: statusFont, textColor: dkxMutual ? UIColor(rgb: 0x4CD964) : UIColor(rgb: 0xFF453A)))
                                 statusAttributedString = dkxStatus
                             }
                         }

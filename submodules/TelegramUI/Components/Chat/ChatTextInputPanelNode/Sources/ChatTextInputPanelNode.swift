@@ -5746,7 +5746,7 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
                 UIDeferredMenuElement.uncached { [weak self] completion in
                     let templates = DkxRuntime.current.quickReplyTemplates
                     if templates.isEmpty {
-                        completion([UIAction(title: "Шаблонов нет, добавьте в настройках Dkx", attributes: .disabled, handler: { _ in })])
+                        completion([UIAction(title: DkxStrings.tr("Шаблонов нет, добавьте в настройках Dkx"), attributes: .disabled, handler: { _ in })])
                         return
                     }
                     completion(templates.map { text in

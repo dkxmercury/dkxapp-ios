@@ -2632,7 +2632,7 @@ public class ChatListItemNode: ItemListRevealOptionsItemNode {
                     // MARK: DKX закрытый Face ID чат. Текст последнего сообщения не
                     // показываем, пока чат не открыт в этой сессии
                     if DkxChatLock.needsAuthentication(itemPeer.peerId) {
-                        messageText = "Скрыто Face ID"
+                        messageText = DkxStrings.tr("Скрыто Face ID")
                         messageEntities = []
                         spoilers = nil
                         customEmojiRanges = nil

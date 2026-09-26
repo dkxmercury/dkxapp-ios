@@ -37,7 +37,7 @@ private func dkxAddDays(_ date: Date, _ days: Int) -> Date {
 
 private func dkxFormat(_ date: Date, _ format: String) -> String {
     let formatter = DateFormatter()
-    formatter.locale = Locale(identifier: "ru_RU")
+    formatter.locale = DkxStrings.locale
     formatter.dateFormat = format
     return formatter.string(from: date)
 }
@@ -50,24 +50,17 @@ private func dkxCapitalized(_ text: String) -> String {
 }
 
 private func dkxTasksCountText(_ count: Int) -> String {
-    let mod10 = count % 10
-    let mod100 = count % 100
-    if mod10 == 1 && mod100 != 11 {
-        return "\(count) дело"
-    } else if mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14) {
-        return "\(count) дела"
-    }
-    return "\(count) дел"
+    return DkxStrings.plural(count, "{} дело", "{} дела", "{} дел")
 }
 
 private func dkxRelativeDay(_ day: Date) -> String {
     let calendar = Calendar.current
     if calendar.isDateInToday(day) {
-        return "сегодня"
+        return DkxStrings.tr("сегодня")
     } else if calendar.isDateInTomorrow(day) {
-        return "завтра"
+        return DkxStrings.tr("завтра")
     } else if calendar.isDateInYesterday(day) {
-        return "вчера"
+        return DkxStrings.tr("вчера")
     }
     return dkxFormat(day, "d MMMM, EE")
 }
@@ -77,7 +70,7 @@ private func dkxTimeLabel(_ task: DkxTask) -> String {
         return ""
     }
     if !task.hasTime {
-        return "весь день"
+        return DkxStrings.tr("весь день")
     }
     return dkxFormat(Date(timeIntervalSince1970: Double(task.date)), "HH:mm")
 }
@@ -85,15 +78,15 @@ private func dkxTimeLabel(_ task: DkxTask) -> String {
 private func dkxRemindTitle(_ remind: DkxTask.Remind) -> String {
     switch remind {
     case .none:
-        return "Без напоминания"
+        return DkxStrings.tr("Без напоминания")
     case .atTime:
-        return "В момент дела"
+        return DkxStrings.tr("В момент дела")
     case .hourBefore:
-        return "За час"
+        return DkxStrings.tr("За час")
     case .twoHoursBefore:
-        return "За 2 часа"
+        return DkxStrings.tr("За 2 часа")
     case .dayBefore:
-        return "За день"
+        return DkxStrings.tr("За день")
     }
 }
 
@@ -105,7 +98,7 @@ private func dkxTaskMeta(_ task: DkxTask, showDay: Bool) -> String {
         parts.append(dkxRelativeDay(dkxDayStart(task.date)))
     }
     if task.remind != .none && !task.done {
-        parts.append("напомнит " + dkxRemindTitle(task.remind).lowercased())
+        parts.append(DkxStrings.tr("напомнит ") + dkxRemindTitle(task.remind).lowercased())
     }
     let note = task.note.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: .whitespaces)
     if !note.isEmpty {
@@ -181,7 +174,7 @@ private final class DkxTaskCardView: UIView {
         self.checkButton.addTarget(self, action: #selector(self.checkPressed), for: .touchUpInside)
         self.addSubview(self.checkButton)
 
-        let title = task.title.isEmpty ? "Без названия" : task.title
+        let title = task.title.isEmpty ? DkxStrings.tr("Без названия") : task.title
         if task.done {
             self.titleLabel.attributedText = NSAttributedString(string: title, attributes: [
                 .font: UIFont.systemFont(ofSize: 16.0),
@@ -383,11 +376,13 @@ private enum DkxTasksView {
 }
 
 // Вид, подпись на кнопке, название в выборе
-private let dkxTasksViews: [(DkxTasksView, String, String)] = [
-    (.feed, "Лента", "Лента дел"),
-    (.day, "День", "День по часам"),
-    (.month, "Месяц", "Месяц")
-]
+private var dkxTasksViews: [(DkxTasksView, String, String)] {
+    return [
+        (.feed, DkxStrings.tr("Лента"), DkxStrings.tr("Лента дел")),
+        (.day, DkxStrings.tr("День"), DkxStrings.tr("День по часам")),
+        (.month, DkxStrings.tr("Месяц"), DkxStrings.tr("Месяц"))
+    ]
+}
 
 private struct DkxFeedGroup {
     let title: String
@@ -434,7 +429,7 @@ private final class DkxTasksCalendarController: ViewController {
 
         self._hasGlassStyle = true
         self.statusBar.statusBarStyle = presentationData.theme.rootController.statusBarStyle.style
-        self.title = "Мои дела"
+        self.title = DkxStrings.tr("Мои дела")
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         self.navigationItem.rightBarButtonItem = UIBarButtonItem(image: PresentationResourcesRootController.navigationAddIcon(presentationData.theme), style: .plain, target: self, action: #selector(self.addPressed))
 
@@ -579,14 +574,14 @@ private final class DkxTasksCalendarController: ViewController {
             let today = open.filter { $0.date >= todayStart && $0.date < tomorrowStart }.count
             let overdue = open.filter { $0.date != 0 && $0.date < todayStart }.count
             if today == 0 && overdue == 0 {
-                return "на сегодня дел нет"
+                return DkxStrings.tr("на сегодня дел нет")
             }
             var parts: [String] = []
             if today > 0 {
-                parts.append("\(today) сегодня")
+                parts.append(DkxStrings.tr("{} сегодня", today))
             }
             if overdue > 0 {
-                parts.append("\(overdue) просрочено")
+                parts.append(DkxStrings.tr("{} просрочено", overdue))
             }
             return parts.joined(separator: ", ")
         case .day:
@@ -610,7 +605,7 @@ private final class DkxTasksCalendarController: ViewController {
 
         let isAway = !Calendar.current.isDateInToday(self.selectedDay) || self.monthStart != dkxMonthStart(Date())
         if self.mode != .feed && isAway {
-            let todayPill = DkxPillView(title: "Сегодня", iconName: nil, textColor: theme.list.itemAccentColor, fillColor: theme.list.itemBlocksBackgroundColor, action: { [weak self] in
+            let todayPill = DkxPillView(title: DkxStrings.tr("Сегодня"), iconName: nil, textColor: theme.list.itemAccentColor, fillColor: theme.list.itemBlocksBackgroundColor, action: { [weak self] in
                 self?.jumpToToday()
             })
             let todaySize = todayPill.layoutContent()
@@ -713,13 +708,13 @@ private final class DkxTasksCalendarController: ViewController {
         let done = Array(self.tasks.items.filter { $0.done }.sorted(by: { $0.doneAt > $1.doneAt }).prefix(20))
 
         let groups: [DkxFeedGroup] = [
-            DkxFeedGroup(title: "Просрочено", subtitle: "", color: list.itemDestructiveColor, tasks: open.filter { $0.date != 0 && $0.date < todayStart }, overdue: true, showDay: true),
-            DkxFeedGroup(title: "Сегодня", subtitle: dkxFormat(today, "d MMMM"), color: list.itemAccentColor, tasks: open.filter { $0.date >= todayStart && $0.date < tomorrowStart }, overdue: false, showDay: false),
-            DkxFeedGroup(title: "Завтра", subtitle: dkxFormat(dkxAddDays(today, 1), "d MMMM"), color: list.itemSecondaryTextColor, tasks: open.filter { $0.date >= tomorrowStart && $0.date < afterTomorrowStart }, overdue: false, showDay: false),
-            DkxFeedGroup(title: "На неделе", subtitle: "", color: list.itemSecondaryTextColor, tasks: open.filter { $0.date >= afterTomorrowStart && $0.date < weekEnd }, overdue: false, showDay: true),
-            DkxFeedGroup(title: "Позже", subtitle: "", color: list.itemSecondaryTextColor, tasks: open.filter { $0.date >= weekEnd }, overdue: false, showDay: true),
-            DkxFeedGroup(title: "Без даты", subtitle: "", color: list.itemSecondaryTextColor, tasks: open.filter { $0.date == 0 }, overdue: false, showDay: false),
-            DkxFeedGroup(title: "Выполнено", subtitle: "последние", color: list.itemSecondaryTextColor, tasks: done, overdue: false, showDay: true)
+            DkxFeedGroup(title: DkxStrings.tr("Просрочено"), subtitle: "", color: list.itemDestructiveColor, tasks: open.filter { $0.date != 0 && $0.date < todayStart }, overdue: true, showDay: true),
+            DkxFeedGroup(title: DkxStrings.tr("Сегодня"), subtitle: dkxFormat(today, "d MMMM"), color: list.itemAccentColor, tasks: open.filter { $0.date >= todayStart && $0.date < tomorrowStart }, overdue: false, showDay: false),
+            DkxFeedGroup(title: DkxStrings.tr("Завтра"), subtitle: dkxFormat(dkxAddDays(today, 1), "d MMMM"), color: list.itemSecondaryTextColor, tasks: open.filter { $0.date >= tomorrowStart && $0.date < afterTomorrowStart }, overdue: false, showDay: false),
+            DkxFeedGroup(title: DkxStrings.tr("На неделе"), subtitle: "", color: list.itemSecondaryTextColor, tasks: open.filter { $0.date >= afterTomorrowStart && $0.date < weekEnd }, overdue: false, showDay: true),
+            DkxFeedGroup(title: DkxStrings.tr("Позже"), subtitle: "", color: list.itemSecondaryTextColor, tasks: open.filter { $0.date >= weekEnd }, overdue: false, showDay: true),
+            DkxFeedGroup(title: DkxStrings.tr("Без даты"), subtitle: "", color: list.itemSecondaryTextColor, tasks: open.filter { $0.date == 0 }, overdue: false, showDay: false),
+            DkxFeedGroup(title: DkxStrings.tr("Выполнено"), subtitle: DkxStrings.tr("последние"), color: list.itemSecondaryTextColor, tasks: done, overdue: false, showDay: true)
         ]
 
         var y = top
@@ -733,7 +728,7 @@ private final class DkxTasksCalendarController: ViewController {
             y += 14.0
         }
         if !shown {
-            y = self.addHint("Дел пока нет. Нажмите плюс вверху, чтобы добавить первое.", x: x, top: y + 40.0, width: width)
+            y = self.addHint(DkxStrings.tr("Дел пока нет. Нажмите плюс вверху, чтобы добавить первое."), x: x, top: y + 40.0, width: width)
         }
         return y
     }
@@ -753,7 +748,7 @@ private final class DkxTasksCalendarController: ViewController {
 
         let allDay = dayTasks.filter { !$0.hasTime }
         if !allDay.isEmpty {
-            y = self.addSectionTitle("Весь день", subtitle: "", color: theme.list.itemSecondaryTextColor, x: x, top: y, width: width)
+            y = self.addSectionTitle(DkxStrings.tr("Весь день"), subtitle: "", color: theme.list.itemSecondaryTextColor, x: x, top: y, width: width)
             for task in allDay {
                 y = self.addCard(task, meta: dkxTaskMeta(task, showDay: false), overdue: false, tinted: false, x: x, top: y, width: width) + 7.0
             }
@@ -810,7 +805,7 @@ private final class DkxTasksCalendarController: ViewController {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 11.0, weight: .semibold)
         label.textColor = color
-        label.text = "сейчас"
+        label.text = DkxStrings.tr("сейчас")
         let labelSize = label.sizeThatFits(CGSize(width: 100.0, height: 20.0))
         label.frame = CGRect(x: x + width - ceil(labelSize.width), y: y - floor(labelSize.height / 2.0), width: ceil(labelSize.width), height: ceil(labelSize.height))
 
@@ -839,7 +834,7 @@ private final class DkxTasksCalendarController: ViewController {
 
         let columnWidth = floor(width / 7.0)
         let gridX = x + floor((width - columnWidth * 7.0) / 2.0)
-        let weekdays = ["пн", "вт", "ср", "чт", "пт", "сб", "вс"]
+        let weekdays = [DkxStrings.tr("пн"), DkxStrings.tr("вт"), DkxStrings.tr("ср"), DkxStrings.tr("чт"), DkxStrings.tr("пт"), DkxStrings.tr("сб"), DkxStrings.tr("вс")]
         for (index, name) in weekdays.enumerated() {
             let label = UILabel()
             label.font = UIFont.systemFont(ofSize: 11.0, weight: .semibold)
@@ -886,12 +881,12 @@ private final class DkxTasksCalendarController: ViewController {
         let dayStart = Int32(self.selectedDay.timeIntervalSince1970)
         let dayEnd = Int32(dkxAddDays(self.selectedDay, 1).timeIntervalSince1970)
         let dayTasks = dkxSortedByTime(self.tasks.items.filter { $0.date >= dayStart && $0.date < dayEnd })
-        y = self.addSectionTitle(dkxFormat(self.selectedDay, "d MMMM, EEEE"), subtitle: dayTasks.isEmpty ? "дел нет" : dkxTasksCountText(dayTasks.count), color: theme.list.itemPrimaryTextColor, x: x, top: y, width: width)
+        y = self.addSectionTitle(dkxFormat(self.selectedDay, "d MMMM, EEEE"), subtitle: dayTasks.isEmpty ? DkxStrings.tr("дел нет") : dkxTasksCountText(dayTasks.count), color: theme.list.itemPrimaryTextColor, x: x, top: y, width: width)
         for task in dayTasks {
             y = self.addCard(task, meta: dkxTaskMeta(task, showDay: false), overdue: false, tinted: false, x: x, top: y, width: width) + 7.0
         }
         if dayTasks.isEmpty {
-            y = self.addHint("Нажмите плюс вверху, чтобы добавить дело на этот день.", x: x, top: y + 8.0, width: width)
+            y = self.addHint(DkxStrings.tr("Нажмите плюс вверху, чтобы добавить дело на этот день."), x: x, top: y + 8.0, width: width)
         }
         return y + 8.0
     }
@@ -984,9 +979,9 @@ private final class DkxTasksCalendarController: ViewController {
             self.store(updated)
             return
         }
-        let alert = textAlertController(context: self.context, title: "Завершить дело?", text: current.title, actions: [
-            TextAlertAction(type: .genericAction, title: "Отмена", action: {}),
-            TextAlertAction(type: .defaultAction, title: "Завершить", action: { [weak self] in
+        let alert = textAlertController(context: self.context, title: DkxStrings.tr("Завершить дело?"), text: current.title, actions: [
+            TextAlertAction(type: .genericAction, title: DkxStrings.tr("Отмена"), action: {}),
+            TextAlertAction(type: .defaultAction, title: DkxStrings.tr("Завершить"), action: { [weak self] in
                 var updated = current
                 updated.done = true
                 updated.doneAt = Int32(Date().timeIntervalSince1970)
@@ -1096,17 +1091,17 @@ private enum DkxTaskEditEntry: ItemListNodeEntry {
         let arguments = arguments as! DkxTaskEditArguments
         switch self {
         case let .title(text):
-            return ItemListSingleLineInputItem(presentationData: presentationData, systemStyle: .glass, title: NSAttributedString(), text: text, placeholder: "Что сделать", type: .regular(capitalization: true, autocorrection: true), sectionId: self.section, textUpdated: { value in
+            return ItemListSingleLineInputItem(presentationData: presentationData, systemStyle: .glass, title: NSAttributedString(), text: text, placeholder: DkxStrings.tr("Что сделать"), type: .regular(capitalization: true, autocorrection: true), sectionId: self.section, textUpdated: { value in
                 arguments.updateTitle(value)
             }, action: {})
         case let .note(text):
-            return ItemListMultilineInputItem(presentationData: presentationData, systemStyle: .glass, text: text, placeholder: "Заметка, необязательно", maxLength: nil, sectionId: self.section, style: .blocks, minimalHeight: 60.0, textUpdated: { value in
+            return ItemListMultilineInputItem(presentationData: presentationData, systemStyle: .glass, text: text, placeholder: DkxStrings.tr("Заметка, необязательно"), maxLength: nil, sectionId: self.section, style: .blocks, minimalHeight: 60.0, textUpdated: { value in
                 arguments.updateNote(value)
             })
         case .whenHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "КОГДА", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("КОГДА"), sectionId: self.section)
         case let .allDay(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Весь день", value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Весь день"), value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateAllDay(value)
             })
         case let .date(dateTimeFormat, date, hasTime, displayingDate, displayingTime):
@@ -1117,31 +1112,31 @@ private enum DkxTaskEditEntry: ItemListNodeEntry {
                     arguments.toggleTimeSelection()
                 }
             }
-            return ItemListDatePickerItem(presentationData: presentationData, systemStyle: .glass, dateTimeFormat: dateTimeFormat, date: date, title: hasTime ? "Дата и время" : "Дата", displayingDateSelection: displayingDate, displayingTimeSelection: displayingTime, sectionId: self.section, style: .blocks, toggleDateSelection: {
+            return ItemListDatePickerItem(presentationData: presentationData, systemStyle: .glass, dateTimeFormat: dateTimeFormat, date: date, title: hasTime ? DkxStrings.tr("Дата и время") : DkxStrings.tr("Дата"), displayingDateSelection: displayingDate, displayingTimeSelection: displayingTime, sectionId: self.section, style: .blocks, toggleDateSelection: {
                 arguments.toggleDateSelection()
             }, toggleTimeSelection: toggleTime, updated: { value in
                 arguments.updateDate(value)
             })
         case .remindHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: "НАПОМНИТЬ", sectionId: self.section)
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("НАПОМНИТЬ"), sectionId: self.section)
         case let .remind(index, title, checked):
             return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.updateRemind(dkxRemindOptions[Int(index)])
             })
         case .openChat:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Открыть чат", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Открыть чат"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.openChat()
             })
         case .complete:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Завершить дело", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Завершить дело"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.complete()
             })
         case .reopen:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Вернуть в работу", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Вернуть в работу"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.reopen()
             })
         case .delete:
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Удалить дело", kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Удалить дело"), kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.delete()
             })
         }
@@ -1264,9 +1259,9 @@ private func dkxTaskEditController(context: AccountContext, task: DkxTask?, sugg
     }, complete: {
         // Подтверждение перед завершением, как просил владелец
         let title = stateValue.with { $0 }.task.title
-        presentControllerImpl?(textAlertController(context: context, title: "Завершить дело?", text: title, actions: [
-            TextAlertAction(type: .genericAction, title: "Отмена", action: {}),
-            TextAlertAction(type: .defaultAction, title: "Завершить", action: {
+        presentControllerImpl?(textAlertController(context: context, title: DkxStrings.tr("Завершить дело?"), text: title, actions: [
+            TextAlertAction(type: .genericAction, title: DkxStrings.tr("Отмена"), action: {}),
+            TextAlertAction(type: .defaultAction, title: DkxStrings.tr("Завершить"), action: {
                 var task = stateValue.with { $0 }.task
                 task.done = true
                 task.doneAt = Int32(Date().timeIntervalSince1970)
@@ -1282,9 +1277,9 @@ private func dkxTaskEditController(context: AccountContext, task: DkxTask?, sugg
         dismissImpl?()
     }, delete: {
         let title = stateValue.with { $0 }.task.title
-        presentControllerImpl?(textAlertController(context: context, title: "Удалить дело?", text: title, actions: [
-            TextAlertAction(type: .genericAction, title: "Отмена", action: {}),
-            TextAlertAction(type: .destructiveAction, title: "Удалить", action: {
+        presentControllerImpl?(textAlertController(context: context, title: DkxStrings.tr("Удалить дело?"), text: title, actions: [
+            TextAlertAction(type: .genericAction, title: DkxStrings.tr("Отмена"), action: {}),
+            TextAlertAction(type: .destructiveAction, title: DkxStrings.tr("Удалить"), action: {
                 let id = stateValue.with { $0 }.task.id
                 let _ = updateDkxTasksInteractively(accountManager: accountManager, { current in
                     var updated = current
@@ -1324,7 +1319,7 @@ private func dkxTaskEditController(context: AccountContext, task: DkxTask?, sugg
             store(task)
             dismissImpl?()
         })
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(isNew ? "Новое дело" : "Дело"), leftNavigationButton: nil, rightNavigationButton: rightButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(isNew ? DkxStrings.tr("Новое дело") : DkxStrings.tr("Дело")), leftNavigationButton: nil, rightNavigationButton: rightButton, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: true)
         return (controllerState, (listState, arguments))
     }

@@ -86,10 +86,10 @@ public final class DkxDriveUploadHeaderPanelComponent: Component {
             }
 
             let data = component.data
-            self.titleLabel.text = data.waiting > 0 ? "Google Drive, файлов \(data.waiting + 1)" : "Google Drive"
+            self.titleLabel.text = data.waiting > 0 ? DkxStrings.tr("Google Drive, файлов {}", data.waiting + 1) : "Google Drive"
             switch data.phase {
             case .preparing:
-                self.subtitleLabel.text = "Готовлю \(data.fileName)"
+                self.subtitleLabel.text = DkxStrings.tr("Готовлю {}", data.fileName)
             case .uploading:
                 self.subtitleLabel.text = "\(data.fileName) · \(Int((data.fraction * 100.0).rounded()))%"
             }

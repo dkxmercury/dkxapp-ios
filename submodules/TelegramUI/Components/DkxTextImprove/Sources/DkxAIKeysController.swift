@@ -7,6 +7,7 @@ import TelegramPresentationData
 import ItemListUI
 import PresentationDataUtils
 import AccountContext
+import TelegramUIPreferences
 
 // MARK: DKX ключи Gemini и GLM для «Улучшить текст». Ключ вставляется из
 // буфера, перед сохранением проверяется коротким запросом.
@@ -81,21 +82,21 @@ private enum DkxAIKeysEntry: ItemListNodeEntry {
         case let .current(_, text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case let .input(_, provider, text):
-            return ItemListSingleLineInputItem(presentationData: presentationData, systemStyle: .glass, title: NSAttributedString(), text: text, placeholder: "Вставьте ключ", type: .regular(capitalization: false, autocorrection: false), sectionId: self.section, textUpdated: { value in
+            return ItemListSingleLineInputItem(presentationData: presentationData, systemStyle: .glass, title: NSAttributedString(), text: text, placeholder: DkxStrings.tr("Вставьте ключ"), type: .regular(capitalization: false, autocorrection: false), sectionId: self.section, textUpdated: { value in
                 arguments.updateDraft(provider, value)
             }, action: {
                 arguments.save(provider)
             })
         case let .paste(_, provider):
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Вставить из буфера", kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Вставить из буфера"), kind: .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.paste(provider)
             })
         case let .save(_, provider, checking):
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: checking ? "Проверяю…" : "Проверить и сохранить", kind: checking ? .disabled : .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: checking ? DkxStrings.tr("Проверяю…") : DkxStrings.tr("Проверить и сохранить"), kind: checking ? .disabled : .generic, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.save(provider)
             })
         case let .delete(_, provider):
-            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: "Удалить ключ", kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
+            return ItemListActionItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Удалить ключ"), kind: .destructive, alignment: .natural, sectionId: self.section, style: .blocks, action: {
                 arguments.delete(provider)
             })
         case let .footer(_, text):
@@ -108,11 +109,11 @@ private func dkxAIKeysEntries(state: DkxAIKeysState) -> [DkxAIKeysEntry] {
     var entries: [DkxAIKeysEntry] = []
     for (index, provider) in DkxAIKeys.Provider.allCases.enumerated() {
         let section = Int32(index)
-        entries.append(.header(section, provider == .gemini ? "GEMINI, ДЛЯ УЗБЕКСКОГО" : "GLM, ДЛЯ РУССКОГО И АНГЛИЙСКОГО"))
+        entries.append(.header(section, provider == .gemini ? DkxStrings.tr("GEMINI, ДЛЯ УЗБЕКСКОГО") : DkxStrings.tr("GLM, ДЛЯ РУССКОГО И АНГЛИЙСКОГО")))
         if let masked = DkxAIKeys.maskedKey(provider) {
-            entries.append(.current(section, "Сохранён ключ \(masked)"))
+            entries.append(.current(section, DkxStrings.tr("Сохранён ключ {}", masked)))
         } else {
-            entries.append(.current(section, "Ключа нет"))
+            entries.append(.current(section, DkxStrings.tr("Ключа нет")))
         }
         entries.append(.input(section, provider, state.drafts[provider.rawValue] ?? ""))
         entries.append(.paste(section, provider))
@@ -120,7 +121,7 @@ private func dkxAIKeysEntries(state: DkxAIKeysState) -> [DkxAIKeysEntry] {
         if DkxAIKeys.key(provider) != nil {
             entries.append(.delete(section, provider))
         }
-        var footer = provider == .gemini ? "Ключ в Google AI Studio, раздел Get API key." : "Ключ на z.ai, раздел API Keys. Бесплатные модели GLM Flash."
+        var footer = provider == .gemini ? DkxStrings.tr("Ключ в Google AI Studio, раздел Get API key.") : DkxStrings.tr("Ключ на z.ai, раздел API Keys. Бесплатные модели GLM Flash.")
         if let message = state.messages[provider.rawValue] {
             footer = message + "\n\n" + footer
         }
@@ -147,7 +148,7 @@ public func dkxAIKeysController(context: AccountContext) -> ViewController {
         let value = UIPasteboard.general.string?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         updateState { state in
             state.drafts[provider.rawValue] = value
-            state.messages[provider.rawValue] = value.isEmpty ? "В буфере нет текста." : nil
+            state.messages[provider.rawValue] = value.isEmpty ? DkxStrings.tr("В буфере нет текста.") : nil
         }
     }, save: { provider in
         let key = (stateValue.with { $0.drafts[provider.rawValue] } ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
@@ -160,34 +161,34 @@ public func dkxAIKeysController(context: AccountContext) -> ViewController {
         }
         checkDisposable.set((dkxCheckKey(provider: provider, key: key)
         |> deliverOnMainQueue).start(error: { error in
-            var reason = "не удалось проверить"
+            var reason = DkxStrings.tr("не удалось проверить")
             if case let .failed(text) = error {
                 reason = text
             }
             updateState { state in
                 state.checking = nil
-                state.messages[provider.rawValue] = "Ключ не сохранён, \(reason)."
+                state.messages[provider.rawValue] = DkxStrings.tr("Ключ не сохранён, {}.", reason)
             }
         }, completed: {
             DkxAIKeys.setKey(provider, key)
             updateState { state in
                 state.checking = nil
                 state.drafts[provider.rawValue] = ""
-                state.messages[provider.rawValue] = "Ключ работает и сохранён."
+                state.messages[provider.rawValue] = DkxStrings.tr("Ключ работает и сохранён.")
                 state.revision += 1
             }
         }))
     }, delete: { provider in
         DkxAIKeys.setKey(provider, nil)
         updateState { state in
-            state.messages[provider.rawValue] = "Ключ удалён."
+            state.messages[provider.rawValue] = DkxStrings.tr("Ключ удалён.")
             state.revision += 1
         }
     })
 
     let signal = combineLatest(queue: .mainQueue(), context.sharedContext.presentationData, statePromise.get())
     |> map { presentationData, state -> (ItemListControllerState, (ItemListNodeState, Any)) in
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Ключи"), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Ключи")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: dkxAIKeysEntries(state: state), style: .blocks, animateChanges: false)
         return (controllerState, (listState, arguments))
     }

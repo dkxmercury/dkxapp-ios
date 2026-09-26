@@ -80,17 +80,17 @@ private enum DkxUnansweredEntry: ItemListNodeEntry {
 
 private func dkxFormatWaiting(_ seconds: Int32) -> String {
     if seconds < 60 {
-        return "только что"
+        return DkxStrings.tr("только что")
     }
     let minutes = seconds / 60
     if minutes < 60 {
-        return "\(minutes) мин"
+        return DkxStrings.tr("{} мин", minutes)
     }
     let hours = minutes / 60
     if hours < 24 {
-        return "\(hours) ч"
+        return DkxStrings.tr("{} ч", hours)
     }
-    return "\(hours / 24) дн"
+    return DkxStrings.tr("{} дн", hours / 24)
 }
 
 func dkxMessagePreview(_ message: Message) -> String {
@@ -100,20 +100,20 @@ func dkxMessagePreview(_ message: Message) -> String {
     }
     for media in message.media {
         if media is TelegramMediaImage {
-            return "Фото"
+            return DkxStrings.tr("Фото")
         } else if let file = media as? TelegramMediaFile {
             if file.isVoice {
-                return "Голосовое"
+                return DkxStrings.tr("Голосовое")
             } else if file.isVideo {
-                return file.isInstantVideo ? "Кружок" : "Видео"
+                return file.isInstantVideo ? DkxStrings.tr("Кружок") : DkxStrings.tr("Видео")
             } else if file.isSticker || file.isAnimatedSticker {
-                return "Стикер"
+                return DkxStrings.tr("Стикер")
             }
-            return "Файл"
+            return DkxStrings.tr("Файл")
         } else if media is TelegramMediaMap {
-            return "Геопозиция"
+            return DkxStrings.tr("Геопозиция")
         } else if media is TelegramMediaContact {
-            return "Контакт"
+            return DkxStrings.tr("Контакт")
         }
     }
     return ""
@@ -176,15 +176,15 @@ public func dkxUnansweredController(context: AccountContext) -> ViewController {
     |> map { presentationData, items -> (ItemListControllerState, (ItemListNodeState, Any)) in
         var entries: [DkxUnansweredEntry] = []
         if items.isEmpty {
-            entries.append(.footer("Все, кто писал последним, уже получили ответ. Порог ожидания настраивается в настройках Dkx."))
+            entries.append(.footer(DkxStrings.tr("Все, кто писал последним, уже получили ответ. Порог ожидания настраивается в настройках Dkx.")))
         } else {
-            entries.append(.header("ЖДУТ ОТВЕТА \(items.count)"))
+            entries.append(.header(DkxStrings.tr("ЖДУТ ОТВЕТА {}", items.count)))
             for (index, item) in items.enumerated() {
                 entries.append(.item(index: Int32(index), item, title: item.peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder), waiting: dkxFormatWaiting(item.waiting)))
             }
-            entries.append(.footer("Личные чаты, где последним написал собеседник, без ботов и архива. Сверху те, кто ждёт дольше всех. Ответили, и человек пропадёт из списка сам."))
+            entries.append(.footer(DkxStrings.tr("Личные чаты, где последним написал собеседник, без ботов и архива. Сверху те, кто ждёт дольше всех. Ответили, и человек пропадёт из списка сам.")))
         }
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text("Без ответа"), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Без ответа")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: entries, style: .blocks, animateChanges: false)
         return (controllerState, (listState, arguments))
     }

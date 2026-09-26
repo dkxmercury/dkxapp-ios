@@ -2259,7 +2259,7 @@ public final class SharedAccountContextImpl: SharedAccountContext {
         // поиска, уведомлений и ссылок
         let dkxPeerId = params.chatLocation.peerId
         if DkxChatLock.needsAuthentication(dkxPeerId) {
-            let _ = (DkxChatLock.authenticate(reason: "Открыть закрытый чат")
+            let _ = (DkxChatLock.authenticate(reason: DkxStrings.tr("Открыть закрытый чат"))
             |> deliverOnMainQueue).start(next: { success in
                 if success {
                     DkxChatLock.markUnlocked(dkxPeerId)

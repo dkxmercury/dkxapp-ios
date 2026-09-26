@@ -40,8 +40,8 @@ func dkxContactBadgeItem(id: AnyHashable, user: TelegramUser, isContact: Bool) -
     let isMutual = user.flags.contains(.mutualContact)
     return PeerInfoScreenLabeledValueItem(
         id: id,
-        label: "Вы в контактах собеседника",
-        text: isMutual ? "Сохранил" : "Не сохранил",
+        label: DkxStrings.tr("Вы в контактах собеседника"),
+        text: isMutual ? DkxStrings.tr("Сохранил") : DkxStrings.tr("Не сохранил"),
         textColor: isMutual ? .dkxPositive : .dkxNegative,
         action: nil,
         requestLayout: { _ in
@@ -58,7 +58,7 @@ func dkxPeerIdItem(id: AnyHashable, peerId: EnginePeer.Id, presentationData: Pre
         guard let controller = interaction?.getController() else {
             return
         }
-        controller.present(UndoOverlayController(presentationData: presentationData, content: .copy(text: "ID скопирован"), elevatedLayout: false, animateInAsReplacement: false, action: { _ in return false }), in: .current)
+        controller.present(UndoOverlayController(presentationData: presentationData, content: .copy(text: DkxStrings.tr("ID скопирован")), elevatedLayout: false, animateInAsReplacement: false, action: { _ in return false }), in: .current)
     }
     return PeerInfoScreenLabeledValueItem(
         id: id,

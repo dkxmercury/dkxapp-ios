@@ -473,7 +473,7 @@ public final class ChatMessageInteractiveFileNode: ASDisplayNode {
                             strongSelf.audioTranscriptionState = .collapsed
                             strongSelf.requestUpdateLayout(true)
                             if dkxLocal {
-                                arguments.controllerInteraction.presentControllerInCurrent(UndoOverlayController(presentationData: arguments.context.sharedContext.currentPresentationData.with { $0 }, content: .info(title: nil, text: "Не удалось расшифровать. Проверьте язык в Dkx, раздел «Расшифровка голосовых», и что запись загружена.", timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return true }), nil)
+                                arguments.controllerInteraction.presentControllerInCurrent(UndoOverlayController(presentationData: arguments.context.sharedContext.currentPresentationData.with { $0 }, content: .info(title: nil, text: DkxStrings.tr("Не удалось расшифровать. Проверьте язык в Dkx, раздел «Расшифровка голосовых», и что запись загружена."), timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return true }), nil)
                             }
                         }
                     }, completed: { [weak self] in

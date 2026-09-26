@@ -12,6 +12,7 @@ import ReactionImageComponent
 import AnimationCache
 import MultiAnimationRenderer
 import TelegramStringFormatting
+import TelegramUIPreferences
 
 private func maybeAddRotationAnimation(_ layer: CALayer, duration: Double) {
     if let _ = layer.animation(forKey: "clockFrameAnimation") {
@@ -550,10 +551,10 @@ public class ChatMessageDateAndStatusNode: ASDisplayNode {
             // ключи в Localizable.strings требуют отдельного шага сборки.
             // Ставим первой, чтобы читалось как "удалено, изменено 12:30".
             if arguments.dkxDeleted {
-                updatedDateText = "удалено " + updatedDateText
+                updatedDateText = DkxStrings.tr("удалено ") + updatedDateText
             }
             if arguments.dkxOnDrive {
-                updatedDateText = "на диске " + updatedDateText
+                updatedDateText = DkxStrings.tr("на диске ") + updatedDateText
             }
             if arguments.edited {
                 if let useEditedTimestamp = arguments.context.getAppConfigValue("message_primary_edited_date") as? Bool, useEditedTimestamp {

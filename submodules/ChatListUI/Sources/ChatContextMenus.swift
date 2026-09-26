@@ -545,7 +545,7 @@ func chatContextMenuItems(context: AccountContext, peerId: EnginePeer.Id, promoI
                         // MARK: DKX Face ID на этот чат
                         if DkxRuntime.current.chatLock, case .chatList = source {
                             let dkxLocked = DkxRuntime.current.lockedPeers.contains(peerId.toInt64())
-                            items.append(.action(ContextMenuActionItem(text: dkxLocked ? "Снять Face ID" : "Закрыть Face ID", icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Lock"), color: theme.contextMenu.primaryColor) }, action: { _, f in
+                            items.append(.action(ContextMenuActionItem(text: dkxLocked ? DkxStrings.tr("Снять Face ID") : DkxStrings.tr("Закрыть Face ID"), icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Lock"), color: theme.contextMenu.primaryColor) }, action: { _, f in
                                 f(.default)
                                 let dkxApply: () -> Void = {
                                     let _ = updateDkxSettingsInteractively(accountManager: context.sharedContext.accountManager, { current in
@@ -560,7 +560,7 @@ func chatContextMenuItems(context: AccountContext, peerId: EnginePeer.Id, promoI
                                 }
                                 if dkxLocked {
                                     // Снять замок может только владелец
-                                    let _ = (DkxChatLock.authenticate(reason: "Снять Face ID с чата")
+                                    let _ = (DkxChatLock.authenticate(reason: DkxStrings.tr("Снять Face ID с чата"))
                                     |> deliverOnMainQueue).start(next: { success in
                                         if success {
                                             dkxApply()
@@ -577,7 +577,7 @@ func chatContextMenuItems(context: AccountContext, peerId: EnginePeer.Id, promoI
                         // MARK: DKX «Напомнить позже» про этот чат
                         if DkxRuntime.current.remindLater, case .chatList = source {
                             let dkxTitle = peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
-                            items.append(.action(ContextMenuActionItem(text: "Напомнить позже", icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Schedule"), color: theme.contextMenu.primaryColor) }, action: { _, f in
+                            items.append(.action(ContextMenuActionItem(text: DkxStrings.tr("Напомнить позже"), icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Schedule"), color: theme.contextMenu.primaryColor) }, action: { _, f in
                                 f(.default)
                                 dkxPresentRemindLater(context: context, peerId: peerId, messageId: nil, title: dkxTitle, note: "", present: { c in
                                     chatListController?.present(c, in: .window(.root))
@@ -588,7 +588,7 @@ func chatContextMenuItems(context: AccountContext, peerId: EnginePeer.Id, promoI
                         // MARK: DKX своё закрепление, только на этом телефоне и без лимита
                         if case .chatList = source, peerId.namespace != Namespaces.Peer.SecretChat {
                             let dkxPinned = DkxRuntime.current.localPins.contains(peerId.toInt64())
-                            items.append(.action(ContextMenuActionItem(text: dkxPinned ? "Открепить у себя" : "Закрепить у себя", icon: { theme in generateTintedImage(image: UIImage(bundleImageName: dkxPinned ? "Chat/Context Menu/Unpin" : "Chat/Context Menu/Pin"), color: theme.contextMenu.primaryColor) }, action: { _, f in
+                            items.append(.action(ContextMenuActionItem(text: dkxPinned ? DkxStrings.tr("Открепить у себя") : DkxStrings.tr("Закрепить у себя"), icon: { theme in generateTintedImage(image: UIImage(bundleImageName: dkxPinned ? "Chat/Context Menu/Unpin" : "Chat/Context Menu/Pin"), color: theme.contextMenu.primaryColor) }, action: { _, f in
                                 f(.default)
                                 let _ = updateDkxSettingsInteractively(accountManager: context.sharedContext.accountManager, { current in
                                     var updated = current
@@ -605,7 +605,7 @@ func chatContextMenuItems(context: AccountContext, peerId: EnginePeer.Id, promoI
                         if case .chatList = source {
                             let dkxTitle = peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
                             let dkxCount = DkxRuntime.current.chatLabelIds(forPeer: peerId.toInt64()).count
-                            items.append(.action(ContextMenuActionItem(text: dkxCount == 0 ? "Метки" : "Метки, \(dkxCount)", icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Tag"), color: theme.contextMenu.primaryColor) }, action: { _, f in
+                            items.append(.action(ContextMenuActionItem(text: dkxCount == 0 ? DkxStrings.tr("Метки") : DkxStrings.tr("Метки, {}", dkxCount), icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Tag"), color: theme.contextMenu.primaryColor) }, action: { _, f in
                                 f(.default)
                                 (chatListController?.navigationController as? NavigationController)?.pushViewController(dkxChatLabelsPickerController(context: context, peerId: peerId, title: dkxTitle))
                             })))

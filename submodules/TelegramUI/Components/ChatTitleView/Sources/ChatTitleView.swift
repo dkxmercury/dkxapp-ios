@@ -665,7 +665,7 @@ public final class ChatTitleView: UIView, NavigationBarTitleView {
                                                 dkxBadge.append(NSAttributedString(string: " · ", font: subtitleFont, textColor: titleTheme.rootController.navigationBar.secondaryTextColor))
                                             }
                                             dkxBadge.append(NSAttributedString(
-                                                string: dkxMutual ? "сохранил" : "не сохранил",
+                                                string: dkxMutual ? DkxStrings.tr("сохранил") : DkxStrings.tr("не сохранил"),
                                                 font: subtitleFont,
                                                 textColor: dkxMutual ? UIColor(rgb: 0x4CD964) : UIColor(rgb: 0xFF453A)
                                             ))
