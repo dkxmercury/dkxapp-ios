@@ -30,6 +30,8 @@ import ChatControllerInteraction
 import WallpaperBackgroundNode
 import TelegramStringFormatting
 import InvisibleInkDustNode
+import TelegramUIPreferences
+import LocalAudioTranscription
 
 public struct ChatMessageInstantVideoItemLayoutResult {
     public let contentSize: CGSize
@@ -842,7 +844,8 @@ public class ChatMessageInteractiveInstantVideoNode: ASDisplayNode {
                     var displayTranscribe = false
                     if item.message.id.peerId.namespace != Namespaces.Peer.SecretChat && statusDisplayType == .free && !isViewOnceMessage && !item.presentationData.isPreview {
                         let premiumConfiguration = PremiumConfiguration.with(appConfiguration: item.context.currentAppConfiguration.with { $0 })
-                        if item.associatedData.isPremium || item.associatedData.alwaysDisplayTranscribeButton.providedByGroupBoost {
+                        // MARK: DKX кнопка расшифровки и без Premium
+                        if item.associatedData.isPremium || item.associatedData.alwaysDisplayTranscribeButton.providedByGroupBoost || DkxRuntime.current.localTranscription {
                             displayTranscribe = true
                         } else if premiumConfiguration.audioTransciptionTrialCount > 0 {
                             if incoming {
@@ -1829,12 +1832,15 @@ public class ChatMessageInteractiveInstantVideoNode: ASDisplayNode {
         if !item.context.isPremium, case .inProgress = self.audioTranscriptionState {
             return
         }
-        
+
+        // MARK: DKX без Premium кружок расшифровывает сам телефон
+        let dkxLocal = DkxRuntime.current.localTranscription && !item.associatedData.isPremium
+
         let presentationData = item.context.sharedContext.currentPresentationData.with { $0 }
         let premiumConfiguration = PremiumConfiguration.with(appConfiguration: item.context.currentAppConfiguration.with { $0 })
-        
+
         let transcriptionText = transcribedText(message: EngineMessage(item.message))
-        if transcriptionText == nil && !item.associatedData.alwaysDisplayTranscribeButton.providedByGroupBoost {
+        if transcriptionText == nil && !item.associatedData.alwaysDisplayTranscribeButton.providedByGroupBoost && !dkxLocal {
             if premiumConfiguration.audioTransciptionTrialCount > 0 {
                 if !item.associatedData.isPremium {
                     if self.presentAudioTranscriptionTooltip(finished: false) {
@@ -1893,21 +1899,25 @@ public class ChatMessageInteractiveInstantVideoNode: ASDisplayNode {
             if self.transcribeDisposable == nil {
                 self.audioTranscriptionState = .inProgress
                 self.requestUpdateLayout(true)
-                
-                self.transcribeDisposable = (item.context.engine.messages.transcribeAudio(messageId: item.message.id)
-                |> deliverOnMainQueue).startStrict(next: { [weak self] result in
-                    guard let strongSelf = self else {
-                        return
-                    }
-                    strongSelf.transcribeDisposable?.dispose()
-                    strongSelf.transcribeDisposable = nil
+
+                if dkxLocal {
+                    self.dkxTranscribeLocally(item: item)
+                } else {
+                    self.transcribeDisposable = (item.context.engine.messages.transcribeAudio(messageId: item.message.id)
+                    |> deliverOnMainQueue).startStrict(next: { [weak self] result in
+                        guard let strongSelf = self else {
+                            return
+                        }
+                        strongSelf.transcribeDisposable?.dispose()
+                        strongSelf.transcribeDisposable = nil
                     
-                    if let item = strongSelf.item, !item.associatedData.isPremium && !item.associatedData.alwaysDisplayTranscribeButton.providedByGroupBoost {
-                        Queue.mainQueue().after(0.1, {
-                            let _ = strongSelf.presentAudioTranscriptionTooltip(finished: true)
-                        })
-                    }
-                })
+                        if let item = strongSelf.item, !item.associatedData.isPremium && !item.associatedData.alwaysDisplayTranscribeButton.providedByGroupBoost {
+                            Queue.mainQueue().after(0.1, {
+                                let _ = strongSelf.presentAudioTranscriptionTooltip(finished: true)
+                            })
+                        }
+                    })
+                }
             }
         }
         
@@ -1928,6 +1938,51 @@ public class ChatMessageInteractiveInstantVideoNode: ASDisplayNode {
         self.updateTranscriptionExpanded?(self.audioTranscriptionState)
     }
     
+    // MARK: DKX звук вынимается из кружка и распознаётся на телефоне
+    private func dkxTranscribeLocally(item: ChatMessageBubbleContentItem) {
+        let context = item.context
+        let messageId = item.message.id
+        let signal: Signal<LocallyTranscribedAudio?, NoError> = context.engine.data.get(TelegramEngine.EngineData.Item.Messages.Message(id: messageId))
+        |> mapToSignal { message -> Signal<String?, NoError> in
+            guard let message, let file = message.media.first(where: { $0 is TelegramMediaFile }) as? TelegramMediaFile else {
+                return .single(nil)
+            }
+            return context.engine.resources.data(id: EngineMediaResource.Id(file.resource.id))
+            |> take(1)
+            |> map { data -> String? in
+                return data.isComplete ? data.path : nil
+            }
+        }
+        |> mapToSignal { path -> Signal<String?, NoError> in
+            guard let path else {
+                return .single(nil)
+            }
+            return dkxExtractAudio(videoPath: path)
+        }
+        |> mapToSignal { path -> Signal<LocallyTranscribedAudio?, NoError> in
+            guard let path else {
+                return .single(nil)
+            }
+            return dkxTranscribeAudio(path: path, locale: DkxRuntime.current.transcriptionLocale)
+        }
+        self.transcribeDisposable = (signal
+        |> deliverOnMainQueue).startStrict(next: { [weak self] result in
+            guard let self else {
+                return
+            }
+            if let result {
+                let _ = context.engine.messages.storeLocallyTranscribedAudio(messageId: messageId, text: result.text, isFinal: result.isFinal, error: nil).startStandalone()
+            } else {
+                self.audioTranscriptionState = .collapsed
+                self.requestUpdateLayout(true)
+                item.controllerInteraction.presentControllerInCurrent(UndoOverlayController(presentationData: context.sharedContext.currentPresentationData.with { $0 }, content: .info(title: nil, text: "Не удалось расшифровать. Проверьте язык в Dkx, раздел «Расшифровка голосовых», и что запись загружена.", timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return true }), nil)
+            }
+        }, completed: { [weak self] in
+            self?.transcribeDisposable?.dispose()
+            self?.transcribeDisposable = nil
+        })
+    }
+
     private func presentAudioTranscriptionTooltip(finished: Bool) -> Bool {
         guard let item = self.item, !item.associatedData.isPremium else {
             return false

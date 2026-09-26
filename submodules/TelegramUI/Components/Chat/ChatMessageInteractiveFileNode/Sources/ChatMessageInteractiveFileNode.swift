@@ -22,6 +22,7 @@ import AudioWaveformComponent
 import ShimmerEffect
 import ConvertOpusToAAC
 import LocalAudioTranscription
+import TelegramUIPreferences
 import TextSelectionNode
 import AudioTranscriptionPendingIndicatorComponent
 import UndoUI
@@ -355,12 +356,15 @@ public final class ChatMessageInteractiveFileNode: ASDisplayNode {
         if !context.isPremium, case .inProgress = self.audioTranscriptionState {
             return
         }
-        
+
+        // MARK: DKX без Premium голосовое расшифровывает сам телефон
+        let dkxLocal = DkxRuntime.current.localTranscription && !arguments.associatedData.isPremium
+
         let presentationData = context.sharedContext.currentPresentationData.with { $0 }
         let premiumConfiguration = PremiumConfiguration.with(appConfiguration: arguments.context.currentAppConfiguration.with { $0 })
-        
+
         let transcriptionText = self.forcedAudioTranscriptionText ?? transcribedText(message: EngineMessage(message))
-        if transcriptionText == nil && !arguments.associatedData.alwaysDisplayTranscribeButton.providedByGroupBoost {
+        if transcriptionText == nil && !arguments.associatedData.alwaysDisplayTranscribeButton.providedByGroupBoost && !dkxLocal {
             if premiumConfiguration.audioTransciptionTrialCount > 0 {
                 if !arguments.associatedData.isPremium {
                     if self.presentAudioTranscriptionTooltip(finished: false) {
@@ -419,7 +423,7 @@ public final class ChatMessageInteractiveFileNode: ASDisplayNode {
                 self.audioTranscriptionState = .inProgress
                 self.requestUpdateLayout(true)
                 
-                if context.sharedContext.immediateExperimentalUISettings.localTranscription {
+                if context.sharedContext.immediateExperimentalUISettings.localTranscription || dkxLocal {
                     let appLocale = presentationData.strings.baseLanguageCode
                     
                     let signal: Signal<LocallyTranscribedAudio?, NoError> = context.engine.data.get(TelegramEngine.EngineData.Item.Messages.Message(id: message.id))
@@ -451,6 +455,9 @@ public final class ChatMessageInteractiveFileNode: ASDisplayNode {
                         guard let result = result else {
                             return .single(nil)
                         }
+                        if dkxLocal {
+                            return dkxTranscribeAudio(path: result, locale: DkxRuntime.current.transcriptionLocale)
+                        }
                         return transcribeAudio(path: result, appLocale: appLocale)
                     }
                     
@@ -465,6 +472,9 @@ public final class ChatMessageInteractiveFileNode: ASDisplayNode {
                         } else {
                             strongSelf.audioTranscriptionState = .collapsed
                             strongSelf.requestUpdateLayout(true)
+                            if dkxLocal {
+                                arguments.controllerInteraction.presentControllerInCurrent(UndoOverlayController(presentationData: arguments.context.sharedContext.currentPresentationData.with { $0 }, content: .info(title: nil, text: "Не удалось расшифровать. Проверьте язык в Dkx, раздел «Расшифровка голосовых», и что запись загружена.", timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return true }), nil)
+                            }
                         }
                     }, completed: { [weak self] in
                         guard let strongSelf = self else {
@@ -771,7 +781,8 @@ public final class ChatMessageInteractiveFileNode: ASDisplayNode {
                     displayTranscribe = false
                 } else if arguments.message.id.peerId.namespace != Namespaces.Peer.SecretChat && !isViewOnceMessage && !arguments.presentationData.isPreview {
                     let premiumConfiguration = PremiumConfiguration.with(appConfiguration: arguments.context.currentAppConfiguration.with { $0 })
-                    if arguments.associatedData.isPremium || arguments.associatedData.alwaysDisplayTranscribeButton.providedByGroupBoost {
+                    // MARK: DKX кнопка расшифровки и без Premium
+                    if arguments.associatedData.isPremium || arguments.associatedData.alwaysDisplayTranscribeButton.providedByGroupBoost || DkxRuntime.current.localTranscription {
                         displayTranscribe = true
                     } else if premiumConfiguration.audioTransciptionTrialCount > 0 {
                         if arguments.incoming {

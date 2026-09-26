@@ -66,6 +66,9 @@ public struct DkxSettings: Codable, Equatable {
     public var driveEnabled: Bool
     // Пункт «Напомнить позже» в меню чата в списке и в меню сообщения
     public var remindLater: Bool
+    // Расшифровка голосовых и кружков на телефоне, когда нет Premium, и её язык
+    public var localTranscription: Bool
+    public var transcriptionLocale: String
     public var lockedPeers: [Int64]
     public var quickReplyTemplates: [String]
     // Спрятанные вкладки и строки настроек, rawValue из DkxHiddenSection
@@ -117,6 +120,8 @@ public struct DkxSettings: Codable, Equatable {
         self.passwordsEnabled = true
         self.driveEnabled = false
         self.remindLater = true
+        self.localTranscription = true
+        self.transcriptionLocale = "ru-RU"
         self.lockedPeers = []
         self.quickReplyTemplates = []
         self.hiddenSections = []
@@ -196,6 +201,8 @@ public struct DkxSettings: Codable, Equatable {
         self.passwordsEnabled = (try container.decodeIfPresent(Int32.self, forKey: "passwordsEnabled")).map { $0 != 0 } ?? defaults.passwordsEnabled
         self.driveEnabled = (try container.decodeIfPresent(Int32.self, forKey: "driveEnabled")).map { $0 != 0 } ?? defaults.driveEnabled
         self.remindLater = (try container.decodeIfPresent(Int32.self, forKey: "remindLater")).map { $0 != 0 } ?? defaults.remindLater
+        self.localTranscription = (try container.decodeIfPresent(Int32.self, forKey: "localTranscription")).map { $0 != 0 } ?? defaults.localTranscription
+        self.transcriptionLocale = (try container.decodeIfPresent(String.self, forKey: "transcriptionLocale")) ?? defaults.transcriptionLocale
         self.lockedPeers = (try container.decodeIfPresent([Int64].self, forKey: "lockedPeers")) ?? defaults.lockedPeers
         self.quickReplyTemplates = (try container.decodeIfPresent([String].self, forKey: "quickReplyTemplates")) ?? defaults.quickReplyTemplates
         self.hiddenSections = (try container.decodeIfPresent([String].self, forKey: "hiddenSections")) ?? defaults.hiddenSections
@@ -232,6 +239,8 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode((self.passwordsEnabled ? 1 : 0) as Int32, forKey: "passwordsEnabled")
         try container.encode((self.driveEnabled ? 1 : 0) as Int32, forKey: "driveEnabled")
         try container.encode((self.remindLater ? 1 : 0) as Int32, forKey: "remindLater")
+        try container.encode((self.localTranscription ? 1 : 0) as Int32, forKey: "localTranscription")
+        try container.encode(self.transcriptionLocale, forKey: "transcriptionLocale")
         try container.encode(self.lockedPeers, forKey: "lockedPeers")
         try container.encode(self.quickReplyTemplates, forKey: "quickReplyTemplates")
         try container.encode(self.hiddenSections, forKey: "hiddenSections")

@@ -63,6 +63,7 @@ swift_library(
         "//submodules/ShareController:ShareController",
         "//submodules/StickerPackPreviewUI:StickerPackPreviewUI",
         "//submodules/TelegramUIPreferences:TelegramUIPreferences",
+        "//submodules/Media/LocalAudioTranscription",
         "//submodules/TelegramStringFormatting:TelegramStringFormatting",
         "//submodules/TelegramNotices:TelegramNotices",
         "//submodules/TelegramCallsUI:TelegramCallsUI",

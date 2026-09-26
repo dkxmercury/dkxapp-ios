@@ -6,6 +6,7 @@ import SwiftSignalKit
 import TelegramCore
 import TelegramPresentationData
 import TelegramUIPreferences
+import LocalAudioTranscription
 import ItemListUI
 import PresentationDataUtils
 import AccountContext
@@ -138,6 +139,8 @@ private final class DkxSettingsControllerArguments {
     let updateEditHistory: (Bool) -> Void
     let updateToggle: (DkxToggle, Bool) -> Void
     let updateUnansweredHours: (Int32) -> Void
+    let updateTranscription: (Bool) -> Void
+    let updateTranscriptionLocale: (String) -> Void
     let openQuickReplies: () -> Void
     let updateSpoofPanel: (Bool) -> Void
     let openLog: () -> Void
@@ -156,6 +159,8 @@ private final class DkxSettingsControllerArguments {
         updateEditHistory: @escaping (Bool) -> Void,
         updateToggle: @escaping (DkxToggle, Bool) -> Void,
         updateUnansweredHours: @escaping (Int32) -> Void,
+        updateTranscription: @escaping (Bool) -> Void,
+        updateTranscriptionLocale: @escaping (String) -> Void,
         openQuickReplies: @escaping () -> Void,
         updateSpoofPanel: @escaping (Bool) -> Void,
         openLog: @escaping () -> Void,
@@ -173,6 +178,8 @@ private final class DkxSettingsControllerArguments {
         self.updateEditHistory = updateEditHistory
         self.updateToggle = updateToggle
         self.updateUnansweredHours = updateUnansweredHours
+        self.updateTranscription = updateTranscription
+        self.updateTranscriptionLocale = updateTranscriptionLocale
         self.openQuickReplies = openQuickReplies
         self.updateSpoofPanel = updateSpoofPanel
         self.openLog = openLog
@@ -188,6 +195,7 @@ private enum DkxSettingsSection: Int32 {
     case interface
     case chats
     case unanswered
+    case transcription
     case location
     case features
     case drive
@@ -210,6 +218,11 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case unansweredHeader
     case unansweredThreshold(index: Int32, title: String, checked: Bool)
     case unansweredFooter
+
+    case transcriptionHeader
+    case transcription(Bool)
+    case transcriptionLocale(index: Int32, id: String, title: String, checked: Bool)
+    case transcriptionFooter(String)
 
     case locationHeader
     case spoofPanel(Bool)
@@ -239,6 +252,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return DkxSettingsSection.chats.rawValue
         case .unansweredHeader, .unansweredThreshold, .unansweredFooter:
             return DkxSettingsSection.unanswered.rawValue
+        case .transcriptionHeader, .transcription, .transcriptionLocale, .transcriptionFooter:
+            return DkxSettingsSection.transcription.rawValue
         case .locationHeader, .spoofPanel, .locationFooter:
             return DkxSettingsSection.location.rawValue
         case .featuresHeader, .antiDelete, .editHistory, .featuresFooter:
@@ -282,6 +297,14 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 201 + index
         case .unansweredFooter:
             return 299
+        case .transcriptionHeader:
+            return 300
+        case .transcription:
+            return 301
+        case let .transcriptionLocale(index, _, _, _):
+            return 302 + index
+        case .transcriptionFooter:
+            return 399
         case .locationHeader:
             return 1000
         case .spoofPanel:
@@ -366,6 +389,18 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
                 arguments.updateUnansweredHours(dkxUnansweredThresholds[Int(index)].hours)
             })
+        case .transcriptionHeader:
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: "РАСШИФРОВКА ГОЛОСОВЫХ", sectionId: self.section)
+        case let .transcription(value):
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Расшифровка без Premium", value: value, sectionId: self.section, style: .blocks, updated: { value in
+                arguments.updateTranscription(value)
+            })
+        case let .transcriptionLocale(_, id, title, checked):
+            return ItemListCheckboxItem(presentationData: presentationData, systemStyle: .glass, title: title, style: .left, checked: checked, zeroSeparatorInsets: false, sectionId: self.section, action: {
+                arguments.updateTranscriptionLocale(id)
+            })
+        case let .transcriptionFooter(text):
+            return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case .unansweredFooter:
             return ItemListTextItem(presentationData: presentationData, text: .plain("Список открывается долгим нажатием на вкладку «Чаты». В нём личные чаты, где последним написал собеседник, без ботов и архива. Сверху те, кто ждёт дольше всех."), sectionId: self.section)
 
@@ -454,6 +489,22 @@ private func dkxSettingsControllerEntries(settings: DkxSettings) -> [DkxSettings
             entries.append(.unansweredThreshold(index: Int32(i), title: dkxUnansweredThresholds[i].title, checked: dkxUnansweredThresholds[i].hours == settings.unansweredHours))
         }
         entries.append(.unansweredFooter)
+    }
+
+    entries.append(.transcriptionHeader)
+    entries.append(.transcription(settings.localTranscription))
+    if settings.localTranscription {
+        let locales = dkxSupportedSpeechLocales()
+        for (index, locale) in locales.enumerated() {
+            entries.append(.transcriptionLocale(index: Int32(index), id: locale.id, title: locale.title, checked: locale.id == settings.transcriptionLocale))
+        }
+        var text = "Кнопка расшифровки появляется у голосовых и кружков. Есть Premium, расшифровывает Telegram. Нет Premium, расшифровывает сам телефон на выбранном языке, на сервер Telegram ничего не уходит. Если язык не скачан на телефон, iOS распознаёт через серверы Apple."
+        if !locales.contains(where: { $0.id == "uz-UZ" }) {
+            text += "\n\nУзбекский iOS пока не распознаёт, поэтому его нет в списке."
+        }
+        entries.append(.transcriptionFooter(text))
+    } else {
+        entries.append(.transcriptionFooter("Без Premium кнопки расшифровки не будет."))
     }
 
     entries.append(.locationHeader)
@@ -556,6 +607,12 @@ public func dkxSettingsController(context: AccountContext) -> ViewController {
         },
         updateUnansweredHours: { value in
             update { $0.unansweredHours = value }
+        },
+        updateTranscription: { value in
+            update { $0.localTranscription = value }
+        },
+        updateTranscriptionLocale: { value in
+            update { $0.transcriptionLocale = value }
         },
         openQuickReplies: {
             pushControllerImpl?(dkxQuickRepliesController(context: context))

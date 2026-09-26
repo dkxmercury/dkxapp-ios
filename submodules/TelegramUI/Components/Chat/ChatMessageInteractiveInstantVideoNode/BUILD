@@ -28,6 +28,8 @@ swift_library(
         "//submodules/ComponentFlow",
         "//submodules/TelegramUI/Components/AudioTranscriptionButtonComponent",
         "//submodules/UndoUI",
+        "//submodules/TelegramUIPreferences",
+        "//submodules/Media/LocalAudioTranscription",
         "//submodules/TelegramNotices",
         "//submodules/Markdown",
         "//submodules/TextFormat",
