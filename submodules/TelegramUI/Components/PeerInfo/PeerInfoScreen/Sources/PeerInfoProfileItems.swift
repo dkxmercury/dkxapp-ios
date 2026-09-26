@@ -854,6 +854,7 @@ func infoItems(
         if let dkxDriveItem = dkxChatMediaDriveItem(id: 97, peerId: channel.id, context: context, interaction: interaction) {
             items[.peerInfo]!.append(dkxDriveItem)
         }
+        items[.peerInfo]!.append(dkxAnalyticsItem(id: 96, peerId: channel.id, context: context, interaction: interaction))
     } else if case let .legacyGroup(group) = data.peer {
         if let cachedData = data.cachedData as? CachedGroupData {
             let aboutText: String?
@@ -885,6 +886,7 @@ func infoItems(
         if let dkxDriveItem = dkxChatMediaDriveItem(id: 97, peerId: group.id, context: context, interaction: interaction) {
             items[.peerInfo]!.append(dkxDriveItem)
         }
+        items[.peerInfo]!.append(dkxAnalyticsItem(id: 96, peerId: group.id, context: context, interaction: interaction))
     }
     
     if let peer = data.peer, let members = data.members, case let .shortList(_, memberList) = members {

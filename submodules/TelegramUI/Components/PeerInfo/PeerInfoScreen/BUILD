@@ -176,6 +176,8 @@ swift_library(
         "//submodules/TelegramUI/Components/AlertComponent/AlertTransferHeaderComponent",
         "//submodules/TelegramUI/Components/HorizontalTabsComponent",
         "//submodules/TelegramUI/Components/PeerInfo/AccountPeerContextItem",
+        "//third-party/ZipArchive:ZipArchive",
+        "//submodules/TelegramUI/Components/DkxTextImprove",
     ],
     visibility = [
         "//visibility:public",
