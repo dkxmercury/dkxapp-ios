@@ -95,6 +95,7 @@ func dkxUploadMessageToDrive(context: AccountContext, message: Message, present:
     let chatTitle = (message.peers[message.id.peerId].flatMap { EnginePeer($0).displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder) }) ?? ""
 
     let signal = fetch
+    |> map { _ -> String in }
     |> then(path)
     |> mapToSignal { filePath -> Signal<DkxGoogleDriveUploadResult, NoError> in
         return DkxGoogleDriveUpload.upload(filePath: filePath, fileName: media.fileName, mimeType: media.mimeType, chatId: message.id.peerId.toInt64(), chatTitle: chatTitle, messageId: message.id.id)
