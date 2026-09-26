@@ -805,6 +805,11 @@ private let dkxStringsJSON = #"""
   "uk": "d MMMM 'о' H:mm",
   "uz": "d-MMMM, 'soat' H:mm"
  },
+ "iOS не ответила за 90 секунд": {
+  "en": "iOS didn't respond within 90 seconds",
+  "uk": "iOS не відповіла за 90 секунд",
+  "uz": "iOS 90 soniya ichida javob bermadi"
+ },
  "iOS при каждой смене значка показывает окно, что значок изменён.\n\nВ Telegram свой выбор значка в «Оформлении» остался как был. Новые картинки добавляются в сборку, с телефона их не поставить.": {
   "ar": "يعرض iOS عند كل تغيير للأيقونة نافذة تفيد بأنها تغيّرت.\n\nاختيار الأيقونة الخاص بـ Telegram في «المظهر» بقي كما هو. تُضاف الصور الجديدة عند بناء التطبيق، ولا يمكن تثبيتها من الهاتف.",
   "be": "iOS пры кожнай змене значка паказвае акно, што значок зменены.\n\nУ Telegram уласны выбар значка ў «Афармленні» застаўся як быў. Новыя карцінкі дадаюцца ў зборку, з тэлефона іх не паставіць.",
@@ -1155,25 +1160,10 @@ private let dkxStringsJSON = #"""
   "uk": "«Мої справи» в налаштуваннях",
   "uz": "Sozlamalarda “Vazifalarim”"
  },
- "«Напомнить позже» у чатов и сообщений": {
-  "ar": "«ذكّرني لاحقًا» للمحادثات والرسائل",
-  "be": "«Нагадаць пазней» для чатаў і паведамленняў",
-  "ca": "«Recorda-m'ho més tard» als xats i missatges",
-  "de": "„Später erinnern“ bei Chats und Nachrichten",
-  "en": "“Remind me later” for chats and messages",
-  "es": "«Recordar más tarde» en chats y mensajes",
-  "fa": "«بعداً یادآوری کن» برای گفتگوها و پیام‌ها",
-  "fr": "« Me rappeler plus tard » pour les discussions et messages",
-  "id": "“Ingatkan nanti” untuk obrolan dan pesan",
-  "it": "«Ricordamelo più tardi» per chat e messaggi",
-  "ko": "대화와 메시지에 ‘나중에 알림’",
-  "ms": "“Ingatkan kemudian” untuk bual dan mesej",
-  "nl": "“Later herinneren” bij chats en berichten",
-  "pl": "„Przypomnij później” dla czatów i wiadomości",
-  "pt": "“Lembrar mais tarde” em chats e mensagens",
-  "tr": "Sohbetlerde ve mesajlarda “Daha sonra hatırlat”",
-  "uk": "«Нагадати пізніше» для чатів і повідомлень",
-  "uz": "Chatlar va xabarlarda “Keyinroq eslatish”"
+ "«Напомнить позже»": {
+  "en": "“Remind me later”",
+  "uk": "«Нагадати пізніше»",
+  "uz": "“Keyinroq eslatish”"
  },
  "«Пароли» в настройках": {
   "ar": "«كلمات المرور» في الإعدادات",
@@ -1379,6 +1369,11 @@ private let dkxStringsJSON = #"""
   "tr": "Tarihsiz",
   "uk": "Без дати",
   "uz": "Sanasiz"
+ },
+ "Без навязывания пропадут плашки и экраны покупки Premium, пункты Premium, Business и подарков в настройках, значки подарков в поле ввода, а при наборе будут предлагаться только ваши стикеры, без чужих паков. Если Premium уже есть, он продолжит работать. Покупка Stars остаётся. Применяется при следующем открытии экрана.": {
+  "en": "Without upsells, Premium banners and purchase screens disappear, as do the Premium, Business and gift rows in settings and the gift icons in the input field, and while typing only your own stickers are suggested, without other packs. If you already have Premium, it keeps working. Buying Stars remains. Applies the next time the screen opens.",
+  "uk": "Без навʼязування зникнуть плашки й екрани купівлі Premium, пункти Premium, Business і подарунків у налаштуваннях, значки подарунків у полі введення, а під час набору пропонуватимуться лише ваші стікери, без чужих паків. Якщо Premium уже є, він і далі працюватиме. Купівля Stars лишається. Застосовується під час наступного відкриття екрана.",
+  "uz": "Premium reklamasi olib tashlansa, Premium bannerlari va xarid ekranlari, sozlamalardagi Premium, Business va hadyalar bandlari, kiritish maydonidagi hadya belgilari yoʻqoladi, yozish paytida esa boshqa toʻplamlarsiz faqat sizning stikerlaringiz taklif qilinadi. Agar Premium allaqachon boʻlsa, u ishlashda davom etadi. Stars xarid qilish qoladi. Oʻzgarishlar ekran keyingi safar ochilganda qoʻllanadi."
  },
  "Без названия": {
   "ar": "بلا عنوان",
@@ -2775,26 +2770,6 @@ private let dkxStringsJSON = #"""
   "uk": "Чекає понад годину",
   "uz": "Bir soatdan ortiq kutmoqda"
  },
- "Журнал Dkx": {
-  "ar": "سجل Dkx",
-  "be": "Журнал Dkx",
-  "ca": "Registre de Dkx",
-  "de": "Dkx-Protokoll",
-  "en": "Dkx log",
-  "es": "Registro de Dkx",
-  "fa": "گزارش Dkx",
-  "fr": "Journal Dkx",
-  "id": "Log Dkx",
-  "it": "Log di Dkx",
-  "ko": "Dkx 로그",
-  "ms": "Log Dkx",
-  "nl": "Dkx-logboek",
-  "pl": "Dziennik Dkx",
-  "pt": "Log do Dkx",
-  "tr": "Dkx günlüğü",
-  "uk": "Журнал Dkx",
-  "uz": "Dkx jurnali"
- },
  "ЗАМЕТКА": {
   "ar": "ملاحظة",
   "be": "НАТАТКА",
@@ -4130,25 +4105,15 @@ private let dkxStringsJSON = #"""
   "uk": "Стрічка справ",
   "uz": "Vazifalar tasmasi"
  },
- "Лента историй над списком чатов исчезнет полностью. Сами истории останутся доступны в профилях.\n\nБез навязывания пропадут плашки и экраны покупки Premium, пункты Premium, Business и подарков в настройках, значки подарков в поле ввода, а при наборе будут предлагаться только ваши стикеры, без чужих паков. Если Premium уже есть, он продолжит работать. Покупка Stars остаётся. Применяется при следующем открытии экрана.": {
-  "ar": "سيختفي شريط القصص فوق قائمة المحادثات تمامًا. تبقى القصص نفسها متاحة في الملفات الشخصية.\n\nعند إزالة الإعلانات ستختفي لافتات Premium وشاشات شرائه، وبنود Premium وBusiness والهدايا في الإعدادات، وأيقونات الهدايا في حقل الإدخال، وعند الكتابة ستُقترح ملصقاتك فقط دون حزم الآخرين. إذا كان لديك Premium بالفعل فسيستمر في العمل. يبقى شراء Stars متاحًا. يُطبَّق عند فتح الشاشة في المرة التالية.",
-  "be": "Стужка гісторый над спісам чатаў знікне цалкам. Самі гісторыі застануцца даступнымі ў профілях.\n\nБез навязвання знікнуць плашкі і экраны куплі Premium, пункты Premium, Business і падарункаў у наладах, значкі падарункаў у полі ўводу, а пры наборы будуць прапаноўвацца толькі вашы стыкеры, без чужых пакаў. Калі Premium ужо ёсць, ён будзе працаваць і далей. Купля Stars застаецца. Прымяняецца пры наступным адкрыцці экрана.",
-  "ca": "La barra d'històries sobre la llista de xats desapareixerà del tot. Les històries continuaran disponibles als perfils.\n\nSense promocions desapareixeran els bàners i les pantalles de compra de Premium, les files de Premium, Business i regals a la configuració i les icones de regal al camp de text, i en escriure només se suggeriran els vostres adhesius, sense paquets d'altri. Si ja teniu Premium, continuarà funcionant. La compra de Stars es manté. S'aplica la pròxima vegada que s'obri la pantalla.",
-  "de": "Die Story-Leiste über der Chatliste verschwindet komplett. Die Storys selbst bleiben in den Profilen verfügbar.\n\nOhne Premium-Werbung verschwinden die Banner und Kaufbildschirme von Premium, die Punkte Premium, Business und Geschenke in den Einstellungen und die Geschenk-Symbole im Eingabefeld, und beim Tippen werden nur deine eigenen Sticker vorgeschlagen, ohne fremde Pakete. Wenn du Premium schon hast, funktioniert es weiter. Der Kauf von Stars bleibt. Wird beim nächsten Öffnen des Bildschirms übernommen.",
-  "en": "The stories bar above the chat list disappears completely. Stories themselves stay available in profiles.\n\nWithout upsells, Premium banners and purchase screens disappear, as do the Premium, Business and gift rows in settings and the gift icons in the input field, and while typing only your own stickers are suggested, without other packs. If you already have Premium, it keeps working. Buying Stars remains. Applies the next time the screen opens.",
-  "es": "La barra de historias sobre la lista de chats desaparecerá por completo. Las historias seguirán disponibles en los perfiles.\n\nSin promociones desaparecerán los banners y las pantallas de compra de Premium, las filas de Premium, Business y regalos en ajustes y los iconos de regalo en el campo de texto, y al escribir solo se sugerirán tus propios stickers, sin paquetes ajenos. Si ya tienes Premium, seguirá funcionando. La compra de Stars se mantiene. Se aplica la próxima vez que se abra la pantalla.",
-  "fa": "نوار استوری‌ها بالای فهرست گفتگوها کاملاً ناپدید می‌شود. خود استوری‌ها در پروفایل‌ها در دسترس می‌مانند.\n\nبا حذف تبلیغ، بنرها و صفحه‌های خرید Premium، ردیف‌های Premium و Business و هدیه در تنظیمات و آیکون‌های هدیه در فیلد ورودی ناپدید می‌شوند و هنگام تایپ فقط استیکرهای خودتان پیشنهاد می‌شود، بدون بسته‌های دیگران. اگر Premium دارید، همچنان کار می‌کند. خرید Stars باقی می‌ماند. با باز شدن دوباره صفحه اعمال می‌شود.",
-  "fr": "La barre des stories au-dessus de la liste des discussions disparaît complètement. Les stories restent accessibles dans les profils.\n\nSans incitations Premium, les bannières et écrans d'achat Premium disparaissent, ainsi que les lignes Premium, Business et cadeaux dans les paramètres et les icônes de cadeau dans le champ de saisie, et pendant la saisie seuls vos propres stickers sont suggérés, sans les packs des autres. Si vous avez déjà Premium, il continue de fonctionner. L'achat de Stars reste possible. S'applique à la prochaine ouverture de l'écran.",
-  "id": "Deretan cerita di atas daftar obrolan akan hilang sepenuhnya. Ceritanya sendiri tetap bisa dilihat di profil.\n\nTanpa promosi, banner dan layar pembelian Premium akan hilang, begitu juga item Premium, Business, dan hadiah di pengaturan, ikon hadiah di kolom pesan, dan saat mengetik hanya stiker Anda sendiri yang disarankan, tanpa paket orang lain. Jika Anda sudah punya Premium, Premium tetap berfungsi. Pembelian Stars tetap ada. Berlaku saat layar dibuka berikutnya.",
-  "it": "La barra delle storie sopra l'elenco delle chat sparirà del tutto. Le storie restano disponibili nei profili.\n\nSenza promozioni spariranno i banner e le schermate di acquisto di Premium, le voci Premium, Business e regali nelle impostazioni e le icone dei regali nel campo di testo, e mentre scrivi verranno suggeriti solo i tuoi sticker, senza pacchetti altrui. Se hai già Premium, continuerà a funzionare. L'acquisto di Stars resta. Si applica alla prossima apertura della schermata.",
-  "ko": "대화 목록 위의 스토리 바가 완전히 사라집니다. 스토리 자체는 프로필에서 계속 볼 수 있습니다.\n\n홍보를 숨기면 Premium 배너와 구매 화면, 설정의 Premium, Business, 선물 항목, 입력창의 선물 아이콘이 사라지고, 입력할 때 다른 사람의 팩 없이 내 스티커만 추천됩니다. 이미 Premium이 있다면 계속 작동합니다. Stars 구매는 그대로 남습니다. 다음에 화면을 열 때 적용됩니다.",
-  "ms": "Barisan stori di atas senarai bual akan hilang sepenuhnya. Stori itu sendiri kekal boleh dilihat dalam profil.\n\nTanpa promosi, sepanduk dan skrin pembelian Premium akan hilang, begitu juga item Premium, Business dan hadiah dalam tetapan, ikon hadiah di ruang mesej, dan semasa menaip hanya stiker anda sendiri dicadangkan, tanpa pek orang lain. Jika anda sudah ada Premium, ia akan terus berfungsi. Pembelian Stars kekal. Berkuat kuasa apabila skrin dibuka seterusnya.",
-  "nl": "De verhalenbalk boven de chatlijst verdwijnt volledig. De verhalen zelf blijven beschikbaar in profielen.\n\nZonder Premium-reclame verdwijnen de banners en aankoopschermen van Premium, de onderdelen Premium, Business en cadeaus in de instellingen en de cadeau-iconen in het invoerveld, en tijdens het typen worden alleen je eigen stickers voorgesteld, zonder pakketten van anderen. Heb je al Premium, dan blijft het werken. Stars kopen blijft mogelijk. Wordt toegepast als het scherm opnieuw wordt geopend.",
-  "pl": "Pasek relacji nad listą czatów zniknie całkowicie. Same relacje pozostaną dostępne w profilach.\n\nBez nachalnych reklam znikną banery i ekrany zakupu Premium, pozycje Premium, Business i prezentów w ustawieniach, ikony prezentów w polu wpisywania, a podczas pisania będą podpowiadane tylko twoje naklejki, bez cudzych pakietów. Jeśli masz już Premium, będzie działać dalej. Zakup Stars pozostaje. Zmiana działa przy następnym otwarciu ekranu.",
-  "pt": "A barra de stories acima da lista de chats desaparece por completo. Os stories em si continuam disponíveis nos perfis.\n\nSem as ofertas, somem os banners e as telas de compra do Premium, os itens Premium, Business e de presentes nas configurações, os ícones de presente no campo de mensagem, e ao digitar só os seus stickers são sugeridos, sem pacotes de outras pessoas. Se você já tem Premium, ele continua funcionando. A compra de Stars continua. Vale na próxima vez que a tela for aberta.",
-  "tr": "Sohbet listesinin üstündeki hikaye şeridi tamamen kaybolur. Hikayelerin kendisi profillerde erişilebilir kalır.\n\nPremium reklamları kaldırılınca Premium afişleri ve satın alma ekranları, ayarlardaki Premium, Business ve hediye satırları, giriş alanındaki hediye simgeleri kaybolur, yazarken de başka paketler olmadan yalnızca sizin çıkartmalarınız önerilir. Premium zaten varsa çalışmaya devam eder. Stars satın alma kalır. Değişiklikler ekran bir sonraki açıldığında uygulanır.",
-  "uk": "Стрічка історій над списком чатів зникне повністю. Самі історії залишаться доступними в профілях.\n\nБез навʼязування зникнуть плашки й екрани купівлі Premium, пункти Premium, Business і подарунків у налаштуваннях, значки подарунків у полі введення, а під час набору пропонуватимуться лише ваші стікери, без чужих паків. Якщо Premium уже є, він і далі працюватиме. Купівля Stars лишається. Застосовується під час наступного відкриття екрана.",
-  "uz": "Chatlar roʻyxati ustidagi hikoyalar tasmasi butunlay yoʻqoladi. Hikoyalarning oʻzi profillarda ochiq qoladi.\n\nPremium reklamasi olib tashlansa, Premium bannerlari va xarid ekranlari, sozlamalardagi Premium, Business va hadyalar bandlari, kiritish maydonidagi hadya belgilari yoʻqoladi, yozish paytida esa boshqa toʻplamlarsiz faqat sizning stikerlaringiz taklif qilinadi. Agar Premium allaqachon boʻlsa, u ishlashda davom etadi. Stars xarid qilish qoladi. Oʻzgarishlar ekran keyingi safar ochilganda qoʻllanadi."
+ "Лента историй": {
+  "en": "Stories bar",
+  "uk": "Стрічка історій",
+  "uz": "Hikoyalar tasmasi"
+ },
+ "Лента историй над списком чатов исчезнет полностью. Сами истории останутся доступны в профилях.": {
+  "en": "The stories bar above the chat list disappears completely. Stories themselves stay available in profiles.",
+  "uk": "Стрічка історій над списком чатів зникне повністю. Самі історії залишаться доступними в профілях.",
+  "uz": "Chatlar roʻyxati ustidagi hikoyalar tasmasi butunlay yoʻqoladi. Hikoyalarning oʻzi profillarda ochiq qoladi."
  },
  "Личные сообщения": {
   "en": "Private messages",
@@ -5215,25 +5180,15 @@ private let dkxStringsJSON = #"""
   "uk": "Не вдалося записати файл",
   "uz": "Faylni yozib boʻlmadi"
  },
- "Не удалось расшифровать. Проверьте язык в Dkx, раздел «Расшифровка голосовых», и что запись загружена.": {
-  "ar": "تعذّر التحويل إلى نص. تحقّق من اللغة في Dkx، قسم «تحويل الرسائل الصوتية إلى نص»، ومن أن التسجيل منزّل.",
-  "be": "Не ўдалося расшыфраваць. Праверце мову ў Dkx, раздзел «Расшыфроўка галасавых», і што запіс спампаваны.",
-  "ca": "No s'ha pogut transcriure. Comproveu la llengua a Dkx, secció «Transcripció de veu», i que l'enregistrament estigui baixat.",
-  "de": "Transkription fehlgeschlagen. Prüfe die Sprache in Dkx, Bereich „Transkription von Sprachnachrichten“, und ob die Aufnahme geladen ist.",
-  "en": "Couldn't transcribe. Check the language in Dkx, “Voice transcription” section, and that the recording is downloaded.",
-  "es": "No se pudo transcribir. Comprueba el idioma en Dkx, sección «Transcripción de voz», y que la grabación esté descargada.",
-  "fa": "تبدیل به متن ناموفق بود. زبان را در Dkx، بخش «تبدیل پیام صوتی به متن»، بررسی کنید و مطمئن شوید پیام دانلود شده است.",
-  "fr": "Échec de la transcription. Vérifiez la langue dans Dkx, section « Transcription des messages vocaux », et que l'enregistrement est téléchargé.",
-  "id": "Gagal mentranskripsi. Periksa bahasa di Dkx, bagian “Transkripsi pesan suara”, dan pastikan rekaman sudah diunduh.",
-  "it": "Impossibile trascrivere. Controlla la lingua in Dkx, sezione «Trascrizione dei vocali», e che la registrazione sia scaricata.",
-  "ko": "텍스트로 변환하지 못했습니다. Dkx의 ‘음성 메시지 텍스트 변환’ 섹션에서 언어를 확인하고, 녹음이 다운로드되었는지 확인하세요.",
-  "ms": "Gagal membuat transkripsi. Semak bahasa dalam Dkx, bahagian “Transkripsi mesej suara”, dan pastikan rakaman sudah dimuat turun.",
-  "nl": "Transcriberen mislukt. Controleer de taal in Dkx, onderdeel “Transcriptie van spraakberichten”, en of de opname gedownload is.",
-  "pl": "Transkrypcja się nie udała. Sprawdź język w Dkx, sekcja „Transkrypcja głosowych”, i czy nagranie jest pobrane.",
-  "pt": "Não foi possível transcrever. Verifique o idioma no Dkx, seção “Transcrição de voz”, e se a gravação foi baixada.",
-  "tr": "Metne dönüştürülemedi. Dkx ayarlarındaki “Sesli mesajları metne dönüştürme” bölümünde dili ve kaydın indirildiğini kontrol edin.",
-  "uk": "Не вдалося розшифрувати. Перевірте мову в Dkx, розділ «Розшифрування голосових», і що запис завантажено.",
-  "uz": "Matnga aylantirib boʻlmadi. Dkx ichidagi “Ovozli xabarlarni matnga aylantirish” boʻlimida tilni tekshiring va yozuv yuklab olinganiga ishonch hosil qiling."
+ "Не удалось расшифровать, {}.": {
+  "en": "Couldn't transcribe, {}.",
+  "uk": "Не вдалося розшифрувати, {}.",
+  "uz": "Matnga aylantirib boʻlmadi, {}."
+ },
+ "Не удалось расшифровать. Проверьте язык в Dkx, раздел «Расшифровка голосовых».": {
+  "en": "Couldn't transcribe. Check the language in Dkx, “Voice transcription” section.",
+  "uk": "Не вдалося розшифрувати. Перевірте мову в Dkx, розділ «Розшифрування голосових».",
+  "uz": "Matnga aylantirib boʻlmadi. Dkx ichidagi “Ovozli xabarlarni matnga aylantirish” boʻlimida tilni tekshiring."
  },
  "Не удалось собрать таблицу": {
   "en": "Could not build the spreadsheet",
@@ -5504,26 +5459,6 @@ private let dkxStringsJSON = #"""
   "en": "MAIN SERVICE",
   "uk": "ОСНОВНИЙ СЕРВІС",
   "uz": "ASOSIY XIZMAT"
- },
- "ОТЛАДКА": {
-  "ar": "التنقيح",
-  "be": "АДЛАДКА",
-  "ca": "DEPURACIÓ",
-  "de": "DEBUGGING",
-  "en": "DEBUG",
-  "es": "DEPURACIÓN",
-  "fa": "اشکال‌زدایی",
-  "fr": "DÉBOGAGE",
-  "id": "DEBUG",
-  "it": "DEBUG",
-  "ko": "디버그",
-  "ms": "NYAHPEPIJAT",
-  "nl": "DEBUGGEN",
-  "pl": "DEBUGOWANIE",
-  "pt": "DEPURAÇÃO",
-  "tr": "HATA AYIKLAMA",
-  "uk": "НАЛАГОДЖЕННЯ",
-  "uz": "NOSOZLIKLARNI TUZATISH"
  },
  "Обратно": {
   "ar": "عكس الاتجاه",
@@ -5844,26 +5779,6 @@ private let dkxStringsJSON = #"""
   "en": "Where members come from",
   "uk": "Звідки учасники",
   "uz": "Aʼzolar qayerdan"
- },
- "Отладочное меню Telegram": {
-  "ar": "قائمة التنقيح في Telegram",
-  "be": "Адладачнае меню Telegram",
-  "ca": "Menú de depuració de Telegram",
-  "de": "Telegram-Debug-Menü",
-  "en": "Telegram debug menu",
-  "es": "Menú de depuración de Telegram",
-  "fa": "منوی اشکال‌زدایی Telegram",
-  "fr": "Menu de débogage Telegram",
-  "id": "Menu debug Telegram",
-  "it": "Menu di debug di Telegram",
-  "ko": "Telegram 디버그 메뉴",
-  "ms": "Menu nyahpepijat Telegram",
-  "nl": "Telegram-debugmenu",
-  "pl": "Menu debugowania Telegram",
-  "pt": "Menu de depuração do Telegram",
-  "tr": "Telegram hata ayıklama menüsü",
-  "uk": "Меню налагодження Telegram",
-  "uz": "Telegram nosozliklarni tuzatish menyusi"
  },
  "Отмена": {
   "ar": "إلغاء",
@@ -6469,26 +6384,6 @@ private let dkxStringsJSON = #"""
   "tr": "Parolayı göster",
   "uk": "Показати пароль",
   "uz": "Parolni koʻrsatish"
- },
- "Полные логи Telegram пишутся только по запросу. В отладочном меню включите Log to File, повторите проблему и нажмите Send Logs там же.": {
-  "ar": "لا تُكتب سجلات Telegram الكاملة إلا عند الطلب. في قائمة التنقيح فعّل Log to File، وكرّر المشكلة، ثم اضغط Send Logs في القائمة نفسها.",
-  "be": "Поўныя логі Telegram пішуцца толькі па запыце. У адладачным меню ўключыце Log to File, паўтарыце праблему і націсніце Send Logs там жа.",
-  "ca": "Els registres complets de Telegram només s'escriuen quan es demanen. Al menú de depuració activeu Log to File, reproduïu el problema i toqueu Send Logs al mateix menú.",
-  "de": "Vollständige Telegram-Logs werden nur auf Anfrage geschrieben. Schalte im Debug-Menü Log to File ein, wiederhole das Problem und tippe dort auf Send Logs.",
-  "en": "Full Telegram logs are written only on request. In the debug menu, turn on Log to File, reproduce the problem and tap Send Logs there.",
-  "es": "Los registros completos de Telegram solo se escriben a petición. En el menú de depuración activa Log to File, reproduce el problema y toca Send Logs ahí mismo.",
-  "fa": "گزارش‌های کامل Telegram فقط در صورت درخواست نوشته می‌شوند. در منوی اشکال‌زدایی Log to File را روشن کنید، مشکل را تکرار کنید و همان‌جا Send Logs را بزنید.",
-  "fr": "Les journaux complets de Telegram ne sont écrits que sur demande. Dans le menu de débogage, activez Log to File, reproduisez le problème et touchez Send Logs au même endroit.",
-  "id": "Log lengkap Telegram hanya ditulis jika diminta. Di menu debug, aktifkan Log to File, ulangi masalahnya, lalu ketuk Send Logs di menu yang sama.",
-  "it": "I log completi di Telegram vengono scritti solo su richiesta. Nel menu di debug attiva Log to File, riproduci il problema e tocca Send Logs nello stesso menu.",
-  "ko": "Telegram 전체 로그는 요청할 때만 기록됩니다. 디버그 메뉴에서 Log to File을 켜고, 문제를 재현한 뒤 같은 곳에서 Send Logs를 탭하세요.",
-  "ms": "Log penuh Telegram hanya ditulis apabila diminta. Dalam menu nyahpepijat, hidupkan Log to File, ulangi masalah itu, kemudian tekan Send Logs dalam menu yang sama.",
-  "nl": "Volledige Telegram-logs worden alleen op verzoek geschreven. Zet in het debugmenu Log to File aan, herhaal het probleem en tik daar op Send Logs.",
-  "pl": "Pełne logi Telegram zapisują się tylko na żądanie. W menu debugowania włącz Log to File, powtórz problem i stuknij tam Send Logs.",
-  "pt": "Os logs completos do Telegram só são gravados quando solicitado. No menu de depuração, ative Log to File, repita o problema e toque em Send Logs no mesmo menu.",
-  "tr": "Tam Telegram günlükleri yalnızca istek üzerine yazılır. Hata ayıklama menüsünde Log to File seçeneğini açın, sorunu tekrarlayın ve yine orada Send Logs seçeneğine dokunun.",
-  "uk": "Повні логи Telegram пишуться лише на запит. У меню налагодження ввімкніть Log to File, повторіть проблему й натисніть Send Logs там само.",
-  "uz": "Telegramning toʻliq loglari faqat soʻrov boʻyicha yoziladi. Nosozliklarni tuzatish menyusida Log to File bandini yoqing, muammoni takrorlang va oʻsha yerda Send Logs bandini bosing."
  },
  "Половину просмотров пост набрал за первые {} дн.": {
   "en": "The post got half of its views in the first {} d.",
@@ -7110,6 +7005,11 @@ private let dkxStringsJSON = #"""
   "uk": "ПОВІДОМЛЕННЯ",
   "uz": "XABARLAR"
  },
+ "СПИСОК ЧАТОВ": {
+  "en": "CHAT LIST",
+  "uk": "СПИСОК ЧАТІВ",
+  "uz": "CHATLAR ROʻYXATI"
+ },
  "СТИЛЬ": {
   "ar": "الأسلوب",
   "be": "СТЫЛЬ",
@@ -7360,25 +7260,10 @@ private let dkxStringsJSON = #"""
   "uk": "Приховано Face ID",
   "uz": "Face ID bilan berkitilgan"
  },
- "Скрыть ленту историй": {
-  "ar": "إخفاء شريط القصص",
-  "be": "Схаваць стужку гісторый",
-  "ca": "Amaga la barra d'històries",
-  "de": "Story-Leiste ausblenden",
-  "en": "Hide stories bar",
-  "es": "Ocultar barra de historias",
-  "fa": "پنهان کردن نوار استوری‌ها",
-  "fr": "Masquer la barre des stories",
-  "id": "Sembunyikan deretan cerita",
-  "it": "Nascondi barra delle storie",
-  "ko": "스토리 바 숨기기",
-  "ms": "Sembunyikan barisan stori",
-  "nl": "Verhalenbalk verbergen",
-  "pl": "Ukryj pasek relacji",
-  "pt": "Ocultar barra de stories",
-  "tr": "Hikaye şeridini gizle",
-  "uk": "Сховати стрічку історій",
-  "uz": "Hikoyalar tasmasini berkitish"
+ "Скрыть": {
+  "en": "Hide",
+  "uk": "Сховати",
+  "uz": "Berkitish"
  },
  "Скрыть пароль": {
   "ar": "إخفاء كلمة المرور",
@@ -7399,26 +7284,6 @@ private let dkxStringsJSON = #"""
   "tr": "Parolayı gizle",
   "uk": "Сховати пароль",
   "uz": "Parolni berkitish"
- },
- "Скрыть разделы": {
-  "ar": "إخفاء الأقسام",
-  "be": "Схаваць раздзелы",
-  "ca": "Amaga seccions",
-  "de": "Bereiche ausblenden",
-  "en": "Hide sections",
-  "es": "Ocultar secciones",
-  "fa": "پنهان کردن بخش‌ها",
-  "fr": "Masquer des sections",
-  "id": "Sembunyikan bagian",
-  "it": "Nascondi sezioni",
-  "ko": "섹션 숨기기",
-  "ms": "Sembunyikan bahagian",
-  "nl": "Onderdelen verbergen",
-  "pl": "Ukryj sekcje",
-  "pt": "Ocultar seções",
-  "tr": "Bölümleri gizle",
-  "uk": "Сховати розділи",
-  "uz": "Boʻlimlarni berkitish"
  },
  "Следующие": {
   "en": "Next",
@@ -9065,6 +8930,11 @@ private let dkxStringsJSON = #"""
   "uk": "був допис",
   "uz": "post boʻlgan"
  },
+ "в записи не слышно речи": {
+  "en": "no speech can be heard in the recording",
+  "uk": "у записі не чути мовлення",
+  "uz": "yozuvda nutq eshitilmayapti"
+ },
  "в среднем {} просмотров к остальному времени": {
   "en": "{} views on average compared to other times",
   "uk": "у середньому {} переглядів порівняно з іншим часом",
@@ -9265,6 +9135,11 @@ private let dkxStringsJSON = #"""
   "uk": "нотатка",
   "uz": "qayd"
  },
+ "запись не скачалась за минуту, проверьте интернет": {
+  "en": "the recording didn't download within a minute, check your connection",
+  "uk": "запис не завантажився за хвилину, перевірте інтернет",
+  "uz": "yozuv bir daqiqada yuklab olinmadi, internetni tekshiring"
+ },
  "к числу подписчиков сейчас": {
   "en": "relative to current subscribers",
   "uk": "до кількості підписників зараз",
@@ -9390,6 +9265,11 @@ private let dkxStringsJSON = #"""
   "uk": "на рахунку сервісу немає грошей",
   "uz": "xizmat hisobida mablagʻ yoʻq"
  },
+ "на телефоне выключена диктовка. Включите её в настройках iOS, Основные, Клавиатура, «Включить диктовку», или включите Siri": {
+  "en": "dictation is turned off on this phone. Turn it on in iOS Settings, General, Keyboard, “Enable Dictation”, or turn on Siri",
+  "uk": "на телефоні вимкнено диктування. Увімкніть його в налаштуваннях iOS, Загальні, Клавіатура, «Увімкнути диктування», або увімкніть Siri",
+  "uz": "telefonda diktovka oʻchirilgan. Uni iOS sozlamalarida, Asosiy, Klaviatura, “Diktovkani yoqish” orqali yoqing yoki Siri yordamchisini yoqing"
+ },
  "напомнит в момент дела": {
   "ar": "تذكير في وقت المهمة",
   "be": "нагадае ў момант справы",
@@ -9514,6 +9394,16 @@ private let dkxStringsJSON = #"""
   "tr": "yüklenemedi {}",
   "uk": "не вдалося {}",
   "uz": "yuklanmadi {}"
+ },
+ "не удалось вынуть звук из кружка": {
+  "en": "couldn't extract audio from the video message",
+  "uk": "не вдалося витягти звук із відеоповідомлення",
+  "uz": "videoxabardan ovozni ajratib boʻlmadi"
+ },
+ "не удалось подготовить звук из записи": {
+  "en": "couldn't prepare audio from the recording",
+  "uk": "не вдалося підготувати звук із запису",
+  "uz": "yozuvdan ovozni tayyorlab boʻlmadi"
  },
  "не удалось подготовить файл": {
   "ar": "تعذّر تجهيز الملف",
@@ -9695,6 +9585,11 @@ private let dkxStringsJSON = #"""
   "uk": "відповідь {}",
   "uz": "javob kodi {}"
  },
+ "ошибка распознавания iOS {} {}": {
+  "en": "iOS recognition error {} {}",
+  "uk": "помилка розпізнавання iOS {} {}",
+  "uz": "iOS nutqni aniqlash xatosi {} {}"
+ },
  "пароль": {
   "ar": "كلمة المرور",
   "be": "пароль",
@@ -9845,6 +9740,11 @@ private let dkxStringsJSON = #"""
   "uk": "пт",
   "uz": "Ju"
  },
+ "распознавание вернуло пустой текст": {
+  "en": "recognition returned empty text",
+  "uk": "розпізнавання повернуло порожній текст",
+  "uz": "nutqni aniqlash boʻsh matn qaytardi"
+ },
  "реакций {}": {
   "en": "reactions {}",
   "uk": "реакцій {}",
@@ -9984,6 +9884,11 @@ private let dkxStringsJSON = #"""
   "tr": "servis isteği kabul etmedi",
   "uk": "сервіс не прийняв запит",
   "uz": "xizmat soʻrovni qabul qilmadi"
+ },
+ "служба распознавания iOS сейчас недоступна, попробуйте позже": {
+  "en": "the iOS recognition service is unavailable right now, try later",
+  "uk": "служба розпізнавання iOS зараз недоступна, спробуйте пізніше",
+  "uz": "iOS nutqni aniqlash xizmati hozir ishlamayapti, keyinroq urinib koʻring"
  },
  "сохранил": {
   "ar": "حفظك",
@@ -10209,6 +10114,11 @@ private let dkxStringsJSON = #"""
   "tr": "Per",
   "uk": "чт",
   "uz": "Pa"
+ },
+ "язык {} не поддерживается распознаванием iOS": {
+  "en": "language {} isn't supported by iOS recognition",
+  "uk": "мова {} не підтримується розпізнаванням iOS",
+  "uz": "{} tili iOS nutqni aniqlash tomonidan qoʻllab-quvvatlanmaydi"
  }
 }
 """#
