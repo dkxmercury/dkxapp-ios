@@ -14,6 +14,10 @@ import DeviceAccess
 import TelegramStringFormatting
 import PeerNameColorItem
 
+// Шестерёнка со вкладки «Настройки». Она нарисована во весь квадрат, поэтому
+// уменьшаем её до размера соседних значков строк.
+private let dkxSettingsIcon = renderSettingsIcon(name: "Chat List/Tabs/IconSettings", scaleFactor: 0.72, backgroundColors: [UIColor(rgb: 0x8E8E93)])
+
 enum SettingsSection: Int, CaseIterable {
     case edit
     case phone
@@ -163,6 +167,10 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
                 interaction.openSettings(.dkxPasswords)
             }))
         }
+        // MARK: DKX собственные настройки форка, под «Паролями»
+        items[.myProfile]!.append(PeerInfoScreenDisclosureItem(id: 52, text: "Dkx", icon: dkxSettingsIcon, action: {
+            interaction.openSettings(.dkx)
+        }))
         
         if !settings.proxySettings.servers.isEmpty {
             let proxyType: String
@@ -257,11 +265,6 @@ func settingsItems(data: PeerInfoScreenData?, context: AccountContext, presentat
         interaction.openSettings(.powerSaving)
     }))
     
-    // MARK: DKX собственные настройки форка
-    items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 7, text: "Dkx", icon: PresentationResourcesSettings.appearance, action: {
-        interaction.openSettings(.dkx)
-    }))
-
     let languageName = presentationData.strings.primaryComponent.localizedName
     items[.advanced]!.append(PeerInfoScreenDisclosureItem(id: 4, label: .text(languageName.isEmpty ? presentationData.strings.Localization_LanguageName : languageName), text: presentationData.strings.Settings_AppLanguage, icon: PresentationResourcesSettings.language, action: {
         interaction.openSettings(.language)
