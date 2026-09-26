@@ -401,7 +401,7 @@ final class DkxSpoofPanelController {
                     return
                 }
                 current.routePath = route?.path ?? []
-                current.routePathSource = route?.source ?? DkxStrings.tr("нет")
+                current.routePathSource = route?.source ?? "нет"
             })
         }))
     }
