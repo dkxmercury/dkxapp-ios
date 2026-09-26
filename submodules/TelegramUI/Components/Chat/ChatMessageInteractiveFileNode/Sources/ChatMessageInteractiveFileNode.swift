@@ -982,7 +982,8 @@ public final class ChatMessageInteractiveFileNode: ASDisplayNode {
                         animationCache: arguments.controllerInteraction.presentationContext.animationCache,
                         animationRenderer: arguments.controllerInteraction.presentationContext.animationRenderer,
                         // MARK: DKX пометка удалённого рядом с "изменено"
-                        dkxDeleted: arguments.message.attributes.contains(where: { $0 is DkxDeletedMessageAttribute })
+                        dkxDeleted: arguments.message.attributes.contains(where: { $0 is DkxDeletedMessageAttribute }),
+                        dkxOnDrive: DkxDriveUploadedIndex.contains(chatId: arguments.message.id.peerId.toInt64(), messageId: arguments.message.id.id)
                     ))
                 }
                 

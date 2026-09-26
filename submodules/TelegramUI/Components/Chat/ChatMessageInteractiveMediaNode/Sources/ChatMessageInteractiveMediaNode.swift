@@ -1135,7 +1135,8 @@ public final class ChatMessageInteractiveMediaNode: ASDisplayNode, GalleryItemTr
                     animationCache: presentationContext.animationCache,
                     animationRenderer: presentationContext.animationRenderer,
                     // MARK: DKX пометка удалённого рядом с "изменено"
-                    dkxDeleted: message.attributes.contains(where: { $0 is DkxDeletedMessageAttribute })
+                    dkxDeleted: message.attributes.contains(where: { $0 is DkxDeletedMessageAttribute }),
+                    dkxOnDrive: DkxDriveUploadedIndex.contains(chatId: message.id.peerId.toInt64(), messageId: message.id.id)
                 ))
                 
                 let (size, apply) = statusSuggestedWidthAndContinue.1(statusSuggestedWidthAndContinue.0)

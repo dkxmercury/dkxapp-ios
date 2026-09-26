@@ -33,9 +33,11 @@ public final class DkxGoogleDriveUploadJob {
     public let messageId: Int32
     // Докачивает файл из Telegram и отдаёт путь к нему
     public let prepare: Signal<String, NoError>
+    // Повторная загрузка по просьбе владельца, дубль на диске не проверяем
+    public let force: Bool
     public let completion: (DkxGoogleDriveUploadResult, DkxGoogleDriveBatchSummary?) -> Void
 
-    public init(fileName: String, mimeType: String, chatId: Int64, chatTitle: String, messageId: Int32, prepare: Signal<String, NoError>, completion: @escaping (DkxGoogleDriveUploadResult, DkxGoogleDriveBatchSummary?) -> Void) {
+    public init(fileName: String, mimeType: String, chatId: Int64, chatTitle: String, messageId: Int32, force: Bool = false, prepare: Signal<String, NoError>, completion: @escaping (DkxGoogleDriveUploadResult, DkxGoogleDriveBatchSummary?) -> Void) {
         var value: Int64 = 0
         arc4random_buf(&value, MemoryLayout<Int64>.size)
         self.id = value
@@ -44,6 +46,7 @@ public final class DkxGoogleDriveUploadJob {
         self.chatId = chatId
         self.chatTitle = chatTitle
         self.messageId = messageId
+        self.force = force
         self.prepare = prepare
         self.completion = completion
     }
@@ -151,8 +154,10 @@ public enum DkxGoogleDriveUploadQueue {
         switch result {
         case .uploaded:
             self.batchUploaded += 1
+            DkxDriveUploadedIndex.add(chatId: entry.job.chatId, messageId: entry.job.messageId)
         case .duplicate:
             self.batchDuplicates += 1
+            DkxDriveUploadedIndex.add(chatId: entry.job.chatId, messageId: entry.job.messageId)
         case .failed, .notConnected:
             self.batchFailed += 1
         case .cancelled:
@@ -336,7 +341,14 @@ public enum DkxGoogleDriveUpload {
                 return
             }
             let dedupKey = "\(job.chatId)_\(job.messageId)"
-            findDuplicate(token: token, key: dedupKey, completion: { exists in
+            let checkDuplicate: (@escaping (Bool) -> Void) -> Void = { done in
+                if job.force {
+                    done(false)
+                } else {
+                    findDuplicate(token: token, key: dedupKey, completion: done)
+                }
+            }
+            checkDuplicate({ exists in
                 if exists {
                     DkxLog.write("drive", "уже загружено, \(dedupKey)")
                     completion(.finished(.duplicate))

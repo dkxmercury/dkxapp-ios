@@ -184,6 +184,8 @@ public class ChatMessageDateAndStatusNode: ASDisplayNode {
         var edited: Bool
         // MARK: DKX сообщение удалено собеседником, но оставлено у нас
         var dkxDeleted: Bool
+        // MARK: DKX файл сообщения уже выгружен на Google Drive
+        var dkxOnDrive: Bool
         var impressionCount: Int?
         var dateText: String
         var type: ChatMessageDateAndStatusType
@@ -231,12 +233,14 @@ public class ChatMessageDateAndStatusNode: ASDisplayNode {
             canViewReactionList: Bool,
             animationCache: AnimationCache,
             animationRenderer: MultiAnimationRenderer,
-            dkxDeleted: Bool = false
+            dkxDeleted: Bool = false,
+            dkxOnDrive: Bool = false
         ) {
             self.context = context
             self.presentationData = presentationData
             self.edited = edited
             self.dkxDeleted = dkxDeleted
+            self.dkxOnDrive = dkxOnDrive
             self.impressionCount = impressionCount == 0 ? nil : impressionCount
             self.dateText = dateText
             self.type = type
@@ -547,6 +551,9 @@ public class ChatMessageDateAndStatusNode: ASDisplayNode {
             // Ставим первой, чтобы читалось как "удалено, изменено 12:30".
             if arguments.dkxDeleted {
                 updatedDateText = "удалено " + updatedDateText
+            }
+            if arguments.dkxOnDrive {
+                updatedDateText = "на диске " + updatedDateText
             }
             if arguments.edited {
                 if let useEditedTimestamp = arguments.context.getAppConfigValue("message_primary_edited_date") as? Bool, useEditedTimestamp {

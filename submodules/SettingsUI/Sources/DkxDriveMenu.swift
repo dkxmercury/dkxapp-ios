@@ -22,6 +22,12 @@ public func dkxDriveMenuApplicable(messages: [Message]) -> Bool {
     return messages.contains(where: { !$0.containsSecretMedia && dkxDrivePickMedia(message: $0) != nil })
 }
 
+// Все медиа из выбранного уже на диске, пункт меню тогда «Повторно загрузить»
+public func dkxDriveAlreadyUploaded(messages: [Message]) -> Bool {
+    let candidates = messages.filter { !$0.containsSecretMedia && dkxDrivePickMedia(message: $0) != nil }
+    return !candidates.isEmpty && candidates.allSatisfy { DkxDriveUploadedIndex.contains(chatId: $0.id.peerId.toInt64(), messageId: $0.id.id) }
+}
+
 private struct DkxDriveMedia {
     let resource: MediaResource
     let fileReference: FileMediaReference?
@@ -52,7 +58,7 @@ private func dkxDrivePickMedia(message: Message) -> DkxDriveMedia? {
     return nil
 }
 
-public func dkxUploadMessagesToDrive(context: AccountContext, messages: [Message], present: @escaping (ViewController, Any?) -> Void) {
+public func dkxUploadMessagesToDrive(context: AccountContext, messages: [Message], force: Bool = false, present: @escaping (ViewController, Any?) -> Void) {
     let presentationData = context.sharedContext.currentPresentationData.with { $0 }
     let showToast: (String) -> Void = { text in
         let presentationData = context.sharedContext.currentPresentationData.with { $0 }
@@ -95,7 +101,7 @@ public func dkxUploadMessagesToDrive(context: AccountContext, messages: [Message
 
         // Загрузка идёт фоном, ход виден в полосе под шапкой. Экран не держим.
         // По отдельному файлу говорим только об ошибке, остальное одним итогом.
-        DkxGoogleDriveUploadQueue.enqueue(DkxGoogleDriveUploadJob(fileName: fileName, mimeType: media.mimeType, chatId: message.id.peerId.toInt64(), chatTitle: chatTitle, messageId: message.id.id, prepare: prepare, completion: { result, summary in
+        DkxGoogleDriveUploadQueue.enqueue(DkxGoogleDriveUploadJob(fileName: fileName, mimeType: media.mimeType, chatId: message.id.peerId.toInt64(), chatTitle: chatTitle, messageId: message.id.id, force: force, prepare: prepare, completion: { result, summary in
             if case let .failed(reason) = result {
                 showToast("Не удалось загрузить \(fileName). \(reason)")
             } else if case .notConnected = result, summary != nil {

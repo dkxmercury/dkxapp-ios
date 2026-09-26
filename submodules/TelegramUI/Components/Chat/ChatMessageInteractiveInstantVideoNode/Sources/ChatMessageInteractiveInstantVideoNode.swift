@@ -599,7 +599,8 @@ public class ChatMessageInteractiveInstantVideoNode: ASDisplayNode {
                 animationCache: item.controllerInteraction.presentationContext.animationCache,
                 animationRenderer: item.controllerInteraction.presentationContext.animationRenderer,
                 // MARK: DKX пометка удалённого рядом с "изменено"
-                dkxDeleted: item.message.attributes.contains(where: { $0 is DkxDeletedMessageAttribute })
+                dkxDeleted: item.message.attributes.contains(where: { $0 is DkxDeletedMessageAttribute }),
+                dkxOnDrive: DkxDriveUploadedIndex.contains(chatId: item.message.id.peerId.toInt64(), messageId: item.message.id.id)
             ))
             
             let (dateAndStatusSize, dateAndStatusApply) = statusSuggestedWidthAndContinue.1(statusSuggestedWidthAndContinue.0)

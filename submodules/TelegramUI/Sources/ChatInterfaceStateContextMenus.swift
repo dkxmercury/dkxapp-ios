@@ -1595,11 +1595,12 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
         
         // MARK: DKX выгрузка медиа в Google Drive
         if dkxDriveMenuApplicable(messages: messages) {
-            actions.append(.action(ContextMenuActionItem(text: "В Google Drive", icon: { theme in
+            let dkxAlreadyUploaded = dkxDriveAlreadyUploaded(messages: messages)
+            actions.append(.action(ContextMenuActionItem(text: dkxAlreadyUploaded ? "Повторно загрузить в Google Drive" : "В Google Drive", icon: { theme in
                 return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Download"), color: theme.actionSheet.primaryTextColor)
             }, action: { _, f in
                 f(.default)
-                dkxUploadMessagesToDrive(context: context, messages: messages, present: { c, a in
+                dkxUploadMessagesToDrive(context: context, messages: messages, force: dkxAlreadyUploaded, present: { c, a in
                     controllerInteraction.presentControllerInCurrent(c, a)
                 })
             })))
