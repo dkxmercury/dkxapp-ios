@@ -1230,26 +1230,6 @@ private let dkxStringsJSON = #"""
   "uk": "Адресу збережено. Перевірте ключ знову.",
   "uz": "Manzil saqlandi. Kalitni qayta tekshiring."
  },
- "Аккаунт": {
-  "ar": "الحساب",
-  "be": "Акаўнт",
-  "ca": "Compte",
-  "de": "Konto",
-  "en": "Account",
-  "es": "Cuenta",
-  "fa": "حساب",
-  "fr": "Compte",
-  "id": "Akun",
-  "it": "Account",
-  "ko": "계정",
-  "ms": "Akaun",
-  "nl": "Account",
-  "pl": "Konto",
-  "pt": "Conta",
-  "tr": "Hesap",
-  "uk": "Акаунт",
-  "uz": "Hisob"
- },
  "Активность по часам": {
   "en": "Activity by hour",
   "uk": "Активність за годинами",
@@ -1755,25 +1735,10 @@ private let dkxStringsJSON = #"""
   "uk": "Залученість, %",
   "uz": "Faollik, %"
  },
- "Войдите в свой Google-аккаунт, чтобы выгружать медиа на Google Drive.": {
-  "ar": "سجّل الدخول إلى حسابك في Google لرفع الوسائط إلى Google Drive.",
-  "be": "Увайдзіце ў свой Google-акаўнт, каб выгружаць медыя на Google Drive.",
-  "ca": "Inicieu la sessió al vostre compte de Google per a pujar contingut multimèdia a Google Drive.",
-  "de": "Melde dich bei deinem Google-Konto an, um Medien auf Google Drive hochzuladen.",
-  "en": "Sign in to your Google account to upload media to Google Drive.",
-  "es": "Inicia sesión en tu cuenta de Google para subir multimedia a Google Drive.",
-  "fa": "برای بارگذاری رسانه در Google Drive، وارد حساب Google خود شوید.",
-  "fr": "Connectez-vous à votre compte Google pour envoyer des médias sur Google Drive.",
-  "id": "Masuk ke akun Google Anda untuk mengunggah media ke Google Drive.",
-  "it": "Accedi al tuo account Google per caricare media su Google Drive.",
-  "ko": "Google Drive에 미디어를 업로드하려면 Google 계정에 로그인하세요.",
-  "ms": "Log masuk ke akaun Google anda untuk memuat naik media ke Google Drive.",
-  "nl": "Log in met je Google-account om media naar Google Drive te uploaden.",
-  "pl": "Zaloguj się na swoje konto Google, aby przesyłać multimedia na Google Drive.",
-  "pt": "Entre na sua conta Google para enviar mídia ao Google Drive.",
-  "tr": "Medyayı Google Drive'a yüklemek için Google hesabınıza giriş yapın.",
-  "uk": "Увійдіть у свій Google-акаунт, щоб вивантажувати медіа на Google Drive.",
-  "uz": "Google Drivega media yuklash uchun Google hisobingizga kiring."
+ "Войдите в свой Google-аккаунт, чтобы выгружать медиа на Google Drive. Потом можно добавить ещё аккаунты, например рабочий и личный.": {
+  "en": "Sign in to your Google account to export media to Google Drive. Later you can add more accounts, for example work and personal.",
+  "uk": "Увійдіть у свій Google-акаунт, щоб вивантажувати медіа на Google Drive. Потім можна додати ще акаунти, наприклад робочий і особистий.",
+  "uz": "Mediani Google Drivega yuklash uchun Google hisobingizga kiring. Keyin yana hisoblar qoʻshish mumkin, masalan ish va shaxsiy."
  },
  "Войти в Google": {
   "ar": "تسجيل الدخول إلى Google",
@@ -1799,6 +1764,11 @@ private let dkxStringsJSON = #"""
   "en": "Enter the Cloudflare account ID.",
   "uk": "Впишіть номер акаунта Cloudflare.",
   "uz": "Cloudflare hisob raqamini kiriting."
+ },
+ "Все выгрузки уходят на основной аккаунт без вопросов. Если основной не выбран, а аккаунтов несколько, Dkx при каждой выгрузке спросит, на какой диск загрузить.": {
+  "en": "All exports go to the main account without asking. If no main account is chosen and there are several accounts, Dkx will ask which drive to upload to every time.",
+  "uk": "Усі вивантаження йдуть на основний акаунт без запитань. Якщо основний не вибрано, а акаунтів кілька, Dkx під час кожного вивантаження запитає, на який диск завантажити.",
+  "uz": "Barcha yuklashlar soʻrovsiz asosiy hisobga ketadi. Asosiy tanlanmagan boʻlsa va hisoblar bir nechta boʻlsa, Dkx har safar qaysi diskka yuklashni soʻraydi."
  },
  "Все посты": {
   "en": "All posts",
@@ -2534,6 +2504,11 @@ private let dkxStringsJSON = #"""
   "en": "Weekdays",
   "uk": "Дні тижня",
   "uz": "Hafta kunlari"
+ },
+ "Добавить аккаунт Google": {
+  "en": "Add Google account",
+  "uk": "Додати акаунт Google",
+  "uz": "Google hisobini qoʻshish"
  },
  "Добавить уместные": {
   "ar": "إضافة رموز مناسبة",
@@ -4680,6 +4655,11 @@ private let dkxStringsJSON = #"""
   "uk": "Можна в кілька рядків. Перенесення збережуться.",
   "uz": "Bir necha qatorda yozish mumkin. Qator koʻchirishlari saqlanadi."
  },
+ "Можно привязать несколько аккаунтов Google, например рабочий и личный. Нажмите на аккаунт, чтобы назвать его по-своему или сделать основным. Выгрузки уходят на основной. Если основной не выбран, Dkx при каждой выгрузке спросит, на какой диск загрузить.\n\nУ любого фото, видео, голосового или файла в меню долгого нажатия есть пункт «В Google Drive». Файлы грузятся фоном, ход виден в полосе вверху экрана. На диске папка Dkx, внутри папки по чатам. Приложение видит только файлы, которые загрузило само.": {
+  "en": "You can link several Google accounts, for example work and personal. Tap an account to give it your own name or make it the main one. Exports go to the main account. If no main account is chosen, Dkx will ask which drive to upload to every time.\n\nEvery photo, video, voice message or file has a “Save to Google Drive” item in its long press menu. Files upload in the background, progress is shown in the bar at the top of the screen. On the drive there is a Dkx folder with a folder for each chat inside. The app sees only the files it uploaded itself.",
+  "uk": "Можна привʼязати кілька акаунтів Google, наприклад робочий і особистий. Натисніть на акаунт, щоб назвати його по-своєму або зробити основним. Вивантаження йдуть на основний. Якщо основний не вибрано, Dkx під час кожного вивантаження запитає, на який диск завантажити.\n\nУ будь-якого фото, відео, голосового або файлу в меню довгого натискання є пункт «У Google Drive». Файли завантажуються у фоні, хід видно в смузі вгорі екрана. На диску папка Dkx, усередині папки за чатами. Застосунок бачить лише файли, які завантажив сам.",
+  "uz": "Bir nechta Google hisobini ulash mumkin, masalan ish va shaxsiy. Hisobni oʻzingizcha nomlash yoki asosiy qilish uchun ustiga bosing. Yuklashlar asosiy hisobga ketadi. Asosiy tanlanmagan boʻlsa, Dkx har safar qaysi diskka yuklashni soʻraydi.\n\nHar bir rasm, video, ovozli xabar yoki faylning uzoq bosish menyusida «Google Drivega» bandi bor. Fayllar fonda yuklanadi, jarayon ekran tepasidagi chiziqda koʻrinadi. Diskda Dkx papkasi, uning ichida chatlar boʻyicha papkalar. Ilova faqat oʻzi yuklagan fayllarni koʻradi."
+ },
  "Мои дела": {
   "ar": "مهامي",
   "be": "Мае справы",
@@ -4800,6 +4780,11 @@ private let dkxStringsJSON = #"""
   "uk": "На «ти»",
   "uz": "“Sen” deb"
  },
+ "На какой Google Drive загрузить?": {
+  "en": "Which Google Drive to upload to?",
+  "uk": "На який Google Drive завантажити?",
+  "uz": "Qaysi Google Drivega yuklash kerak?"
+ },
  "На неделе": {
   "ar": "هذا الأسبوع",
   "be": "На гэтым тыдні",
@@ -4864,6 +4849,16 @@ private let dkxStringsJSON = #"""
   "en": "Name",
   "uk": "Назва",
   "uz": "Nomi"
+ },
+ "Название видно только вам, например «Рабочий» или «Личный». Если оставить поле пустым, будет видна почта.": {
+  "en": "Only you see the name, for example “Work” or “Personal”. If you leave the field empty, the email is shown.",
+  "uk": "Назву бачите лише ви, наприклад «Робочий» або «Особистий». Якщо залишити поле порожнім, буде видно пошту.",
+  "uz": "Nomni faqat siz koʻrasiz, masalan «Ish» yoki «Shaxsiy». Maydon boʻsh qolsa, pochta koʻrinadi."
+ },
+ "Название сохранено.": {
+  "en": "Name saved.",
+  "uk": "Назву збережено.",
+  "uz": "Nom saqlandi."
  },
  "Найдено {}. Личный чат и общие группы, нажатие открывает сообщение.": {
   "ar": "تم العثور على {}. المحادثة الخاصة والمجموعات المشتركة، اضغط لفتح الرسالة.",
@@ -5620,6 +5615,11 @@ private let dkxStringsJSON = #"""
   "uk": "Основний",
   "uz": "Asosiy"
  },
+ "Основной аккаунт": {
+  "en": "Main account",
+  "uk": "Основний акаунт",
+  "uz": "Asosiy hisob"
+ },
  "Основной сервис получает запросы первым. Остальные подключённые сервисы подстраховывают, если он не ответил.": {
   "en": "The main service gets requests first. The other connected services back it up if it does not answer.",
   "uk": "Основний сервіс отримує запити першим. Інші підключені сервіси підстраховують, якщо він не відповів.",
@@ -5629,6 +5629,11 @@ private let dkxStringsJSON = #"""
   "en": "Replies",
   "uk": "Відповіді",
   "uz": "Javoblar"
+ },
+ "Отвязать": {
+  "en": "Unlink",
+  "uk": "Відвʼязати",
+  "uz": "Uzish"
  },
  "Отвязать аккаунт": {
   "ar": "فك ربط الحساب",
@@ -5649,6 +5654,11 @@ private let dkxStringsJSON = #"""
   "tr": "Hesabın bağlantısını kaldır",
   "uk": "Відвʼязати акаунт",
   "uz": "Hisobni uzish"
+ },
+ "Отвязать аккаунт?": {
+  "en": "Unlink the account?",
+  "uk": "Відвʼязати акаунт?",
+  "uz": "Hisob uzilsinmi?"
  },
  "Отдаётся настоящая геопозиция": {
   "ar": "تتم مشاركة الموقع الحقيقي",
@@ -6545,6 +6555,11 @@ private let dkxStringsJSON = #"""
   "uk": "Пошта",
   "uz": "Email"
  },
+ "Почта {}. Файлы на диске после отвязки останутся.": {
+  "en": "Email {}. Files on the drive stay after unlinking.",
+  "uk": "Пошта {}. Файли на диску після відвʼязування залишаться.",
+  "uz": "Pochta {}. Uzilgandan keyin diskdagi fayllar qoladi."
+ },
  "Предыдущие": {
   "en": "Previous",
   "uk": "Попередні",
@@ -6554,26 +6569,6 @@ private let dkxStringsJSON = #"""
   "en": "Best window gain, %",
   "uk": "Приріст найкращого вікна, %",
   "uz": "Eng yaxshi oyna ustunligi, %"
- },
- "Привязать другой аккаунт": {
-  "ar": "ربط حساب آخر",
-  "be": "Прывязаць іншы акаўнт",
-  "ca": "Vincula un altre compte",
-  "de": "Anderes Konto verknüpfen",
-  "en": "Link another account",
-  "es": "Vincular otra cuenta",
-  "fa": "اتصال حساب دیگر",
-  "fr": "Associer un autre compte",
-  "id": "Tautkan akun lain",
-  "it": "Collega un altro account",
-  "ko": "다른 계정 연결",
-  "ms": "Pautkan akaun lain",
-  "nl": "Ander account koppelen",
-  "pl": "Połącz inne konto",
-  "pt": "Vincular outra conta",
-  "tr": "Başka bir hesap bağla",
-  "uk": "Привʼязати інший акаунт",
-  "uz": "Boshqa hisobni ulash"
  },
  "Пригласил": {
   "en": "Invited",
@@ -7230,25 +7225,10 @@ private let dkxStringsJSON = #"""
   "uk": "Сьогодні о 19:00",
   "uz": "Bugun soat 19:00"
  },
- "Сегодня запросов {}. Русский и английский улучшает GLM, узбекский Gemini, при сбое запрос уходит в другой сервис. Бесплатный Gemini может показывать тексты сотрудникам Google, личное туда лучше не отправлять.": {
-  "ar": "عدد الطلبات اليوم {}. يحسّن GLM الروسية والإنجليزية، ويحسّن Gemini الأوزبكية، وعند الفشل يذهب الطلب إلى الخدمة الأخرى. قد يعرض Gemini المجاني النصوص على موظفي Google، فالأفضل ألا ترسل إليه شيئًا شخصيًا.",
-  "be": "Сёння запытаў {}. Рускую і англійскую паляпшае GLM, узбекскую Gemini, пры збоі запыт ідзе ў іншы сэрвіс. Бясплатны Gemini можа паказваць тэксты супрацоўнікам Google, асабістае туды лепш не адпраўляць.",
-  "ca": "Sol·licituds d'avui {}. El rus i l'anglès els millora GLM, i l'uzbek, Gemini. Si un falla, la sol·licitud passa a l'altre servei. El Gemini gratuït pot mostrar els textos al personal de Google, millor no enviar-hi res de personal.",
-  "de": "Anfragen heute {}. Russisch und Englisch verbessert GLM, Usbekisch Gemini, bei einem Fehler geht die Anfrage an den anderen Dienst. Das kostenlose Gemini kann Texte Google-Mitarbeitern zeigen, Persönliches schickst du dort besser nicht hin.",
-  "en": "Requests today {}. Russian and English are improved by GLM, Uzbek by Gemini, on failure the request goes to the other service. Free Gemini may show texts to Google staff, better not to send anything personal.",
-  "es": "Solicitudes hoy {}. El ruso y el inglés los mejora GLM, y el uzbeko, Gemini. Si uno falla, la solicitud pasa al otro servicio. Gemini gratuito puede mostrar los textos al personal de Google, mejor no enviar nada personal.",
-  "fa": "درخواست‌های امروز {}. روسی و انگلیسی را GLM بهبود می‌دهد و ازبکی را Gemini، در صورت خطا درخواست به سرویس دیگر می‌رود. Gemini رایگان ممکن است متن‌ها را به کارکنان Google نشان دهد، بهتر است چیز شخصی به آن نفرستید.",
-  "fr": "{} requête(s) aujourd'hui. Le russe et l'anglais sont améliorés par GLM, l'ouzbek par Gemini, en cas d'échec la requête passe à l'autre service. Gemini gratuit peut montrer les textes à des employés de Google, mieux vaut ne rien y envoyer de personnel.",
-  "id": "Permintaan hari ini {}. Bahasa Rusia dan Inggris diperbaiki oleh GLM, bahasa Uzbek oleh Gemini, dan jika gagal, permintaan dialihkan ke layanan lainnya. Gemini gratis bisa menampilkan teks ke staf Google, sebaiknya jangan kirim hal pribadi.",
-  "it": "Richieste di oggi {}. Il russo e l'inglese li migliora GLM, l'uzbeko Gemini, e in caso di errore la richiesta passa all'altro servizio. Gemini gratuito può mostrare i testi al personale di Google, meglio non inviarci nulla di personale.",
-  "ko": "오늘 요청 {}회. 러시아어와 영어는 GLM이, 우즈베크어는 Gemini가 다듬으며, 오류가 나면 요청이 다른 서비스로 넘어갑니다. 무료 Gemini는 텍스트를 Google 직원에게 보여 줄 수 있으니 개인적인 내용은 보내지 않는 것이 좋습니다.",
-  "ms": "Permintaan hari ini {}. Bahasa Rusia dan Inggeris ditambah baik oleh GLM, bahasa Uzbek oleh Gemini, dan jika gagal, permintaan dihantar ke perkhidmatan yang satu lagi. Gemini percuma mungkin menunjukkan teks kepada kakitangan Google, lebih baik jangan hantar perkara peribadi.",
-  "nl": "Verzoeken vandaag {}. Russisch en Engels verbetert GLM, Oezbeeks Gemini, bij een storing gaat het verzoek naar de andere dienst. Gratis Gemini kan teksten aan medewerkers van Google tonen, stuur daar dus liever niets persoonlijks heen.",
-  "pl": "Dzisiaj zapytań {}. Rosyjski i angielski ulepsza GLM, uzbecki Gemini, przy awarii zapytanie trafia do drugiej usługi. Darmowy Gemini może pokazywać teksty pracownikom Google, lepiej nie wysyłać tam nic osobistego.",
-  "pt": "Solicitações hoje {}. Russo e inglês são melhorados pelo GLM, uzbeque pelo Gemini, e em caso de falha a solicitação vai para o outro serviço. O Gemini gratuito pode mostrar os textos a funcionários do Google, é melhor não enviar nada pessoal.",
-  "tr": "Bugünkü istekler {}. Rusça ve İngilizceyi GLM, Özbekçeyi Gemini iyileştirir, hata olursa istek diğer servise gider. Ücretsiz Gemini metinleri Google çalışanlarına gösterebilir, kişisel şeyleri oraya göndermemek daha iyi.",
-  "uk": "Сьогодні запитів {}. Російську та англійську покращує GLM, узбецьку Gemini, у разі збою запит іде в інший сервіс. Безкоштовний Gemini може показувати тексти співробітникам Google, особисте туди краще не надсилати.",
-  "uz": "Bugungi soʻrovlar {}. Rus va ingliz tilidagi matnni GLM, oʻzbek tilidagisini Gemini yaxshilaydi, nosozlikda soʻrov boshqa xizmatga yuboriladi. Bepul Gemini matnlarni Google xodimlariga koʻrsatishi mumkin, shaxsiy narsalarni u yerga yubormagan maʼqul."
+ "Сегодня запросов {}. Текст улучшает основной сервис из раздела «API ИИ», для узбекского первым идёт Gemini, при сбое запрос уходит в следующий. Бесплатный Gemini может показывать тексты сотрудникам Google, личное туда лучше не отправлять.": {
+  "en": "Requests today {}. The text is improved by the main service from the “AI API” section, Gemini goes first for Uzbek, on failure the request goes to the next one. Free Gemini may show texts to Google staff, better not to send anything personal there.",
+  "uk": "Сьогодні запитів {}. Текст покращує основний сервіс із розділу «API ШІ», для узбецької першим іде Gemini, у разі збою запит іде до наступного. Безкоштовний Gemini може показувати тексти співробітникам Google, особисте туди краще не надсилати.",
+  "uz": "Bugungi soʻrovlar {}. Matnni «SI API» boʻlimidagi asosiy xizmat yaxshilaydi, oʻzbekcha uchun avval Gemini ishlaydi, nosozlikda soʻrov keyingisiga oʻtadi. Bepul Gemini matnlarni Google xodimlariga koʻrsatishi mumkin, shaxsiy narsalarni u yerga yubormagan maʼqul."
  },
  "Сейчас": {
   "en": "Now",
@@ -7640,6 +7620,11 @@ private let dkxStringsJSON = #"""
   "uk": "Зберегти адресу",
   "uz": "Manzilni saqlash"
  },
+ "Сохранить название": {
+  "en": "Save name",
+  "uk": "Зберегти назву",
+  "uz": "Nomni saqlash"
+ },
  "Сохранять историю правок": {
   "ar": "حفظ سجل التعديلات",
   "be": "Захоўваць гісторыю правак",
@@ -7994,26 +7979,6 @@ private let dkxStringsJSON = #"""
   "tr": "A noktası var. Basılı tutunca B konur",
   "uk": "Точка А є. Довге натискання ставить Б",
   "uz": "A nuqta bor. Bosib tursangiz, B qoʻyiladi"
- },
- "У любого фото, видео, голосового или файла в меню долгого нажатия есть пункт «В Google Drive». Файлы грузятся фоном, ход виден в полосе вверху экрана. Папка Dkx, внутри по чатам, только на ваш диск. Права ограничены файлами, которые загрузило это приложение.": {
-  "ar": "لكل صورة أو مقطع فيديو أو رسالة صوتية أو ملف بند «حفظ في Google Drive» في قائمة الضغط المطوّل. تُرفع الملفات في الخلفية، ويظهر التقدم في الشريط أعلى الشاشة. مجلد Dkx، وداخله مجلد لكل محادثة، في حسابك في Google Drive فقط. تقتصر الصلاحيات على الملفات التي رفعها هذا التطبيق.",
-  "be": "У любога фота, відэа, галасавога ці файла ў меню доўгага націску ёсць пункт «У Google Drive». Файлы запампоўваюцца ў фоне, ход відаць у паласе ўверсе экрана. Папка Dkx з падпапкамі па чатах, толькі на ваш дыск. Правы абмежаваны файламі, якія запампавала гэта праграма.",
-  "ca": "Qualsevol foto, vídeo, missatge de veu o fitxer té l'opció «Puja a Google Drive» al menú que s'obre en mantenir-lo premut. Els fitxers es pugen en segon pla, el progrés es veu a la barra de dalt de la pantalla. Una carpeta Dkx amb subcarpetes per xat, només al vostre Drive. Els permisos es limiten als fitxers que ha pujat aquesta aplicació.",
-  "de": "Jedes Foto, Video, jede Sprachnachricht und Datei hat im Menü bei langem Drücken den Punkt „In Google Drive speichern“. Die Dateien werden im Hintergrund hochgeladen, der Fortschritt ist in der Leiste oben auf dem Bildschirm zu sehen. Ordner Dkx, darin nach Chats sortiert, nur auf dein Drive. Die Rechte sind auf Dateien beschränkt, die diese App hochgeladen hat.",
-  "en": "Any photo, video, voice message or file has “Save to Google Drive” in its long-press menu. Files upload in the background, progress is shown in the bar at the top of the screen. A Dkx folder with a subfolder per chat, only on your drive. Access is limited to files uploaded by this app.",
-  "es": "Cualquier foto, video, mensaje de voz o archivo tiene la opción «Subir a Google Drive» en el menú que se abre al mantenerlo pulsado. Los archivos se suben en segundo plano, el progreso se ve en la barra de arriba de la pantalla. Una carpeta Dkx con subcarpetas por chat, solo en tu Drive. Los permisos se limitan a los archivos que subió esta app.",
-  "fa": "هر عکس، ویدیو، پیام صوتی یا فایل در منوی لمس طولانی گزینه «ذخیره در Google Drive» دارد. فایل‌ها در پس‌زمینه بارگذاری می‌شوند و پیشرفت در نوار بالای صفحه دیده می‌شود. پوشه Dkx، با زیرپوشه برای هر گفتگو، فقط در Google Drive شما. دسترسی به فایل‌هایی محدود است که همین برنامه بارگذاری کرده است.",
-  "fr": "Toute photo, vidéo, tout message vocal ou fichier a l'option « Enregistrer sur Google Drive » dans son menu d'appui long. Les fichiers sont envoyés en arrière-plan, la progression s'affiche dans la barre en haut de l'écran. Dossier Dkx, avec un sous-dossier par discussion, uniquement sur votre Drive. L'accès est limité aux fichiers envoyés par cette app.",
-  "id": "Setiap foto, video, pesan suara, atau berkas punya item “Simpan ke Google Drive” di menu tekan dan tahan. Berkas diunggah di latar belakang, progresnya terlihat di bilah atas layar. Folder Dkx, dengan subfolder per obrolan, hanya di Drive Anda. Akses dibatasi pada berkas yang diunggah aplikasi ini.",
-  "it": "Ogni foto, video, messaggio vocale o file ha la voce «Carica su Google Drive» nel menu che si apre tenendolo premuto. I file vengono caricati in background, l'avanzamento si vede nella barra in alto sullo schermo. Una cartella Dkx con sottocartelle per chat, solo sul tuo Drive. I permessi sono limitati ai file caricati da questa app.",
-  "ko": "모든 사진, 동영상, 음성 메시지, 파일을 길게 누르면 나오는 메뉴에 ‘Google Drive에 저장’ 항목이 있습니다. 파일은 백그라운드에서 업로드되며 진행 상황은 화면 위쪽 막대에 표시됩니다. Dkx 폴더 안에 대화별로 정리되며, 내 Google Drive에만 저장됩니다. 권한은 이 앱이 업로드한 파일로 제한됩니다.",
-  "ms": "Setiap foto, video, mesej suara atau fail ada item “Simpan ke Google Drive” dalam menu tekan lama. Fail dimuat naik di latar belakang, kemajuannya kelihatan pada bar di atas skrin. Folder Dkx, dengan subfolder bagi setiap bual, hanya dalam Drive anda. Akses terhad kepada fail yang dimuat naik oleh aplikasi ini.",
-  "nl": "Elke foto, video, elk spraakbericht of bestand heeft in het menu bij lang drukken het onderdeel “Opslaan in Google Drive”. Bestanden worden op de achtergrond geüpload, de voortgang zie je in de balk bovenaan het scherm. Map Dkx, daarin per chat, alleen op je eigen drive. De rechten zijn beperkt tot bestanden die deze app heeft geüpload.",
-  "pl": "Każde zdjęcie, wideo, wiadomość głosowa czy plik ma w menu przytrzymania pozycję „Zapisz na Google Drive”. Pliki przesyłają się w tle, postęp widać na pasku u góry ekranu. Folder Dkx z podfolderami dla czatów, tylko na twoim dysku. Uprawnienia są ograniczone do plików przesłanych przez tę aplikację.",
-  "pt": "Qualquer foto, vídeo, mensagem de voz ou arquivo tem o item “Salvar no Google Drive” no menu ao tocar e segurar. Os arquivos são enviados em segundo plano, o progresso aparece na barra no topo da tela. Pasta Dkx, com subpastas por chat, só no seu Drive. O acesso é limitado aos arquivos enviados por este app.",
-  "tr": "Her fotoğraf, video, sesli mesaj veya dosyanın basılı tutma menüsünde “Google Drive'a” seçeneği vardır. Dosyalar arka planda yüklenir, ilerleme ekranın üstündeki çubukta görünür. Dkx klasörü, içinde sohbetlere göre ayrılmış, yalnızca sizin diskinizde. İzinler yalnızca bu uygulamanın yüklediği dosyalarla sınırlıdır.",
-  "uk": "У будь-якого фото, відео, голосового чи файлу в меню довгого натискання є пункт «У Google Drive». Файли завантажуються у фоні, перебіг видно в смузі вгорі екрана. Тека Dkx з підтеками за чатами, лише на ваш диск. Права обмежено файлами, які завантажив цей застосунок.",
-  "uz": "Har qanday rasm, video, ovozli xabar yoki faylni bosib turganda chiqadigan menyuda “Google Drivega” bandi bor. Fayllar fonda yuklanadi, jarayon ekran yuqorisidagi chiziqda koʻrinadi. Dkx jildi, ichida chatlar boʻyicha boʻlingan, faqat sizning diskingizda. Ruxsatlar faqat shu ilova yuklagan fayllar bilan cheklangan."
  },
  "У среднего поста канала на это уходит {} ч.": {
   "en": "An average channel post takes {} h.",
@@ -8539,6 +8504,16 @@ private let dkxStringsJSON = #"""
   "tr": "Dosyalar",
   "uk": "Файли",
   "uz": "Fayllar"
+ },
+ "Файлы на диске останутся. Чтобы снова грузить на этот диск, аккаунт придётся добавить заново.": {
+  "en": "Files on the drive will stay. To upload to this drive again, you will need to add the account again.",
+  "uk": "Файли на диску залишаться. Щоб знову завантажувати на цей диск, акаунт доведеться додати заново.",
+  "uz": "Diskdagi fayllar qoladi. Bu diskka yana yuklash uchun hisobni qaytadan qoʻshish kerak boʻladi."
+ },
+ "Файлы на диске после отвязки останутся.": {
+  "en": "Files on the drive stay after unlinking.",
+  "uk": "Файли на диску після відвʼязування залишаться.",
+  "uz": "Uzilgandan keyin diskdagi fayllar qoladi."
  },
  "Фиолетовый": {
   "ar": "بنفسجي",
@@ -9460,26 +9435,6 @@ private let dkxStringsJSON = #"""
   "uk": "не підключені",
   "uz": "ulanmagan"
  },
- "не подключён": {
-  "ar": "غير متصل",
-  "be": "не падключаны",
-  "ca": "no connectat",
-  "de": "nicht verbunden",
-  "en": "not connected",
-  "es": "no conectado",
-  "fa": "متصل نیست",
-  "fr": "non connecté",
-  "id": "belum terhubung",
-  "it": "non collegato",
-  "ko": "연결 안 됨",
-  "ms": "tidak disambungkan",
-  "nl": "niet verbonden",
-  "pl": "nie połączono",
-  "pt": "não conectado",
-  "tr": "bağlı değil",
-  "uk": "не підключено",
-  "uz": "ulanmagan"
- },
  "не сохранил": {
   "ar": "لم يحفظك",
   "be": "не захаваў",
@@ -9670,6 +9625,11 @@ private let dkxStringsJSON = #"""
   "uk": "вікно 3 години з найбільшими середніми переглядами, час телефона",
   "uz": "oʻrtacha koʻrishlari eng koʻp 3 soatlik oyna, telefon vaqti"
  },
+ "основной": {
+  "en": "main",
+  "uk": "основний",
+  "uz": "asosiy"
+ },
  "основной, {}": {
   "en": "main, {}",
   "uk": "основний, {}",
@@ -9744,26 +9704,6 @@ private let dkxStringsJSON = #"""
   "en": "for the same posts",
   "uk": "за тими самими дописами",
   "uz": "oʻsha postlar boʻyicha"
- },
- "подключён": {
-  "ar": "متصل",
-  "be": "падключаны",
-  "ca": "connectat",
-  "de": "verbunden",
-  "en": "connected",
-  "es": "conectado",
-  "fa": "متصل",
-  "fr": "connecté",
-  "id": "terhubung",
-  "it": "collegato",
-  "ko": "연결됨",
-  "ms": "disambungkan",
-  "nl": "verbonden",
-  "pl": "połączono",
-  "pt": "conectado",
-  "tr": "bağlı",
-  "uk": "підключено",
-  "uz": "ulangan"
  },
  "подписчик|подписчика|подписчиков": {
   "en": "subscriber|subscribers",
