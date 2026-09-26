@@ -7,6 +7,7 @@ import TelegramCore
 import TelegramPresentationData
 import TelegramUIPreferences
 import LocalAudioTranscription
+import ChatListUI
 import ItemListUI
 import PresentationDataUtils
 import AccountContext
@@ -142,6 +143,7 @@ private final class DkxSettingsControllerArguments {
     let updateTranscription: (Bool) -> Void
     let updateTranscriptionLocale: (String) -> Void
     let openQuickReplies: () -> Void
+    let openChatLabels: () -> Void
     let updateSpoofPanel: (Bool) -> Void
     let openLog: () -> Void
     let openDebug: () -> Void
@@ -162,6 +164,7 @@ private final class DkxSettingsControllerArguments {
         updateTranscription: @escaping (Bool) -> Void,
         updateTranscriptionLocale: @escaping (String) -> Void,
         openQuickReplies: @escaping () -> Void,
+        openChatLabels: @escaping () -> Void,
         updateSpoofPanel: @escaping (Bool) -> Void,
         openLog: @escaping () -> Void,
         openDebug: @escaping () -> Void,
@@ -181,6 +184,7 @@ private final class DkxSettingsControllerArguments {
         self.updateTranscription = updateTranscription
         self.updateTranscriptionLocale = updateTranscriptionLocale
         self.openQuickReplies = openQuickReplies
+        self.openChatLabels = openChatLabels
         self.updateSpoofPanel = updateSpoofPanel
         self.openLog = openLog
         self.openDebug = openDebug
@@ -213,6 +217,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case chatsHeader
     case toggle(DkxToggle, Bool)
     case openQuickReplies(Int32)
+    case openChatLabels(Int32)
     case chatsFooter
 
     case unansweredHeader
@@ -248,7 +253,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         switch self {
         case .interfaceHeader, .hideStories, .hidePremiumPromo, .openAppIcon, .openHiddenSections, .interfaceFooter:
             return DkxSettingsSection.interface.rawValue
-        case .chatsHeader, .toggle, .openQuickReplies, .chatsFooter:
+        case .chatsHeader, .toggle, .openQuickReplies, .openChatLabels, .chatsFooter:
             return DkxSettingsSection.chats.rawValue
         case .unansweredHeader, .unansweredThreshold, .unansweredFooter:
             return DkxSettingsSection.unanswered.rawValue
@@ -289,6 +294,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 101 + toggle.rawValue * 2
         case .openQuickReplies:
             return 101 + DkxToggle.quickReplies.rawValue * 2 + 1
+        case .openChatLabels:
+            return 190
         case .chatsFooter:
             return 199
         case .unansweredHeader:
@@ -379,6 +386,10 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         case let .openQuickReplies(count):
             return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Шаблоны", label: count == 0 ? "нет" : "\(count)", sectionId: self.section, style: .blocks, action: {
                 arguments.openQuickReplies()
+            })
+        case let .openChatLabels(count):
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Метки на чаты", label: count == 0 ? "нет" : "\(count)", sectionId: self.section, style: .blocks, action: {
+                arguments.openChatLabels()
             })
         case .chatsFooter:
             return ItemListTextItem(presentationData: presentationData, text: .plain("Метка «сохранил» или «не сохранил» видна в шапке чата и в профиле собеседника, только для тех, кого вы сами сохранили.\n\nЗаметка в шапке чата это первая строка вашей заметки из профиля собеседника. Правится в профиле через «Изменить».\n\nШаблоны вставляются кнопкой в поле ввода, она появляется после добавления первого шаблона. «Все сообщения автора» есть в меню долгого нажатия на сообщение в группе. «Выгрузить чат в файл» в профиле собеседника, группы или канала. Там вся история текстом, с пометками удалённых и прежними версиями изменённых.\n\nБез сжатия фото и видео из галереи уходят оригиналом, файлом, как через «Отправить файлом». Получатель увидит файл, а не картинку в ленте. Предел размера 2 ГБ держит сервер Telegram, его не поднять.\n\nFace ID на чат ставится долгим нажатием на чат в списке, пункт «Закрыть Face ID». У закрытого чата скрыт текст последнего сообщения и предпросмотр, открывается он после проверки и снова закрывается, когда приложение уходит в фон. Снять замок или выключить эту настройку можно только после проверки.\n\n«Мои дела» открываются из главных настроек, строка под «Моим профилем». Вид меняется кнопкой вверху, это лента, день по часам и месяц. Выключенный тумблер прячет строку, сами дела и напоминания остаются. «Пароли» там же, открываются по Face ID, записи лежат в Keychain только на этом телефоне.\n\n«Напомнить позже» есть в меню долгого нажатия на чат в списке и на сообщение. Напоминание ложится делом в «Мои дела», уведомление открывает этот чат.\n\nВключённое или выключенное применяется при следующем открытии экрана."), sectionId: self.section)
@@ -481,6 +492,7 @@ private func dkxSettingsControllerEntries(settings: DkxSettings) -> [DkxSettings
     if settings.quickReplies {
         entries.append(.openQuickReplies(Int32(settings.quickReplyTemplates.count)))
     }
+    entries.append(.openChatLabels(Int32(settings.chatLabels.count)))
     entries.append(.chatsFooter)
 
     if settings.unansweredFilter {
@@ -616,6 +628,9 @@ public func dkxSettingsController(context: AccountContext) -> ViewController {
         },
         openQuickReplies: {
             pushControllerImpl?(dkxQuickRepliesController(context: context))
+        },
+        openChatLabels: {
+            pushControllerImpl?(dkxChatLabelsSettingsController(context: context))
         },
         updateSpoofPanel: { value in
             update { settings in

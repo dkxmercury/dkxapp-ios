@@ -585,6 +585,16 @@ func chatContextMenuItems(context: AccountContext, peerId: EnginePeer.Id, promoI
                             })))
                         }
                         
+                        // MARK: DKX свои метки на чат
+                        if case .chatList = source {
+                            let dkxTitle = peer.displayTitle(strings: presentationData.strings, displayOrder: presentationData.nameDisplayOrder)
+                            let dkxCount = DkxRuntime.current.chatLabelIds(forPeer: peerId.toInt64()).count
+                            items.append(.action(ContextMenuActionItem(text: dkxCount == 0 ? "Метки" : "Метки, \(dkxCount)", icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Tag"), color: theme.contextMenu.primaryColor) }, action: { _, f in
+                                f(.default)
+                                (chatListController?.navigationController as? NavigationController)?.pushViewController(dkxChatLabelsPickerController(context: context, peerId: peerId, title: dkxTitle))
+                            })))
+                        }
+                        
                         let appendDeleteOrUngroupItem = {
                             if case .community = peer {
                                 items.append(.action(ContextMenuActionItem(text: strings.ChatList_Context_Ungroup, textColor: .destructive, icon: { theme in generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Ungroup"), color: theme.contextMenu.destructiveColor) }, action: { _, f in

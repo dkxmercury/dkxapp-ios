@@ -93,7 +93,7 @@ private func dkxFormatWaiting(_ seconds: Int32) -> String {
     return "\(hours / 24) дн"
 }
 
-private func dkxMessagePreview(_ message: Message) -> String {
+func dkxMessagePreview(_ message: Message) -> String {
     let text = message.text.replacingOccurrences(of: "\n", with: " ").trimmingCharacters(in: .whitespaces)
     if !text.isEmpty {
         return text.count > 80 ? String(text.prefix(80)) + "…" : text

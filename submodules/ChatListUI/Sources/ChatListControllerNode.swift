@@ -1510,6 +1510,22 @@ final class ChatListControllerNode: ASDisplayNode, ASGestureRecognizerDelegate {
                 )))
             )
         }
+        // MARK: DKX ряд меток, нажатие открывает чаты с меткой
+        if let controller = self.controller, !controller.dkxChatLabels.isEmpty {
+            let context = self.context
+            panels.append(HeaderPanelContainerComponent.Panel(
+                key: "dkxChatLabels",
+                orderIndex: 4,
+                component: AnyComponent(DkxChatLabelsHeaderPanelComponent(
+                    context: context,
+                    theme: self.presentationData.theme,
+                    labels: controller.dkxChatLabels,
+                    action: { [weak controller] labelId in
+                        controller?.push(dkxLabelChatsController(context: context, labelId: labelId))
+                    }
+                )))
+            )
+        }
         // MARK: DKX ход выгрузки в Google Drive
         if let dkxDriveUpload = self.controller?.globalControlPanelsContextState?.dkxDriveUpload {
             panels.append(HeaderPanelContainerComponent.Panel(

@@ -73,6 +73,13 @@ public struct DkxSettings: Codable, Equatable {
     public var quickReplyTemplates: [String]
     // Спрятанные вкладки и строки настроек, rawValue из DkxHiddenSection
     public var hiddenSections: [String]
+    // Метки на чаты, разбор в DkxChatLabels. Сами метки тремя массивами,
+    // назначения парами «чат, метка» двумя
+    public var labelIds: [Int32]
+    public var labelTitles: [String]
+    public var labelColors: [Int32]
+    public var labelPeers: [Int64]
+    public var labelPeerLabels: [Int32]
 
     // Панель подмены на экране карты. Выключенная прячет панель, и
     // приложение отдаёт настоящую геопозицию.
@@ -125,6 +132,11 @@ public struct DkxSettings: Codable, Equatable {
         self.lockedPeers = []
         self.quickReplyTemplates = []
         self.hiddenSections = []
+        self.labelIds = []
+        self.labelTitles = []
+        self.labelColors = []
+        self.labelPeers = []
+        self.labelPeerLabels = []
         self.spoofPanel = true
         self.spoofLocation = false
         self.spoofMode = .point
@@ -206,6 +218,11 @@ public struct DkxSettings: Codable, Equatable {
         self.lockedPeers = (try container.decodeIfPresent([Int64].self, forKey: "lockedPeers")) ?? defaults.lockedPeers
         self.quickReplyTemplates = (try container.decodeIfPresent([String].self, forKey: "quickReplyTemplates")) ?? defaults.quickReplyTemplates
         self.hiddenSections = (try container.decodeIfPresent([String].self, forKey: "hiddenSections")) ?? defaults.hiddenSections
+        self.labelIds = (try container.decodeIfPresent([Int32].self, forKey: "labelIds")) ?? defaults.labelIds
+        self.labelTitles = (try container.decodeIfPresent([String].self, forKey: "labelTitles")) ?? defaults.labelTitles
+        self.labelColors = (try container.decodeIfPresent([Int32].self, forKey: "labelColors")) ?? defaults.labelColors
+        self.labelPeers = (try container.decodeIfPresent([Int64].self, forKey: "labelPeers")) ?? defaults.labelPeers
+        self.labelPeerLabels = (try container.decodeIfPresent([Int32].self, forKey: "labelPeerLabels")) ?? defaults.labelPeerLabels
         self.spoofPanel = (try container.decodeIfPresent(Int32.self, forKey: "spoofPanel")).map { $0 != 0 } ?? defaults.spoofPanel
         self.spoofLocation = (try container.decodeIfPresent(Int32.self, forKey: "spoofLocation") ?? 0) != 0
         self.spoofMode = SpoofMode(rawValue: (try container.decodeIfPresent(Int32.self, forKey: "spoofMode")) ?? defaults.spoofMode.rawValue) ?? defaults.spoofMode
@@ -244,6 +261,11 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode(self.lockedPeers, forKey: "lockedPeers")
         try container.encode(self.quickReplyTemplates, forKey: "quickReplyTemplates")
         try container.encode(self.hiddenSections, forKey: "hiddenSections")
+        try container.encode(self.labelIds, forKey: "labelIds")
+        try container.encode(self.labelTitles, forKey: "labelTitles")
+        try container.encode(self.labelColors, forKey: "labelColors")
+        try container.encode(self.labelPeers, forKey: "labelPeers")
+        try container.encode(self.labelPeerLabels, forKey: "labelPeerLabels")
         try container.encode((self.spoofPanel ? 1 : 0) as Int32, forKey: "spoofPanel")
         try container.encode((self.spoofLocation ? 1 : 0) as Int32, forKey: "spoofLocation")
         try container.encode(self.spoofMode.rawValue, forKey: "spoofMode")
@@ -268,6 +290,9 @@ public struct DkxSettings: Codable, Equatable {
 public final class DkxRuntime {
     private static let lock = NSLock()
     private static var value = DkxSettings.defaultSettings
+    // Строки списка чатов спрашивают метки на каждой перерисовке, поэтому
+    // готовая раскладка по чатам, а не проход по парам каждый раз
+    private static var labelsByPeer: [Int64: [DkxChatLabel]] = [:]
 
     public static var current: DkxSettings {
         lock.lock()
@@ -277,9 +302,18 @@ public final class DkxRuntime {
     }
 
     public static func update(_ settings: DkxSettings) {
+        let labels = settings.chatLabelsByPeer()
         lock.lock()
         value = settings
+        labelsByPeer = labels
         lock.unlock()
+    }
+
+    public static func chatLabels(forPeer peerId: Int64) -> [DkxChatLabel] {
+        lock.lock()
+        let result = labelsByPeer[peerId] ?? []
+        lock.unlock()
+        return result
     }
 }
 

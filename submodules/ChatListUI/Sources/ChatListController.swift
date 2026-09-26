@@ -228,6 +228,9 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
     
     private var storyProgressDisposable: Disposable?
     private var storySubscriptionsDisposable: Disposable?
+    // MARK: DKX метки для ряда над списком чатов
+    var dkxChatLabels: [DkxChatLabel] = []
+    private var dkxChatLabelsDisposable: Disposable?
     private var preloadStorySubscriptionsDisposable: Disposable?
     private var preloadStoryResourceDisposables: [MediaId: Disposable] = [:]
     
@@ -807,6 +810,7 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
         self.actionDisposables.dispose()
         self.powerSavingMonitoringDisposable?.dispose()
         self.storySubscriptionsDisposable?.dispose()
+        self.dkxChatLabelsDisposable?.dispose()
         self.storyArchiveSubscriptionsDisposable?.dispose()
         self.preloadStorySubscriptionsDisposable?.dispose()
         self.storyProgressDisposable?.dispose()
@@ -2165,6 +2169,21 @@ public class ChatListControllerImpl: TelegramBaseController, ChatListController 
                 }
             })
             
+            if !self.previewing, self.location == .chatList(groupId: .root) {
+                self.dkxChatLabelsDisposable = (self.context.sharedContext.accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.dkxSettings])
+                |> map { sharedData -> [DkxChatLabel] in
+                    return (sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings).chatLabels
+                }
+                |> distinctUntilChanged
+                |> deliverOnMainQueue).startStrict(next: { [weak self] labels in
+                    guard let self else {
+                        return
+                    }
+                    self.dkxChatLabels = labels
+                    self.requestLayout(transition: .immediate)
+                })
+            }
+
             if self.previewing {
                 self.storiesReady.set(.single(true))
             } else {

@@ -496,7 +496,7 @@ private func mappedInsertEntries(context: AccountContext, nodeInteraction: ChatL
                             },
                             requiresPremiumForMessaging: peerEntry.requiresPremiumForMessaging,
                             displayAsTopicList: peerEntry.displayAsTopicList,
-                            tags: chatListItemTags(location: location, accountPeerId: context.account.peerId, isPremium: isPremium, peer: peer.chatMainPeer, isUnread: combinedReadState?.isUnread ?? false, isMuted: isRemovedFromTotalUnreadCount, isContact: isContact, hasUnseenMentions: hasUnseenMentions, chatListFilters: chatListFilters)
+                            tags: chatListItemTags(location: location, accountPeerId: context.account.peerId, isPremium: isPremium, peer: peer.chatMainPeer, isUnread: combinedReadState?.isUnread ?? false, isMuted: isRemovedFromTotalUnreadCount, isContact: isContact, hasUnseenMentions: hasUnseenMentions, chatListFilters: chatListFilters) + dkxChatLabelTags(location: location, peerId: peer.peerId)
                         )),
                         editing: editing,
                         hasActiveRevealControls: hasActiveRevealControls,
@@ -863,7 +863,7 @@ private func mappedUpdateEntries(context: AccountContext, nodeInteraction: ChatL
                                 },
                                 requiresPremiumForMessaging: peerEntry.requiresPremiumForMessaging,
                                 displayAsTopicList: peerEntry.displayAsTopicList,
-                                tags: chatListItemTags(location: location, accountPeerId: context.account.peerId, isPremium: isPremium, peer: peer.chatMainPeer, isUnread: combinedReadState?.isUnread ?? false, isMuted: isRemovedFromTotalUnreadCount, isContact: isContact, hasUnseenMentions: hasUnseenMentions, chatListFilters: chatListFilters)
+                                tags: chatListItemTags(location: location, accountPeerId: context.account.peerId, isPremium: isPremium, peer: peer.chatMainPeer, isUnread: combinedReadState?.isUnread ?? false, isMuted: isRemovedFromTotalUnreadCount, isContact: isContact, hasUnseenMentions: hasUnseenMentions, chatListFilters: chatListFilters) + dkxChatLabelTags(location: location, peerId: peer.peerId)
                             )),
                             editing: editing,
                             hasActiveRevealControls: hasActiveRevealControls,
@@ -2172,6 +2172,17 @@ public final class ChatListNode: ListViewImpl {
         let previousChatListFilters = Atomic<[ChatListFilter]?>(value: nil)
         
         let previousAccountIsPremium = Atomic<Bool?>(value: nil)
+
+        // MARK: DKX смена меток перерисовывает все строки. Снимок обновляем
+        // тут же, строки читают его сразу после этого сигнала.
+        let dkxLabelsVersion = context.sharedContext.accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.dkxSettings])
+        |> map { sharedData -> String in
+            let settings = sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
+            DkxRuntime.update(settings)
+            return "\(settings.labelIds)|\(settings.labelTitles)|\(settings.labelColors)|\(settings.labelPeers)|\(settings.labelPeerLabels)"
+        }
+        |> distinctUntilChanged
+        let previousDkxLabelsVersion = Atomic<String?>(value: nil)
         
         let accountIsPremium = context.engine.data.subscribe(
             TelegramEngine.EngineData.Item.Peer.Peer(id: context.account.peerId)
@@ -2190,9 +2201,10 @@ public final class ChatListNode: ListViewImpl {
             self.statePromise.get(),
             contacts,
             chatListFilters,
-            accountIsPremium
+            accountIsPremium,
+            dkxLabelsVersion
         )
-        |> mapToQueue { (hideArchivedFolderByDefault, displayArchiveIntro, storageInfo, savedMessagesPeer, updateAndFilter, state, contacts, chatListFilters, accountIsPremium) -> Signal<ChatListNodeListViewTransition, NoError> in
+        |> mapToQueue { (hideArchivedFolderByDefault, displayArchiveIntro, storageInfo, savedMessagesPeer, updateAndFilter, state, contacts, chatListFilters, accountIsPremium, dkxLabelsVersion) -> Signal<ChatListNodeListViewTransition, NoError> in
             let (update, filter) = updateAndFilter
             
             let previousHideArchivedFolderByDefaultValue = previousHideArchivedFolderByDefault.swap(hideArchivedFolderByDefault)
@@ -2661,6 +2673,9 @@ public final class ChatListNode: ListViewImpl {
                 forceAllUpdated = true
             }
             if accountIsPremium != previousAccountIsPremium.swap(accountIsPremium) {
+                forceAllUpdated = true
+            }
+            if dkxLabelsVersion != previousDkxLabelsVersion.swap(dkxLabelsVersion) {
                 forceAllUpdated = true
             }
             let presentationData = state.presentationData
@@ -4301,6 +4316,17 @@ public class ChatHistoryListSelectionRecognizer: UIPanGestureRecognizer {
 
 func hideChatListContacts(context: AccountContext) {
     let _ = ApplicationSpecificNotice.setDisplayChatListContacts(accountManager: context.sharedContext.accountManager).startStandalone()
+}
+
+// MARK: DKX свои метки идут в строку чата вместе с тегами папок. Номера
+// сдвинуты, чтобы не совпасть с номерами папок.
+private func dkxChatLabelTags(location: ChatListControllerLocation, peerId: EnginePeer.Id) -> [ChatListItemContent.Tag] {
+    guard case .chatList = location else {
+        return []
+    }
+    return DkxRuntime.chatLabels(forPeer: peerId.toInt64()).map { label in
+        return ChatListItemContent.Tag(id: 1_000_000 + label.id, title: ChatFolderTitle(text: label.title, entities: [], enableAnimations: false), colorId: label.colorId)
+    }
 }
 
 func chatListItemTags(location: ChatListControllerLocation, accountPeerId: EnginePeer.Id, isPremium: Bool, peer: EnginePeer?, isUnread: Bool, isMuted: Bool, isContact: Bool, hasUnseenMentions: Bool, chatListFilters: [ChatListFilter]?) -> [ChatListItemContent.Tag] {
