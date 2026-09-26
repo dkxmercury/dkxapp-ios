@@ -90,26 +90,6 @@ private let dkxStringsJSON = #"""
   "uk": " · змін {}",
   "uz": " · tahrirlar {}"
  },
- " и ": {
-  "ar": " و ",
-  "be": " і ",
-  "ca": " i ",
-  "de": " und ",
-  "en": " and ",
-  "es": " y ",
-  "fa": " و ",
-  "fr": " et ",
-  "id": " dan ",
-  "it": " e ",
-  "ko": " 및 ",
-  "ms": " dan ",
-  "nl": " en ",
-  "pl": " i ",
-  "pt": " e ",
-  "tr": " ve ",
-  "uk": " і ",
-  "uz": " va "
- },
  "%.1f ГБ": {
   "ar": "%.1f غيغابايت",
   "be": "%.1f ГБ",
@@ -189,6 +169,11 @@ private let dkxStringsJSON = #"""
   "tr": "(iletildi, gönderen {})",
   "uk": "(переслано від {})",
   "uz": "({}dan uzatilgan)"
+ },
+ "(реакции + пересылки + комментарии) / просмотры × 100, по всем постам периода": {
+  "en": "(reactions + forwards + comments) / views × 100, across all posts in the period",
+  "uk": "(реакції + пересилання + коментарі) / перегляди × 100, за всіма дописами періоду",
+  "uz": "(reaksiyalar + ulashishlar + izohlar) / koʻrishlar × 100, davrdagi barcha postlar boʻyicha"
  },
  ", дорогу не нашли, едем прямо": {
   "ar": "، لم نجد طريقًا، نسير في خط مستقيم",
@@ -290,6 +275,31 @@ private let dkxStringsJSON = #"""
   "uk": ". Це межа за один раз, решту вивантажте наступного разу",
   "uz": ". Bu bir safarlik chegara, qolganini keyingi safar yuklang"
  },
+ "1 год": {
+  "en": "1 year",
+  "uk": "1 рік",
+  "uz": "1 yil"
+ },
+ "1 день": {
+  "en": "1 day",
+  "uk": "1 день",
+  "uz": "1 kun"
+ },
+ "14 дней": {
+  "en": "14 days",
+  "uk": "14 днів",
+  "uz": "14 kun"
+ },
+ "2 года": {
+  "en": "2 years",
+  "uk": "2 роки",
+  "uz": "2 yil"
+ },
+ "2 мес": {
+  "en": "2 mo",
+  "uk": "2 міс",
+  "uz": "2 oy"
+ },
  "30 дней": {
   "ar": "30 يومًا",
   "be": "30 дзён",
@@ -310,6 +320,16 @@ private let dkxStringsJSON = #"""
   "uk": "30 днів",
   "uz": "30 kun"
  },
+ "5 лет": {
+  "en": "5 years",
+  "uk": "5 років",
+  "uz": "5 yil"
+ },
+ "6 мес": {
+  "en": "6 mo",
+  "uk": "6 міс",
+  "uz": "6 oy"
+ },
  "7 дней": {
   "ar": "7 أيام",
   "be": "7 дзён",
@@ -329,6 +349,11 @@ private let dkxStringsJSON = #"""
   "tr": "7 gün",
   "uk": "7 днів",
   "uz": "7 kun"
+ },
+ "API ИИ": {
+  "en": "AI API",
+  "uk": "API ШІ",
+  "uz": "SI API"
  },
  "Client ID не задан в сборке. Выгрузка недоступна.": {
   "ar": "لم يُحدَّد Client ID في هذه النسخة. الرفع غير متاح.",
@@ -369,46 +394,6 @@ private let dkxStringsJSON = #"""
   "tr": "Belirli sohbetler için Face ID",
   "uk": "Face ID на окремі чати",
   "uz": "Alohida chatlar uchun Face ID"
- },
- "GEMINI, ДЛЯ УЗБЕКСКОГО": {
-  "ar": "GEMINI، للأوزبكية",
-  "be": "GEMINI, ДЛЯ УЗБЕКСКАЙ",
-  "ca": "GEMINI, PER A L'UZBEK",
-  "de": "GEMINI, FÜR USBEKISCH",
-  "en": "GEMINI, FOR UZBEK",
-  "es": "GEMINI, PARA UZBEKO",
-  "fa": "GEMINI، برای ازبکی",
-  "fr": "GEMINI, POUR L'OUZBEK",
-  "id": "GEMINI, UNTUK BAHASA UZBEK",
-  "it": "GEMINI, PER L'UZBEKO",
-  "ko": "GEMINI, 우즈베크어용",
-  "ms": "GEMINI, UNTUK BAHASA UZBEK",
-  "nl": "GEMINI, VOOR OEZBEEKS",
-  "pl": "GEMINI, DLA UZBECKIEGO",
-  "pt": "GEMINI, PARA UZBEQUE",
-  "tr": "GEMINI, ÖZBEKÇE İÇİN",
-  "uk": "GEMINI, ДЛЯ УЗБЕЦЬКОЇ",
-  "uz": "GEMINI, OʻZBEK TILI UCHUN"
- },
- "GLM, ДЛЯ РУССКОГО И АНГЛИЙСКОГО": {
-  "ar": "GLM، للروسية والإنجليزية",
-  "be": "GLM, ДЛЯ РУСКАЙ І АНГЛІЙСКАЙ",
-  "ca": "GLM, PER AL RUS I L'ANGLÈS",
-  "de": "GLM, FÜR RUSSISCH UND ENGLISCH",
-  "en": "GLM, FOR RUSSIAN AND ENGLISH",
-  "es": "GLM, PARA RUSO E INGLÉS",
-  "fa": "GLM، برای روسی و انگلیسی",
-  "fr": "GLM, POUR LE RUSSE ET L'ANGLAIS",
-  "id": "GLM, UNTUK BAHASA RUSIA DAN INGGRIS",
-  "it": "GLM, PER RUSSO E INGLESE",
-  "ko": "GLM, 러시아어 및 영어용",
-  "ms": "GLM, UNTUK BAHASA RUSIA DAN INGGERIS",
-  "nl": "GLM, VOOR RUSSISCH EN ENGELS",
-  "pl": "GLM, DLA ROSYJSKIEGO I ANGIELSKIEGO",
-  "pt": "GLM, PARA RUSSO E INGLÊS",
-  "tr": "GLM, RUSÇA VE İNGİLİZCE İÇİN",
-  "uk": "GLM, ДЛЯ РОСІЙСЬКОЇ ТА АНГЛІЙСЬКОЇ",
-  "uz": "GLM, RUS VA INGLIZ TILLARI UCHUN"
  },
  "Google Drive не подключён": {
   "ar": "Google Drive غير متصل",
@@ -830,6 +815,11 @@ private let dkxStringsJSON = #"""
   "uk": "iOS під час кожної зміни значка показує вікно, що значок змінено.\n\nУ Telegram власний вибір значка в «Оформленні» лишився як був. Нові картинки додаються у збірку, з телефона їх не встановити.",
   "uz": "Har safar ikonka almashtirilganda iOS ikonka oʻzgargani haqida oyna koʻrsatadi.\n\nTelegramning oʻz ikonka tanlovi “Koʻrinish” boʻlimida avvalgidek qoldi. Yangi rasmlar ilova yigʻmasiga qoʻshiladi, ularni telefondan oʻrnatib boʻlmaydi."
  },
+ "{} · {} в среднем": {
+  "en": "{} · {} on average",
+  "uk": "{} · {} у середньому",
+  "uz": "{} · oʻrtacha {}"
+ },
  "{} МБ": {
   "ar": "{} ميغابايت",
   "be": "{} МБ",
@@ -870,6 +860,11 @@ private let dkxStringsJSON = #"""
   "uk": "{} справа|{} справи|{} справ",
   "uz": "{} ta vazifa|{} ta vazifa"
  },
+ "{} день|{} дня|{} дней": {
+  "en": "{} day|{} days",
+  "uk": "{} день|{} дні|{} днів",
+  "uz": "{} kun|{} kun"
+ },
  "{} дн": {
   "ar": "{} يوم",
   "be": "{} дз",
@@ -890,6 +885,11 @@ private let dkxStringsJSON = #"""
   "uk": "{} дн",
   "uz": "{} kun"
  },
+ "{} и {}": {
+  "en": "{} and {}",
+  "uk": "{} і {}",
+  "uz": "{} va {}"
+ },
  "{} и ещё {}": {
   "ar": "{} و{} أخرى",
   "be": "{} і яшчэ {}",
@@ -909,6 +909,16 @@ private let dkxStringsJSON = #"""
   "tr": "{} ve {} tane daha",
   "uk": "{} і ще {}",
   "uz": "{} va yana {} ta"
+ },
+ "{} и текст": {
+  "en": "{} and text",
+  "uk": "{} і текст",
+  "uz": "{} va matn"
+ },
+ "{} к среднему": {
+  "en": "{} vs average",
+  "uk": "{} до середнього",
+  "uz": "oʻrtachaga nisbatan {}"
  },
  "{} км/ч": {
   "ar": "{} كم/س",
@@ -970,6 +980,16 @@ private let dkxStringsJSON = #"""
   "uk": "{} хв",
   "uz": "{} daq"
  },
+ "{} по просмотрам за {}": {
+  "en": "{} by views over {}",
+  "uk": "{} за переглядами за {}",
+  "uz": "{2} davrda koʻrishlar boʻyicha {1}"
+ },
+ "{} по просмотрам и {} по приросту за {}": {
+  "en": "{} by views and {} by growth over {}",
+  "uk": "{} за переглядами і {} за приростом за {}",
+  "uz": "{3} davrda koʻrishlar boʻyicha {1}, oʻsish boʻyicha {2}"
+ },
  "{} просрочено": {
   "ar": "{} متأخرة",
   "be": "{} пратэрмінавана",
@@ -1010,6 +1030,11 @@ private let dkxStringsJSON = #"""
   "uk": "{} сьогодні",
   "uz": "bugun {} ta"
  },
+ "{} сообщ. · {} симв. в среднем": {
+  "en": "{} msgs · {} chars on average",
+  "uk": "{} повід. · {} симв. у середньому",
+  "uz": "{} xabar · oʻrtacha {} belgi"
+ },
  "{} ч": {
   "ar": "{} ساعة",
   "be": "{} гадз",
@@ -1029,6 +1054,16 @@ private let dkxStringsJSON = #"""
   "tr": "{} sa",
   "uk": "{} год",
   "uz": "{} soat"
+ },
+ "{} час|{} часа|{} часов": {
+  "en": "{} hour|{} hours",
+  "uk": "{} година|{} години|{} годин",
+  "uz": "{} soat|{} soat"
+ },
+ "{}-й": {
+  "en": "#{}",
+  "uk": "{}-й",
+  "uz": "{}-oʻrin"
  },
  "{}: скопировано": {
   "ar": "تم نسخ {}",
@@ -1170,6 +1205,31 @@ private let dkxStringsJSON = #"""
   "uk": "А",
   "uz": "A"
  },
+ "АДРЕС API": {
+  "en": "API ADDRESS",
+  "uk": "АДРЕСА API",
+  "uz": "API MANZILI"
+ },
+ "Автор": {
+  "en": "Author",
+  "uk": "Автор",
+  "uz": "Muallif"
+ },
+ "Автор {}": {
+  "en": "Author {}",
+  "uk": "Автор {}",
+  "uz": "Muallif {}"
+ },
+ "Авторы": {
+  "en": "Authors",
+  "uk": "Автори",
+  "uz": "Mualliflar"
+ },
+ "Адрес сохранён. Проверьте ключ заново.": {
+  "en": "Address saved. Check the key again.",
+  "uk": "Адресу збережено. Перевірте ключ знову.",
+  "uz": "Manzil saqlandi. Kalitni qayta tekshiring."
+ },
  "Аккаунт": {
   "ar": "الحساب",
   "be": "Акаўнт",
@@ -1189,6 +1249,26 @@ private let dkxStringsJSON = #"""
   "tr": "Hesap",
   "uk": "Акаунт",
   "uz": "Hisob"
+ },
+ "Активность по часам": {
+  "en": "Activity by hour",
+  "uk": "Активність за годинами",
+  "uz": "Soatlar boʻyicha faollik"
+ },
+ "Альбом": {
+  "en": "Album",
+  "uk": "Альбом",
+  "uz": "Albom"
+ },
+ "Аналитика": {
+  "en": "Analytics",
+  "uk": "Аналітика",
+  "uz": "Tahlil"
+ },
+ "Аналитика {} {}.xlsx": {
+  "en": "Analytics {} {}.xlsx",
+  "uk": "Аналітика {} {}.xlsx",
+  "uz": "Tahlil {} {}.xlsx"
  },
  "Английский": {
   "ar": "الإنجليزية",
@@ -1409,6 +1489,16 @@ private let dkxStringsJSON = #"""
   "tr": "Turkuaz",
   "uk": "Бірюзовий",
   "uz": "Firuzarang"
+ },
+ "Больше всех пишут": {
+  "en": "Top posters",
+  "uk": "Найбільше пишуть",
+  "uz": "Eng koʻp yozadiganlar"
+ },
+ "Больше всех пригласили": {
+  "en": "Top inviters",
+  "uk": "Найбільше запросили",
+  "uz": "Eng koʻp taklif qilganlar"
  },
  "В Google Drive": {
   "ar": "حفظ في Google Drive",
@@ -1650,6 +1740,21 @@ private let dkxStringsJSON = #"""
   "uk": "Увімкнений перемикач ховає рядок. Вкладки «Чати» і «Налаштування» та рядок Dkx не ховаються, інакше сховане було б не повернути. Рядки, яких у вас і так немає, наприклад Проксі без налаштованого проксі, не зʼявляться й при вимкненому перемикачі.",
   "uz": "Yoqilgan holatda qator berkitiladi. “Chatlar” va “Sozlamalar” boʻlimlari hamda Dkx qatori berkitilmaydi, aks holda berkitilganini qaytarib boʻlmasdi. Sizda baribir yoʻq qatorlar, masalan, proksi sozlanmagan boʻlsa Proksi, oʻchirilgan holatda ham chiqmaydi."
  },
+ "Влияние постов": {
+  "en": "Post impact",
+  "uk": "Вплив дописів",
+  "uz": "Postlar taʼsiri"
+ },
+ "Вовлечённость": {
+  "en": "Engagement",
+  "uk": "Залученість",
+  "uz": "Faollik"
+ },
+ "Вовлечённость, %": {
+  "en": "Engagement, %",
+  "uk": "Залученість, %",
+  "uz": "Faollik, %"
+ },
  "Войдите в свой Google-аккаунт, чтобы выгружать медиа на Google Drive.": {
   "ar": "سجّل الدخول إلى حسابك في Google لرفع الوسائط إلى Google Drive.",
   "be": "Увайдзіце ў свой Google-акаўнт, каб выгружаць медыя на Google Drive.",
@@ -1689,6 +1794,21 @@ private let dkxStringsJSON = #"""
   "tr": "Google hesabına giriş yap",
   "uk": "Увійти в Google",
   "uz": "Google hisobiga kirish"
+ },
+ "Впишите номер аккаунта Cloudflare.": {
+  "en": "Enter the Cloudflare account ID.",
+  "uk": "Впишіть номер акаунта Cloudflare.",
+  "uz": "Cloudflare hisob raqamini kiriting."
+ },
+ "Все посты": {
+  "en": "All posts",
+  "uk": "Усі дописи",
+  "uz": "Barcha postlar"
+ },
+ "Все сообщения": {
+  "en": "All messages",
+  "uk": "Усі повідомлення",
+  "uz": "Barcha xabarlar"
  },
  "Все сообщения автора": {
   "ar": "كل رسائل المرسل",
@@ -1850,6 +1970,11 @@ private let dkxStringsJSON = #"""
   "uk": "Ви в контактах співрозмовника",
   "uz": "Siz suhbatdosh kontaktlaridasiz"
  },
+ "Выбрана модель {}": {
+  "en": "Selected model {}",
+  "uk": "Вибрано модель {}",
+  "uz": "Tanlangan model {}"
+ },
  "Выбрать дату и время": {
   "ar": "اختيار التاريخ والوقت",
   "be": "Выбраць дату і час",
@@ -1869,6 +1994,11 @@ private let dkxStringsJSON = #"""
   "tr": "Tarih ve saat seç",
   "uk": "Вибрати дату й час",
   "uz": "Sana va vaqtni tanlash"
+ },
+ "Выбрать из списка": {
+  "en": "Choose from the list",
+  "uk": "Вибрати зі списку",
+  "uz": "Roʻyxatdan tanlash"
  },
  "Выгружено {}": {
   "ar": "تاريخ التصدير {}",
@@ -1909,6 +2039,11 @@ private let dkxStringsJSON = #"""
   "tr": "Yükle",
   "uk": "Вивантажити",
   "uz": "Yuklash"
+ },
+ "Выгрузить в Google Drive": {
+  "en": "Export to Google Drive",
+  "uk": "Вивантажити в Google Drive",
+  "uz": "Google Drivega yuklash"
  },
  "Выгрузить на Google Drive?": {
   "ar": "الرفع إلى Google Drive؟",
@@ -1969,6 +2104,11 @@ private let dkxStringsJSON = #"""
   "tr": "Google Drive'a yükleme",
   "uk": "Вивантаження в Google Drive",
   "uz": "Google Drivega yuklash"
+ },
+ "Выгрузка обрезана": {
+  "en": "Export truncated",
+  "uk": "Вивантаження обрізане",
+  "uz": "Eksport qisqartirilgan"
  },
  "Выгрузка упёрлась в предел, самые старые сообщения могли не попасть.": {
   "ar": "بلغ التصدير الحد الأقصى، وقد لا تكون أقدم الرسائل مضمّنة.",
@@ -2210,6 +2350,11 @@ private let dkxStringsJSON = #"""
   "uk": "Група",
   "uz": "Guruh"
  },
+ "Группы": {
+  "en": "Groups",
+  "uk": "Групи",
+  "uz": "Guruhlar"
+ },
  "Данные и память": {
   "ar": "البيانات والتخزين",
   "be": "Даныя і памяць",
@@ -2250,6 +2395,11 @@ private let dkxStringsJSON = #"""
   "uk": "Дата",
   "uz": "Sana"
  },
+ "Дата UTC": {
+  "en": "Date UTC",
+  "uk": "Дата UTC",
+  "uz": "Sana UTC"
+ },
  "Дата и время": {
   "ar": "التاريخ والوقت",
   "be": "Дата і час",
@@ -2269,6 +2419,11 @@ private let dkxStringsJSON = #"""
   "tr": "Tarih ve saat",
   "uk": "Дата й час",
   "uz": "Sana va vaqt"
+ },
+ "Действия админов": {
+  "en": "Admin actions",
+  "uk": "Дії адмінів",
+  "uz": "Adminlar harakatlari"
  },
  "Дел пока нет. Нажмите плюс вверху, чтобы добавить первое.": {
   "ar": "لا مهام بعد. اضغط على + في الأعلى لإضافة أول مهمة.",
@@ -2370,6 +2525,16 @@ private let dkxStringsJSON = #"""
   "uk": "День по годинах",
   "uz": "Kun soatlar boʻyicha"
  },
+ "Для больших каналов и длинных периодов загрузка занимает до пары минут": {
+  "en": "For large channels and long periods loading can take a couple of minutes",
+  "uk": "Для великих каналів і довгих періодів завантаження триває до кількох хвилин",
+  "uz": "Katta kanallar va uzun davrlar uchun yuklash bir necha daqiqagacha davom etadi"
+ },
+ "Дни недели": {
+  "en": "Weekdays",
+  "uk": "Дні тижня",
+  "uz": "Hafta kunlari"
+ },
  "Добавить уместные": {
   "ar": "إضافة رموز مناسبة",
   "be": "Дадаць дарэчныя",
@@ -2469,6 +2634,16 @@ private let dkxStringsJSON = #"""
   "tr": "Basılı tutunca B taşınır",
   "uk": "Довге натискання переставить Б",
   "uz": "Bosib tursangiz, B koʻchiriladi"
+ },
+ "Другие каналы": {
+  "en": "Other channels",
+  "uk": "Інші канали",
+  "uz": "Boshqa kanallar"
+ },
+ "Другое": {
+  "en": "Other",
+  "uk": "Інше",
+  "uz": "Boshqa"
  },
  "Дружелюбный": {
   "ar": "ودّي",
@@ -2730,6 +2905,11 @@ private let dkxStringsJSON = #"""
   "uk": "За цей період у чаті немає медіа вибраних типів.",
   "uz": "Bu davrda chatda tanlangan turdagi media yoʻq."
  },
+ "За этот период сообщений нет": {
+  "en": "No messages in this period",
+  "uk": "За цей період повідомлень немає",
+  "uz": "Bu davrda xabarlar yoʻq"
+ },
  "Завершить": {
   "ar": "إكمال",
   "be": "Завяршыць",
@@ -2830,6 +3010,11 @@ private let dkxStringsJSON = #"""
   "uk": "Завтра о 9:00",
   "uz": "Ertaga soat 9:00"
  },
+ "Загружаю статистику Telegram по посту": {
+  "en": "Loading Telegram statistics for the post",
+  "uk": "Завантажую статистику Telegram за дописом",
+  "uz": "Post boʻyicha Telegram statistikasi yuklanmoqda"
+ },
  "Загружено в Google Drive": {
   "ar": "تم الرفع إلى Google Drive",
   "be": "Запампавана ў Google Drive",
@@ -2869,6 +3054,16 @@ private let dkxStringsJSON = #"""
   "tr": "Google Drive'a {} dosya yüklendi",
   "uk": "Завантажено в Google Drive, файлів {}",
   "uz": "Google Drivega {} ta fayl yuklandi"
+ },
+ "Загружено сообщений {}": {
+  "en": "Messages loaded {}",
+  "uk": "Завантажено повідомлень {}",
+  "uz": "Yuklangan xabarlar {}"
+ },
+ "Загружены последние {} сообщений, более ранние в расчёт не вошли": {
+  "en": "Only the latest {} messages were loaded, earlier ones are not counted",
+  "uk": "Завантажено останні {} повідомлень, раніші не враховано",
+  "uz": "Oxirgi {} ta xabar yuklandi, oldingilari hisobga olinmadi"
  },
  "Закрепить у себя": {
   "ar": "تثبيت لديّ فقط",
@@ -3150,6 +3345,11 @@ private let dkxStringsJSON = #"""
   "uk": "Зірки",
   "uz": "Yulduzlar"
  },
+ "Здесь подключаются сервисы ИИ для «Улучшить текст» и «Совет ИИ» в аналитике. Откройте сервис, вставьте ключ с его сайта и выберите модель из списка. Можно подключить несколько. Первым работает основной сервис, если он не ответил, запрос сам уходит в следующий. Для узбекского текста первым идёт Gemini, если он подключён.\n\nКлючи хранятся в Keychain этого телефона. Они переживают переустановку приложения и никуда, кроме самого сервиса, не отправляются.": {
+  "en": "This is where AI services for “Improve text” and “AI advice” in analytics are connected. Open a service, paste the key from its website and choose a model from the list. You can connect several. The main service works first, if it does not answer, the request goes to the next one by itself. For Uzbek text Gemini goes first if it is connected.\n\nKeys are stored in the Keychain of this phone. They survive reinstalling the app and are not sent anywhere except the service itself.",
+  "uk": "Тут підключаються сервіси ШІ для «Покращити текст» і «Порада ШІ» в аналітиці. Відкрийте сервіс, вставте ключ з його сайту й виберіть модель зі списку. Можна підключити кілька. Першим працює основний сервіс, якщо він не відповів, запит сам іде до наступного. Для узбецького тексту першим іде Gemini, якщо він підключений.\n\nКлючі зберігаються в Keychain цього телефона. Вони переживають перевстановлення застосунку й нікуди, крім самого сервісу, не надсилаються.",
+  "uz": "Bu yerda «Matnni yaxshilash» va tahlildagi «SI maslahati» uchun sunʼiy intellekt xizmatlari ulanadi. Xizmatni oching, uning saytidagi kalitni qoʻying va roʻyxatdan model tanlang. Bir nechtasini ulash mumkin. Avval asosiy xizmat ishlaydi, u javob bermasa, soʻrov oʻzi keyingisiga oʻtadi. Oʻzbekcha matn uchun, agar ulangan boʻlsa, avval Gemini ishlaydi.\n\nKalitlar shu telefonning Keychain xotirasida saqlanadi. Ular ilovani qayta oʻrnatganda ham saqlanib qoladi va xizmatning oʻzidan boshqa hech qayerga yuborilmaydi."
+ },
  "Здесь появится улучшенный текст": {
   "ar": "سيظهر النص المحسّن هنا",
   "be": "Тут з'явіцца палепшаны тэкст",
@@ -3189,6 +3389,26 @@ private let dkxStringsJSON = #"""
   "tr": "Yeşil",
   "uk": "Зелений",
   "uz": "Yashil"
+ },
+ "Значение": {
+  "en": "Value",
+  "uk": "Значення",
+  "uz": "Qiymat"
+ },
+ "Значение 1": {
+  "en": "Value 1",
+  "uk": "Значення 1",
+  "uz": "Qiymat 1"
+ },
+ "Значение 2": {
+  "en": "Value 2",
+  "uk": "Значення 2",
+  "uz": "Qiymat 2"
+ },
+ "Значение 3": {
+  "en": "Value 3",
+  "uk": "Значення 3",
+  "uz": "Qiymat 3"
  },
  "Значок приложения": {
   "ar": "أيقونة التطبيق",
@@ -3230,6 +3450,16 @@ private let dkxStringsJSON = #"""
   "uk": "ЗБЕРЕЖЕНЕ",
   "uz": "SAQLANGAN XABARLAR"
  },
+ "ИИ может ошибаться. Цифры сверяйте с дашбордом, прогноз это ориентир, а не обещание.": {
+  "en": "AI can make mistakes. Check the numbers against the dashboard, the forecast is a guide, not a promise.",
+  "uk": "ШІ може помилятися. Звіряйте цифри з дашбордом, прогноз це орієнтир, а не обіцянка.",
+  "uz": "SI xato qilishi mumkin. Raqamlarni boshqaruv paneli bilan solishtiring, prognoz vaʼda emas, moʻljal."
+ },
+ "ИИ разбирает статистику за {}. Обычно это до минуты.": {
+  "en": "AI is analyzing statistics for {}. It usually takes up to a minute.",
+  "uk": "ШІ розбирає статистику за {}. Зазвичай це до хвилини.",
+  "uz": "SI {} davr statistikasini tahlil qilmoqda. Odatda bu bir daqiqagacha davom etadi."
+ },
  "ИНТЕРФЕЙС": {
   "ar": "الواجهة",
   "be": "ІНТЭРФЕЙС",
@@ -3269,6 +3499,11 @@ private let dkxStringsJSON = #"""
   "tr": "Kayıtlı Mesajlar",
   "uk": "Збережене",
   "uz": "Saqlangan xabarlar"
+ },
+ "Изменение к предыдущему периоду Telegram.": {
+  "en": "Change compared to the previous Telegram period.",
+  "uk": "Зміна до попереднього періоду Telegram.",
+  "uz": "Telegramning oldingi davriga nisbatan oʻzgarish."
  },
  "Изменено ": {
   "ar": "عُدّل في ",
@@ -3350,6 +3585,16 @@ private let dkxStringsJSON = #"""
   "uk": "Змінених повідомлень немає. Попередні версії зберігаються, коли ввімкнено «Зберігати історію змін».",
   "uz": "Tahrirlangan xabarlar yoʻq. Oldingi versiyalar “Tahrirlar tarixi” yoqilgan boʻlsa saqlanadi."
  },
+ "Или впишите название модели": {
+  "en": "Or type the model name",
+  "uk": "Або впишіть назву моделі",
+  "uz": "Yoki model nomini yozing"
+ },
+ "Имя": {
+  "en": "Name",
+  "uk": "Імʼя",
+  "uz": "Ism"
+ },
  "Исправить ошибки": {
   "ar": "تصحيح الأخطاء",
   "be": "Выправіць памылкі",
@@ -3390,6 +3635,21 @@ private let dkxStringsJSON = #"""
   "uk": "Історія змін",
   "uz": "Tahrirlar tarixi"
  },
+ "Источники": {
+  "en": "Sources",
+  "uk": "Джерела",
+  "uz": "Manbalar"
+ },
+ "Источники Telegram": {
+  "en": "Telegram sources",
+  "uk": "Джерела Telegram",
+  "uz": "Telegram manbalari"
+ },
+ "Итого": {
+  "en": "Net",
+  "uk": "Разом",
+  "uz": "Jami"
+ },
  "Ищу в личном чате и общих группах…": {
   "ar": "جارٍ البحث في المحادثة الخاصة والمجموعات المشتركة…",
   "be": "Шукаю ў асабістым чаце і агульных групах…",
@@ -3429,6 +3689,16 @@ private let dkxStringsJSON = #"""
   "tr": "Aranıyor…",
   "uk": "Шукаю…",
   "uz": "Qidirilmoqda…"
+ },
+ "К среднему, раз": {
+  "en": "Vs average, times",
+  "uk": "До середнього, разів",
+  "uz": "Oʻrtachaga nisbatan, marta"
+ },
+ "КЛЮЧ": {
+  "en": "KEY",
+  "uk": "КЛЮЧ",
+  "uz": "KALIT"
  },
  "КОГДА": {
   "ar": "متى",
@@ -3490,85 +3760,70 @@ private let dkxStringsJSON = #"""
   "uk": "Як у тексті",
   "uz": "Matndagidek"
  },
- "Ключ в Google AI Studio, раздел Get API key.": {
-  "ar": "المفتاح في Google AI Studio، قسم Get API key.",
-  "be": "Ключ у Google AI Studio, раздзел Get API key.",
-  "ca": "La clau s'obté a Google AI Studio, secció Get API key.",
-  "de": "Den Schlüssel gibt es in Google AI Studio, Bereich Get API key.",
-  "en": "Get the key in Google AI Studio, Get API key section.",
-  "es": "La clave se obtiene en Google AI Studio, sección Get API key.",
-  "fa": "کلید در Google AI Studio، بخش Get API key.",
-  "fr": "La clé s'obtient dans Google AI Studio, section Get API key.",
-  "id": "Dapatkan kunci API di Google AI Studio, bagian Get API key.",
-  "it": "La chiave si ottiene su Google AI Studio, sezione Get API key.",
-  "ko": "Google AI Studio의 Get API key 메뉴에서 키를 받으세요.",
-  "ms": "Dapatkan kunci API di Google AI Studio, bahagian Get API key.",
-  "nl": "De sleutel krijg je in Google AI Studio, onderdeel Get API key.",
-  "pl": "Klucz w Google AI Studio, sekcja Get API key.",
-  "pt": "Obtenha a chave no Google AI Studio, seção Get API key.",
-  "tr": "Anahtar Google AI Studio sitesinde, Get API key bölümünde.",
-  "uk": "Ключ у Google AI Studio, розділ Get API key.",
-  "uz": "Kalit Google AI Studio saytida, Get API key boʻlimida."
+ "Как считается": {
+  "en": "How it is calculated",
+  "uk": "Як рахується",
+  "uz": "Qanday hisoblanadi"
  },
- "Ключ на z.ai, раздел API Keys. Бесплатные модели GLM Flash.": {
-  "ar": "المفتاح على z.ai، قسم API Keys. نماذج GLM Flash مجانية.",
-  "be": "Ключ на z.ai, раздзел API Keys. Бясплатныя мадэлі GLM Flash.",
-  "ca": "La clau s'obté a z.ai, secció API Keys. Models GLM Flash gratuïts.",
-  "de": "Den Schlüssel gibt es auf z.ai, Bereich API Keys. Die Modelle GLM Flash sind kostenlos.",
-  "en": "Get the key at z.ai, API Keys section. Free GLM Flash models.",
-  "es": "La clave se obtiene en z.ai, sección API Keys. Modelos GLM Flash gratuitos.",
-  "fa": "کلید در z.ai، بخش API Keys. مدل‌های GLM Flash رایگان‌اند.",
-  "fr": "La clé s'obtient sur z.ai, section API Keys. Les modèles GLM Flash sont gratuits.",
-  "id": "Dapatkan kunci API di z.ai, bagian API Keys. Model GLM Flash gratis.",
-  "it": "La chiave si ottiene su z.ai, sezione API Keys. Modelli GLM Flash gratuiti.",
-  "ko": "z.ai의 API Keys 메뉴에서 키를 받으세요. GLM Flash 모델은 무료입니다.",
-  "ms": "Dapatkan kunci API di z.ai, bahagian API Keys. Model GLM Flash percuma.",
-  "nl": "De sleutel krijg je op z.ai, onderdeel API Keys. De modellen GLM Flash zijn gratis.",
-  "pl": "Klucz na z.ai, sekcja API Keys. Darmowe modele GLM Flash.",
-  "pt": "Obtenha a chave em z.ai, seção API Keys. Modelos GLM Flash gratuitos.",
-  "tr": "Anahtar z.ai sitesinde, API Keys bölümünde. GLM Flash modelleri ücretsiz.",
-  "uk": "Ключ на z.ai, розділ API Keys. Безкоштовні моделі GLM Flash.",
-  "uz": "Kalit z.ai saytida, API Keys boʻlimida. GLM Flash modellari bepul."
+ "Канал": {
+  "en": "Channel",
+  "uk": "Канал",
+  "uz": "Kanal"
  },
- "Ключ не сохранён, {}.": {
-  "ar": "لم يُحفظ المفتاح، {}.",
-  "be": "Ключ не захаваны, {}.",
-  "ca": "No s'ha desat la clau, {}.",
-  "de": "Schlüssel nicht gespeichert, {}.",
-  "en": "Key not saved, {}.",
-  "es": "Clave no guardada, {}.",
-  "fa": "کلید ذخیره نشد، {}.",
-  "fr": "Clé non enregistrée, {}.",
-  "id": "Kunci API tidak disimpan, {}.",
-  "it": "Chiave non salvata, {}.",
-  "ko": "키가 저장되지 않았습니다, {}.",
-  "ms": "Kunci API tidak disimpan, {}.",
-  "nl": "Sleutel niet opgeslagen, {}.",
-  "pl": "Klucz nie został zapisany, {}.",
-  "pt": "Chave não salva, {}.",
-  "tr": "Anahtar kaydedilmedi, {}.",
-  "uk": "Ключ не збережено, {}.",
-  "uz": "Kalit saqlanmadi, {}."
+ "Ключ берётся в Alibaba Cloud Model Studio в разделе API Key. Адрес по умолчанию международный, для Китая его можно сменить ниже.": {
+  "en": "Get the key in Alibaba Cloud Model Studio, section API Key. The default address is international, for China you can change it below.",
+  "uk": "Ключ береться в Alibaba Cloud Model Studio в розділі API Key. Адреса за замовчуванням міжнародна, для Китаю її можна змінити нижче.",
+  "uz": "Kalit Alibaba Cloud Model Studio saytining API Key boʻlimida olinadi. Standart manzil xalqaro, Xitoy uchun uni pastda oʻzgartirish mumkin."
  },
- "Ключ работает и сохранён.": {
-  "ar": "المفتاح يعمل وتم حفظه.",
-  "be": "Ключ працуе і захаваны.",
-  "ca": "La clau funciona i s'ha desat.",
-  "de": "Der Schlüssel funktioniert und ist gespeichert.",
-  "en": "The key works and is saved.",
-  "es": "La clave funciona y está guardada.",
-  "fa": "کلید کار می‌کند و ذخیره شد.",
-  "fr": "La clé fonctionne et est enregistrée.",
-  "id": "Kunci API berfungsi dan sudah disimpan.",
-  "it": "La chiave funziona ed è salvata.",
-  "ko": "키가 작동하며 저장되었습니다.",
-  "ms": "Kunci API berfungsi dan telah disimpan.",
-  "nl": "De sleutel werkt en is opgeslagen.",
-  "pl": "Klucz działa i został zapisany.",
-  "pt": "A chave funciona e foi salva.",
-  "tr": "Anahtar çalışıyor ve kaydedildi.",
-  "uk": "Ключ працює і збережений.",
-  "uz": "Kalit ishlaydi va saqlandi."
+ "Ключ берётся в Google AI Studio, кнопка Get API key.": {
+  "en": "Get the key in Google AI Studio, button Get API key.",
+  "uk": "Ключ береться в Google AI Studio, кнопка Get API key.",
+  "uz": "Kalit Google AI Studio saytida, Get API key tugmasi orqali olinadi."
+ },
+ "Ключ берётся на console.anthropic.com в разделе API Keys.": {
+  "en": "Get the key on console.anthropic.com, section API Keys.",
+  "uk": "Ключ береться на console.anthropic.com у розділі API Keys.",
+  "uz": "Kalit console.anthropic.com saytining API Keys boʻlimida olinadi."
+ },
+ "Ключ берётся на console.mistral.ai в разделе API Keys.": {
+  "en": "Get the key on console.mistral.ai, section API Keys.",
+  "uk": "Ключ береться на console.mistral.ai у розділі API Keys.",
+  "uz": "Kalit console.mistral.ai saytining API Keys boʻlimida olinadi."
+ },
+ "Ключ берётся на openrouter.ai в разделе Keys. В списке только бесплатные модели разных компаний.": {
+  "en": "Get the key on openrouter.ai, section Keys. The list shows only free models from different companies.",
+  "uk": "Ключ береться на openrouter.ai у розділі Keys. У списку лише безкоштовні моделі різних компаній.",
+  "uz": "Kalit openrouter.ai saytining Keys boʻlimida olinadi. Roʻyxatda turli kompaniyalarning faqat bepul modellari."
+ },
+ "Ключ берётся на platform.deepseek.com в разделе API Keys.": {
+  "en": "Get the key on platform.deepseek.com, section API Keys.",
+  "uk": "Ключ береться на platform.deepseek.com у розділі API Keys.",
+  "uz": "Kalit platform.deepseek.com saytining API Keys boʻlimida olinadi."
+ },
+ "Ключ берётся на platform.openai.com в разделе API keys.": {
+  "en": "Get the key on platform.openai.com, section API keys.",
+  "uk": "Ключ береться на platform.openai.com у розділі API keys.",
+  "uz": "Kalit platform.openai.com saytining API keys boʻlimida olinadi."
+ },
+ "Ключ берётся на z.ai в разделе API Keys. Модели Flash там бесплатные.": {
+  "en": "Get the key on z.ai, section API Keys. Flash models there are free.",
+  "uk": "Ключ береться на z.ai у розділі API Keys. Моделі Flash там безкоштовні.",
+  "uz": "Kalit z.ai saytining API Keys boʻlimida olinadi. U yerda Flash modellari bepul."
+ },
+ "Ключ берётся на платформе Xiaomi MiMo в разделе API Keys. Если сервис сменил адрес, впишите новый ниже.": {
+  "en": "Get the key on the Xiaomi MiMo platform, section API Keys. If the service changed its address, enter the new one below.",
+  "uk": "Ключ береться на платформі Xiaomi MiMo у розділі API Keys. Якщо сервіс змінив адресу, впишіть нову нижче.",
+  "uz": "Kalit Xiaomi MiMo platformasining API Keys boʻlimida olinadi. Agar xizmat manzilini oʻzgartirgan boʻlsa, yangisini pastda yozing."
+ },
+ "Ключ работает, но сервис не отдал ни одной модели. Впишите модель вручную.": {
+  "en": "The key works, but the service returned no models. Type the model manually.",
+  "uk": "Ключ працює, але сервіс не віддав жодної моделі. Впишіть модель вручну.",
+  "uz": "Kalit ishlaydi, lekin xizmat birorta ham model bermadi. Modelni qoʻlda yozing."
+ },
+ "Ключ работает. Моделей {}, выберите одну.": {
+  "en": "The key works. Models {}, choose one.",
+  "uk": "Ключ працює. Моделей {}, виберіть одну.",
+  "uz": "Kalit ishlaydi. Modellar {}, bittasini tanlang."
  },
  "Ключ удалён.": {
   "ar": "تم حذف المفتاح.",
@@ -3610,46 +3865,6 @@ private let dkxStringsJSON = #"""
   "uk": "Ключа немає",
   "uz": "Kalit yoʻq"
  },
- "Ключи": {
-  "ar": "المفاتيح",
-  "be": "Ключы",
-  "ca": "Claus",
-  "de": "Schlüssel",
-  "en": "Keys",
-  "es": "Claves",
-  "fa": "کلیدها",
-  "fr": "Clés",
-  "id": "Kunci API",
-  "it": "Chiavi",
-  "ko": "키",
-  "ms": "Kunci API",
-  "nl": "Sleutels",
-  "pl": "Klucze",
-  "pt": "Chaves",
-  "tr": "Anahtarlar",
-  "uk": "Ключі",
-  "uz": "Kalitlar"
- },
- "Ключи Gemini и GLM": {
-  "ar": "مفاتيح Gemini وGLM",
-  "be": "Ключы Gemini і GLM",
-  "ca": "Claus de Gemini i GLM",
-  "de": "Schlüssel für Gemini und GLM",
-  "en": "Gemini and GLM keys",
-  "es": "Claves de Gemini y GLM",
-  "fa": "کلیدهای Gemini و GLM",
-  "fr": "Clés Gemini et GLM",
-  "id": "Kunci API Gemini dan GLM",
-  "it": "Chiavi Gemini e GLM",
-  "ko": "Gemini 및 GLM 키",
-  "ms": "Kunci API Gemini dan GLM",
-  "nl": "Sleutels voor Gemini en GLM",
-  "pl": "Klucze Gemini i GLM",
-  "pt": "Chaves Gemini e GLM",
-  "tr": "Gemini ve GLM anahtarları",
-  "uk": "Ключі Gemini і GLM",
-  "uz": "Gemini va GLM kalitlari"
- },
  "Кнопка в поле ввода": {
   "ar": "زر في حقل الإدخال",
   "be": "Кнопка ў полі ўводу",
@@ -3690,25 +3905,10 @@ private let dkxStringsJSON = #"""
   "uk": "Кнопка розшифрування зʼявляється в голосових і відеоповідомленнях. Є Premium, розшифровує Telegram. Немає Premium, розшифровує сам телефон вибраною мовою, на сервер Telegram нічого не йде. Якщо мову не завантажено на телефон, iOS розпізнає через сервери Apple.",
   "uz": "Matnga aylantirish tugmasi ovozli va videoxabarlarda chiqadi. Premium boʻlsa, matnga Telegram aylantiradi. Premium boʻlmasa, telefonning oʻzi tanlangan tilda aylantiradi, Telegram serveriga hech narsa yuborilmaydi. Agar til telefonga yuklab olinmagan boʻlsa, iOS nutqni Apple serverlari orqali taniydi."
  },
- "Кнопка с волшебной палочкой появляется в поле ввода, когда там есть текст. Стиль, смайлики, обращение и язык выбираются на её экране, последний выбор запоминается. Ключи хранятся в Keychain этого телефона и переживают переустановку приложения. Сегодня запросов {}.": {
-  "ar": "يظهر زر العصا السحرية في حقل الإدخال عندما يحتوي على نص. يُختار الأسلوب والرموز التعبيرية وصيغة المخاطبة واللغة في شاشته، ويُحفظ آخر اختيار. تُحفظ المفاتيح في Keychain هذا الهاتف وتبقى بعد إعادة تثبيت التطبيق. عدد الطلبات اليوم {}.",
-  "be": "Кнопка з чароўнай палачкай з'яўляецца ў полі ўводу, калі там ёсць тэкст. Стыль, эмодзі, зварот і мова выбіраюцца на яе экране, апошні выбар запамінаецца. Ключы захоўваюцца ў Keychain гэтага тэлефона і перажываюць пераўсталёўку праграмы. Сёння запытаў {}.",
-  "ca": "El botó de la vareta màgica apareix al camp de text quan hi ha text. L'estil, els emojis, el tractament i la llengua es trien a la seva pantalla, i es recorda l'última elecció. Les claus es desen al Keychain d'aquest telèfon i es conserven si reinstal·leu l'aplicació. Sol·licituds d'avui {}.",
-  "de": "Der Button mit dem Zauberstab erscheint im Eingabefeld, sobald dort Text steht. Stil, Emoji, Anrede und Sprache wählst du auf seinem Bildschirm, die letzte Auswahl wird gemerkt. Die Schlüssel liegen im Keychain dieses Telefons und bleiben auch nach einer Neuinstallation der App erhalten. Anfragen heute {}.",
-  "en": "The magic wand button appears in the input field when it has text. Style, emoji, form of address and language are chosen on its screen, the last choice is remembered. Keys are stored in this phone's Keychain and survive reinstalling the app. Requests today {}.",
-  "es": "El botón de la varita mágica aparece en el campo de texto cuando hay texto. El estilo, los emojis, el tratamiento y el idioma se eligen en su pantalla, y se recuerda la última elección. Las claves se guardan en el Keychain de este teléfono y se conservan al reinstalar la app. Solicitudes hoy {}.",
-  "fa": "دکمه عصای جادویی وقتی در فیلد ورودی متن باشد ظاهر می‌شود. سبک، ایموجی، نحوه خطاب و زبان در صفحه آن انتخاب می‌شوند و آخرین انتخاب به خاطر سپرده می‌شود. کلیدها در Keychain همین گوشی نگهداری می‌شوند و پس از نصب دوباره برنامه باقی می‌مانند. درخواست‌های امروز {}.",
-  "fr": "Le bouton avec la baguette magique apparaît dans le champ de saisie quand il contient du texte. Le style, les emoji, le tutoiement ou vouvoiement et la langue se choisissent sur son écran, le dernier choix est mémorisé. Les clés sont stockées dans le Keychain de ce téléphone et restent après une réinstallation de l'app. {} requête(s) aujourd'hui.",
-  "id": "Tombol tongkat ajaib muncul di kolom pesan saat ada teks di sana. Gaya, emoji, sapaan, dan bahasa dipilih di layarnya, pilihan terakhir diingat. Kunci API disimpan di Keychain ponsel ini dan tetap ada setelah aplikasi dipasang ulang. Permintaan hari ini {}.",
-  "it": "Il pulsante con la bacchetta magica compare nel campo di testo quando contiene del testo. Stile, emoji, modo di rivolgersi e lingua si scelgono nella sua schermata, e l'ultima scelta viene ricordata. Le chiavi sono salvate nel Keychain di questo telefono e restano anche se reinstalli l'app. Richieste di oggi {}.",
-  "ko": "마술봉 버튼은 입력창에 텍스트가 있을 때 나타납니다. 스타일, 이모지, 말투, 언어는 그 화면에서 선택하며 마지막 선택이 기억됩니다. 키는 이 휴대폰의 Keychain에 저장되어 앱을 다시 설치해도 유지됩니다. 오늘 요청 {}회.",
-  "ms": "Butang tongkat ajaib muncul di ruang mesej apabila ada teks di situ. Gaya, emoji, sapaan dan bahasa dipilih pada skrinnya, pilihan terakhir diingati. Kunci API disimpan dalam Keychain telefon ini dan kekal walaupun aplikasi dipasang semula. Permintaan hari ini {}.",
-  "nl": "De knop met de toverstaf verschijnt in het invoerveld zodra daar tekst staat. Stijl, emoji, aanspreekvorm en taal kies je op het scherm ervan, de laatste keuze wordt onthouden. De sleutels staan in de Keychain van deze telefoon en blijven bewaard als je de app opnieuw installeert. Verzoeken vandaag {}.",
-  "pl": "Przycisk z magiczną różdżką pojawia się w polu wpisywania, gdy jest w nim tekst. Styl, emoji, formę zwracania się i język wybiera się na jego ekranie, ostatni wybór jest zapamiętywany. Klucze są przechowywane w Keychain tego telefonu i przetrwają ponowną instalację aplikacji. Dzisiaj zapytań {}.",
-  "pt": "O botão de varinha mágica aparece no campo de mensagem quando há texto nele. Estilo, emojis, tratamento e idioma são escolhidos na tela dele, e a última escolha é lembrada. As chaves ficam no Keychain deste celular e continuam lá mesmo se o app for reinstalado. Solicitações hoje {}.",
-  "tr": "Sihirli değnek düğmesi, giriş alanında metin olduğunda görünür. Stil, emoji, hitap ve dil onun ekranında seçilir, son seçim hatırlanır. Anahtarlar bu telefonun Keychain'inde saklanır ve uygulama yeniden yüklense de silinmez. Bugünkü istekler {}.",
-  "uk": "Кнопка з чарівною паличкою зʼявляється в полі введення, коли там є текст. Стиль, емодзі, звертання й мова вибираються на її екрані, останній вибір запамʼятовується. Ключі зберігаються в Keychain цього телефона й переживають перевстановлення застосунку. Сьогодні запитів {}.",
-  "uz": "Sehrli tayoqcha tugmasi kiritish maydonida matn boʻlganda chiqadi. Uslub, emoji, murojaat va til uning ekranida tanlanadi, oxirgi tanlov eslab qolinadi. Kalitlar shu telefondagi Keychainda saqlanadi va ilova qayta oʻrnatilganda ham saqlanib qoladi. Bugungi soʻrovlar {}."
+ "Кнопка с волшебной палочкой появляется в поле ввода, когда там есть текст. Стиль, смайлики, обращение и язык выбираются на её экране, последний выбор запоминается. Работает через сервисы из раздела «API ИИ». Сегодня запросов {}.": {
+  "en": "The magic wand button appears in the input field when there is text. Style, emoji, form of address and language are chosen on its screen, the last choice is remembered. It works through the services in the “AI API” section. Requests today {}.",
+  "uk": "Кнопка з чарівною паличкою зʼявляється в полі введення, коли там є текст. Стиль, смайлики, звертання й мова вибираються на її екрані, останній вибір запамʼятовується. Працює через сервіси з розділу «API ШІ». Сьогодні запитів {}.",
+  "uz": "Sehrli tayoqcha tugmasi kiritish maydonida matn boʻlganda chiqadi. Uslub, smayliklar, murojaat va til uning ekranida tanlanadi, oxirgi tanlov eslab qolinadi. «SI API» boʻlimidagi xizmatlar orqali ishlaydi. Bugungi soʻrovlar {}."
  },
  "Кнопки «Улучшить текст» в поле ввода не будет.": {
   "ar": "لن يظهر زر «تحسين النص» في حقل الإدخال.",
@@ -3749,6 +3949,31 @@ private let dkxStringsJSON = #"""
   "tr": "Fotoğraf, durum ve kullanıcı adı düğmeleri",
   "uk": "Кнопки фото, статусу та імені користувача",
   "uz": "Rasm, status va foydalanuvchi nomi tugmalari"
+ },
+ "Когда пишут": {
+  "en": "When people write",
+  "uk": "Коли пишуть",
+  "uz": "Qachon yozishadi"
+ },
+ "Когда читают": {
+  "en": "When people read",
+  "uk": "Коли читають",
+  "uz": "Qachon oʻqishadi"
+ },
+ "Количество": {
+  "en": "Count",
+  "uk": "Кількість",
+  "uz": "Soni"
+ },
+ "Комментариев": {
+  "en": "Comments",
+  "uk": "Коментарів",
+  "uz": "Izohlar"
+ },
+ "Комментарии": {
+  "en": "Comments",
+  "uk": "Коментарі",
+  "uz": "Izohlar"
  },
  "Контакт": {
   "ar": "جهة اتصال",
@@ -3930,6 +4155,11 @@ private let dkxStringsJSON = #"""
   "uk": "Стрічка історій над списком чатів зникне повністю. Самі історії залишаться доступними в профілях.\n\nБез навʼязування зникнуть плашки й екрани купівлі Premium, пункти Premium, Business і подарунків у налаштуваннях, значки подарунків у полі введення, а під час набору пропонуватимуться лише ваші стікери, без чужих паків. Якщо Premium уже є, він і далі працюватиме. Купівля Stars лишається. Застосовується під час наступного відкриття екрана.",
   "uz": "Chatlar roʻyxati ustidagi hikoyalar tasmasi butunlay yoʻqoladi. Hikoyalarning oʻzi profillarda ochiq qoladi.\n\nPremium reklamasi olib tashlansa, Premium bannerlari va xarid ekranlari, sozlamalardagi Premium, Business va hadyalar bandlari, kiritish maydonidagi hadya belgilari yoʻqoladi, yozish paytida esa boshqa toʻplamlarsiz faqat sizning stikerlaringiz taklif qilinadi. Agar Premium allaqachon boʻlsa, u ishlashda davom etadi. Stars xarid qilish qoladi. Oʻzgarishlar ekran keyingi safar ochilganda qoʻllanadi."
  },
+ "Личные сообщения": {
+  "en": "Private messages",
+  "uk": "Особисті повідомлення",
+  "uz": "Shaxsiy xabarlar"
+ },
  "Личные чаты, где последним написал собеседник, без ботов и архива. Сверху те, кто ждёт дольше всех. Ответили, и человек пропадёт из списка сам.": {
   "ar": "المحادثات الخاصة التي كان آخر من كتب فيها هو الطرف الآخر، دون البوتات والأرشيف. في الأعلى من ينتظر أطول مدة. بمجرد أن ترد، يختفي الشخص من القائمة تلقائيًا.",
   "be": "Асабістыя чаты, дзе апошнім напісаў суразмоўца, без ботаў і архіва. Уверсе тыя, хто чакае даўжэй за ўсіх. Адказалі, і чалавек знікне са спісу сам.",
@@ -4010,6 +4240,26 @@ private let dkxStringsJSON = #"""
   "uk": "Логін скопійовано",
   "uz": "Login nusxalandi"
  },
+ "Лучше {} постов канала": {
+  "en": "Better than {} of channel posts",
+  "uk": "Краще за {} дописів каналу",
+  "uz": "Kanal postlarining {} qismidan yaxshiroq"
+ },
+ "Лучше только {} постов канала": {
+  "en": "Better than only {} of channel posts",
+  "uk": "Краще лише за {} дописів каналу",
+  "uz": "Kanal postlarining faqat {} qismidan yaxshiroq"
+ },
+ "Лучшее время": {
+  "en": "Best time",
+  "uk": "Найкращий час",
+  "uz": "Eng yaxshi vaqt"
+ },
+ "Лучшее время публикации": {
+  "en": "Best time to post",
+  "uk": "Найкращий час публікації",
+  "uz": "Joylashning eng yaxshi vaqti"
+ },
  "МЕТКИ": {
   "ar": "الوسوم",
   "be": "МЕТКІ",
@@ -4029,6 +4279,21 @@ private let dkxStringsJSON = #"""
   "tr": "ETİKETLER",
   "uk": "МІТКИ",
   "uz": "YORLIQLAR"
+ },
+ "МОДЕЛЬ": {
+  "en": "MODEL",
+  "uk": "МОДЕЛЬ",
+  "uz": "MODEL"
+ },
+ "Мало данных для совета. Нужно от 20 постов старше 48 часов, сейчас {}.": {
+  "en": "Not enough data for advice. At least 20 posts older than 48 hours are needed, now {}.",
+  "uk": "Замало даних для поради. Потрібно від 20 дописів, старших за 48 годин, зараз {}.",
+  "uz": "Maslahat uchun maʼlumot yetarli emas. 48 soatdan eski kamida 20 ta post kerak, hozir {}."
+ },
+ "Мало постов для сравнения": {
+  "en": "Not enough posts to compare",
+  "uk": "Замало дописів для порівняння",
+  "uz": "Taqqoslash uchun postlar kam"
  },
  "Маршрут": {
   "ar": "مسار",
@@ -4089,6 +4354,11 @@ private let dkxStringsJSON = #"""
   "tr": "Medyayı Google Drive'a",
   "uk": "Медіа в Google Drive",
   "uz": "Mediani Google Drivega"
+ },
+ "Медиана просмотров": {
+  "en": "Median views",
+  "uk": "Медіана переглядів",
+  "uz": "Koʻrishlar medianasi"
  },
  "Месяц": {
   "ar": "شهر",
@@ -4370,6 +4640,26 @@ private let dkxStringsJSON = #"""
   "uk": "Міні-застосунки ботів",
   "uz": "Bot mini ilovalari"
  },
+ "Модели {}": {
+  "en": "{} models",
+  "uk": "Моделі {}",
+  "uz": "{} modellari"
+ },
+ "Модель {} не ответила, {}.": {
+  "en": "Model {} did not answer, {}.",
+  "uk": "Модель {} не відповіла, {}.",
+  "uz": "{} modeli javob bermadi, {}."
+ },
+ "Модель {} отвечает и выбрана.": {
+  "en": "Model {} answers and is selected.",
+  "uk": "Модель {} відповідає і вибрана.",
+  "uz": "{} modeli javob beradi va tanlandi."
+ },
+ "Модель не выбрана, сервис пока не работает": {
+  "en": "No model selected, the service does not work yet",
+  "uk": "Модель не вибрано, сервіс поки не працює",
+  "uz": "Model tanlanmagan, xizmat hozircha ishlamaydi"
+ },
  "Можно в несколько строк. Переносы сохранятся.": {
   "ar": "يمكن الكتابة في عدة أسطر. ستُحفظ فواصل الأسطر.",
   "be": "Можна ў некалькі радкоў. Пераносы захаваюцца.",
@@ -4570,6 +4860,11 @@ private let dkxStringsJSON = #"""
   "uk": "Натисніть плюс угорі, щоб додати справу на цей день.",
   "uz": "Shu kunga vazifa qoʻshish uchun yuqoridagi plyusni bosing."
  },
+ "Название": {
+  "en": "Name",
+  "uk": "Назва",
+  "uz": "Nomi"
+ },
  "Найдено {}. Личный чат и общие группы, нажатие открывает сообщение.": {
   "ar": "تم العثور على {}. المحادثة الخاصة والمجموعات المشتركة، اضغط لفتح الرسالة.",
   "be": "Знойдзена {}. Асабісты чат і агульныя групы, націск адкрывае паведамленне.",
@@ -4609,6 +4904,11 @@ private let dkxStringsJSON = #"""
   "tr": "Bul ve yükle",
   "uk": "Знайти й вивантажити",
   "uz": "Topish va yuklash"
+ },
+ "Написал {}.": {
+  "en": "Written by {}.",
+  "uk": "Написав {}.",
+  "uz": "Muallif {}."
  },
  "Написал {}. Текст можно поправить здесь же, потом «Заменить» вверху.": {
   "ar": "كتبه {}. يمكنك تعديل النص هنا، ثم اضغط «استبدال» في الأعلى.",
@@ -4870,6 +5170,11 @@ private let dkxStringsJSON = #"""
   "uk": "Не вдалося завантажити {}. {}",
   "uz": "{} yuklanmadi. {}"
  },
+ "Не удалось загрузить таблицу. {}": {
+  "en": "Could not upload the spreadsheet. {}",
+  "uk": "Не вдалося завантажити таблицю. {}",
+  "uz": "Jadval yuklanmadi. {}"
+ },
  "Не удалось записать файл": {
   "ar": "تعذّرت كتابة الملف",
   "be": "Не ўдалося запісаць файл",
@@ -4909,6 +5214,11 @@ private let dkxStringsJSON = #"""
   "tr": "Metne dönüştürülemedi. Dkx ayarlarındaki “Sesli mesajları metne dönüştürme” bölümünde dili ve kaydın indirildiğini kontrol edin.",
   "uk": "Не вдалося розшифрувати. Перевірте мову в Dkx, розділ «Розшифрування голосових», і що запис завантажено.",
   "uz": "Matnga aylantirib boʻlmadi. Dkx ichidagi “Ovozli xabarlarni matnga aylantirish” boʻlimida tilni tekshiring va yozuv yuklab olinganiga ishonch hosil qiling."
+ },
+ "Не удалось собрать таблицу": {
+  "en": "Could not build the spreadsheet",
+  "uk": "Не вдалося зібрати таблицю",
+  "uz": "Jadvalni tuzib boʻlmadi"
  },
  "Недавние звонки": {
   "ar": "أحدث المكالمات",
@@ -4950,6 +5260,16 @@ private let dkxStringsJSON = #"""
   "uk": "Необовʼязково",
   "uz": "Ixtiyoriy"
  },
+ "Нет данных для выгрузки": {
+  "en": "Nothing to export",
+  "uk": "Немає даних для вивантаження",
+  "uz": "Eksport uchun maʼlumot yoʻq"
+ },
+ "Нет подключённого сервиса ИИ.": {
+  "en": "No AI service connected.",
+  "uk": "Немає підключеного сервісу ШІ.",
+  "uz": "Ulangan SI xizmati yoʻq."
+ },
  "Нет разрешения на распознавание речи. Включите его в настройках iOS, раздел Dkx.": {
   "ar": "لا يوجد إذن بالتعرّف على الكلام. فعّله في إعدادات iOS، قسم Dkx.",
   "be": "Няма дазволу на распазнаванне маўлення. Уключыце яго ў наладах iOS, раздзел Dkx.",
@@ -4989,6 +5309,11 @@ private let dkxStringsJSON = #"""
   "tr": "Hiçbir şey bulunamadı",
   "uk": "Нічого не знайдено",
   "uz": "Hech narsa topilmadi"
+ },
+ "Ничего не нашлось. Название модели можно вписать вручную на прошлом экране.": {
+  "en": "Nothing found. You can type the model name manually on the previous screen.",
+  "uk": "Нічого не знайшлося. Назву моделі можна вписати вручну на попередньому екрані.",
+  "uz": "Hech narsa topilmadi. Model nomini oldingi ekranda qoʻlda yozish mumkin."
  },
  "Новая запись": {
   "ar": "سجل جديد",
@@ -5050,6 +5375,11 @@ private let dkxStringsJSON = #"""
   "uk": "Нова справа",
   "uz": "Yangi vazifa"
  },
+ "Новые": {
+  "en": "Newest",
+  "uk": "Нові",
+  "uz": "Yangilari"
+ },
  "Новый шаблон": {
   "ar": "قالب جديد",
   "be": "Новы шаблон",
@@ -5090,6 +5420,16 @@ private let dkxStringsJSON = #"""
   "uk": "Номер",
   "uz": "Telefon raqami"
  },
+ "Номер аккаунта Cloudflare": {
+  "en": "Cloudflare account ID",
+  "uk": "Номер акаунта Cloudflare",
+  "uz": "Cloudflare hisob raqami"
+ },
+ "Нужен ключ сервиса ИИ": {
+  "en": "An AI service key is needed",
+  "uk": "Потрібен ключ сервісу ШІ",
+  "uz": "SI xizmati kaliti kerak"
+ },
  "Нужно войти в Google заново": {
   "ar": "يجب تسجيل الدخول إلى Google من جديد",
   "be": "Трэба ўвайсці ў Google нанова",
@@ -5110,6 +5450,16 @@ private let dkxStringsJSON = #"""
   "uk": "Потрібно знову увійти в Google",
   "uz": "Google hisobiga qayta kirish kerak"
  },
+ "Нужно хотя бы 5 постов старше 48 часов за период.": {
+  "en": "At least 5 posts older than 48 hours in the period are needed.",
+  "uk": "Потрібно хоча б 5 дописів, старших за 48 годин, за період.",
+  "uz": "Davrda 48 soatdan eski kamida 5 ta post kerak."
+ },
+ "Нужны токен с правом Workers AI и номер аккаунта. Оба есть в панели Cloudflare, номер аккаунта справа на главной странице.": {
+  "en": "You need a token with Workers AI permission and the account ID. Both are in the Cloudflare dashboard, the account ID is on the right of the home page.",
+  "uk": "Потрібні токен із правом Workers AI і номер акаунта. Обидва є в панелі Cloudflare, номер акаунта праворуч на головній сторінці.",
+  "uz": "Workers AI huquqli token va hisob raqami kerak. Ikkalasi ham Cloudflare panelida bor, hisob raqami bosh sahifaning oʻng tomonida."
+ },
  "ОБРАЩЕНИЕ": {
   "ar": "صيغة المخاطبة",
   "be": "ЗВАРОТ",
@@ -5129,6 +5479,11 @@ private let dkxStringsJSON = #"""
   "tr": "HİTAP",
   "uk": "ЗВЕРТАННЯ",
   "uz": "MUROJAAT"
+ },
+ "ОСНОВНОЙ СЕРВИС": {
+  "en": "MAIN SERVICE",
+  "uk": "ОСНОВНИЙ СЕРВІС",
+  "uz": "ASOSIY XIZMAT"
  },
  "ОТЛАДКА": {
   "ar": "التنقيح",
@@ -5170,6 +5525,11 @@ private let dkxStringsJSON = #"""
   "uk": "Назад",
   "uz": "Teskari"
  },
+ "Обычно менять не нужно. Пустое поле значит адрес по умолчанию, он написан серым.": {
+  "en": "Usually no need to change. An empty field means the default address, it is shown in grey.",
+  "uk": "Зазвичай змінювати не потрібно. Порожнє поле означає адресу за замовчуванням, вона написана сірим.",
+  "uz": "Odatda oʻzgartirish shart emas. Boʻsh maydon standart manzilni bildiradi, u kulrang yozilgan."
+ },
  "Опрос": {
   "ar": "استفتاء",
   "be": "Апытанне",
@@ -5189,6 +5549,16 @@ private let dkxStringsJSON = #"""
   "tr": "Anket",
   "uk": "Опитування",
   "uz": "Soʻrovnoma"
+ },
+ "Опубликован {}, в лучшее окно канала. Посты в это время набирают в среднем {} просмотров к остальному времени.": {
+  "en": "Published {}, in the channel's best window. Posts at this time get {} views on average compared to other times.",
+  "uk": "Опубліковано {}, у найкраще вікно каналу. Дописи в цей час набирають у середньому {} переглядів порівняно з іншим часом.",
+  "uz": "{} joylangan, kanalning eng yaxshi oynasida. Bu vaqtdagi postlar boshqa vaqtga nisbatan oʻrtacha {} koʻrish oladi."
+ },
+ "Опубликован {}. Лучшее окно канала {}, посты в нём набирают в среднем {} просмотров к остальному времени.": {
+  "en": "Published {}. The channel's best window is {}, posts in it get {} views on average compared to other times.",
+  "uk": "Опубліковано {}. Найкраще вікно каналу {}, дописи в ньому набирають у середньому {} переглядів порівняно з іншим часом.",
+  "uz": "{} joylangan. Kanalning eng yaxshi oynasi {}, undagi postlar boshqa vaqtga nisbatan oʻrtacha {} koʻrish oladi."
  },
  "Опустить ниже": {
   "ar": "تحريك للأسفل",
@@ -5250,6 +5620,16 @@ private let dkxStringsJSON = #"""
   "uk": "Основний",
   "uz": "Asosiy"
  },
+ "Основной сервис получает запросы первым. Остальные подключённые сервисы подстраховывают, если он не ответил.": {
+  "en": "The main service gets requests first. The other connected services back it up if it does not answer.",
+  "uk": "Основний сервіс отримує запити першим. Інші підключені сервіси підстраховують, якщо він не відповів.",
+  "uz": "Asosiy xizmat soʻrovlarni birinchi oladi. U javob bermasa, boshqa ulangan xizmatlar yordamga keladi."
+ },
+ "Ответы": {
+  "en": "Replies",
+  "uk": "Відповіді",
+  "uz": "Javoblar"
+ },
  "Отвязать аккаунт": {
   "ar": "فك ربط الحساب",
   "be": "Адвязаць акаўнт",
@@ -5310,6 +5690,11 @@ private let dkxStringsJSON = #"""
   "uk": "Відкріпити в себе",
   "uz": "Oʻzim uchun yechib olish"
  },
+ "Открыть «API ИИ»": {
+  "en": "Open “AI API”",
+  "uk": "Відкрити «API ШІ»",
+  "uz": "«SI API»ni ochish"
+ },
  "Открыть закрытый чат": {
   "ar": "فتح المحادثة المقفلة",
   "be": "Адкрыць закрыты чат",
@@ -5350,6 +5735,16 @@ private let dkxStringsJSON = #"""
   "uk": "Відкрити паролі",
   "uz": "Parollarni ochish"
  },
+ "Открыть пост": {
+  "en": "Open post",
+  "uk": "Відкрити допис",
+  "uz": "Postni ochish"
+ },
+ "Открыть сообщение": {
+  "en": "Open message",
+  "uk": "Відкрити повідомлення",
+  "uz": "Xabarni ochish"
+ },
  "Открыть ссылку": {
   "ar": "فتح الرابط",
   "be": "Адкрыць спасылку",
@@ -5389,6 +5784,31 @@ private let dkxStringsJSON = #"""
   "tr": "Sohbeti aç",
   "uk": "Відкрити чат",
   "uz": "Chatni ochish"
+ },
+ "Откуда подписчики": {
+  "en": "Where subscribers come from",
+  "uk": "Звідки підписники",
+  "uz": "Obunachilar qayerdan"
+ },
+ "Откуда просмотры": {
+  "en": "Where views come from",
+  "uk": "Звідки перегляди",
+  "uz": "Koʻrishlar qayerdan"
+ },
+ "Откуда репост": {
+  "en": "Reposted from",
+  "uk": "Звідки репост",
+  "uz": "Qayerdan ulashilgan"
+ },
+ "Откуда репосты": {
+  "en": "Reposted from",
+  "uk": "Звідки репости",
+  "uz": "Qayerdan ulashilgan"
+ },
+ "Откуда участники": {
+  "en": "Where members come from",
+  "uk": "Звідки учасники",
+  "uz": "Aʼzolar qayerdan"
  },
  "Отладочное меню Telegram": {
   "ar": "قائمة التنقيح في Telegram",
@@ -5529,6 +5949,16 @@ private let dkxStringsJSON = #"""
   "tr": "Görünüm",
   "uk": "Оформлення",
   "uz": "Koʻrinish"
+ },
+ "Оценка по дню публикации. В тот день пост был один.": {
+  "en": "Estimate based on the day of publication. It was the only post that day.",
+  "uk": "Оцінка за днем публікації. Того дня допис був один.",
+  "uz": "Joylangan kun boʻyicha taxmin. Oʻsha kuni post bitta edi."
+ },
+ "Оценка по дню публикации. В тот день постов было {}, прирост поделён по их просмотрам.": {
+  "en": "Estimate based on the day of publication. There were {} posts that day, growth is split by their views.",
+  "uk": "Оцінка за днем публікації. Того дня дописів було {}, приріст поділено за їхніми переглядами.",
+  "uz": "Joylangan kun boʻyicha taxmin. Oʻsha kuni {} ta post boʻlgan, oʻsish ularning koʻrishlariga qarab boʻlingan."
  },
  "ПЕРИОД": {
   "ar": "الفترة",
@@ -5690,6 +6120,41 @@ private let dkxStringsJSON = #"""
   "uk": "Пароль скопійовано, буфер очиститься через 2 хвилини",
   "uz": "Parol nusxalandi, vaqtincha xotira 2 daqiqadan keyin tozalanadi"
  },
+ "Пересылки": {
+  "en": "Forwards",
+  "uk": "Пересилання",
+  "uz": "Ulashishlar"
+ },
+ "Пересылок": {
+  "en": "Forwards",
+  "uk": "Пересилань",
+  "uz": "Ulashishlar"
+ },
+ "Период": {
+  "en": "Period",
+  "uk": "Період",
+  "uz": "Davr"
+ },
+ "Период Telegram": {
+  "en": "Telegram period",
+  "uk": "Період Telegram",
+  "uz": "Telegram davri"
+ },
+ "Пик {}": {
+  "en": "Peak {}",
+  "uk": "Пік {}",
+  "uz": "Choʻqqi {}"
+ },
+ "Писали": {
+  "en": "Posted",
+  "uk": "Писали",
+  "uz": "Yozganlar"
+ },
+ "Платных звёзд": {
+  "en": "Paid stars",
+  "uk": "Платних зірок",
+  "uz": "Pullik yulduzlar"
+ },
  "По": {
   "ar": "إلى",
   "be": "Па",
@@ -5710,6 +6175,21 @@ private let dkxStringsJSON = #"""
   "uk": "По",
   "uz": "Tugash sanasi"
  },
+ "По вовлечённости": {
+  "en": "By engagement",
+  "uk": "За залученістю",
+  "uz": "Faollik boʻyicha"
+ },
+ "По времени телефона, все просмотры канала за период Telegram.": {
+  "en": "In phone time, all channel views over the Telegram period.",
+  "uk": "За часом телефона, усі перегляди каналу за період Telegram.",
+  "uz": "Telefon vaqti boʻyicha, Telegram davridagi kanalning barcha koʻrishlari."
+ },
+ "По дням": {
+  "en": "By day",
+  "uk": "За днями",
+  "uz": "Kunlar boʻyicha"
+ },
  "По дорогам": {
   "ar": "عبر الطرق",
   "be": "Па дарогах",
@@ -5729,6 +6209,26 @@ private let dkxStringsJSON = #"""
   "tr": "Yollardan",
   "uk": "Дорогами",
   "uz": "Yoʻllar boʻylab"
+ },
+ "По приросту": {
+  "en": "By growth",
+  "uk": "За приростом",
+  "uz": "Oʻsish boʻyicha"
+ },
+ "По просмотрам": {
+  "en": "By views",
+  "uk": "За переглядами",
+  "uz": "Koʻrishlar boʻyicha"
+ },
+ "По реакциям": {
+  "en": "By reactions",
+  "uk": "За реакціями",
+  "uz": "Reaksiyalar boʻyicha"
+ },
+ "По часам": {
+  "en": "By hour",
+  "uk": "За годинами",
+  "uz": "Soatlar boʻyicha"
  },
  "Повторно загрузить в Google Drive": {
   "ar": "إعادة الرفع إلى Google Drive",
@@ -5790,6 +6290,31 @@ private let dkxStringsJSON = #"""
   "uk": "Підняти вище",
   "uz": "Yuqoriga koʻtarish"
  },
+ "Подписки и отписки по постам видит только админ канала. Здесь посты с наибольшими просмотрами.": {
+  "en": "Only the channel admin can see joins and leaves by post. Here are the posts with the most views.",
+  "uk": "Підписки й відписки за дописами бачить лише адмін каналу. Тут дописи з найбільшою кількістю переглядів.",
+  "uz": "Postlar boʻyicha obuna va obunadan chiqishlarni faqat kanal admini koʻradi. Bu yerda eng koʻp koʻrilgan postlar."
+ },
+ "Подписки и отписки это оценка по дню публикации. Telegram не привязывает их к посту.": {
+  "en": "Joins and leaves are an estimate based on the day of publication. Telegram does not link them to a post.",
+  "uk": "Підписки й відписки це оцінка за днем публікації. Telegram не привʼязує їх до допису.",
+  "uz": "Obuna va obunadan chiqishlar joylangan kun boʻyicha taxmin. Telegram ularni postga bogʻlamaydi."
+ },
+ "Подписчики": {
+  "en": "Subscribers",
+  "uk": "Підписники",
+  "uz": "Obunachilar"
+ },
+ "Подписчики в день публикации": {
+  "en": "Subscribers on the day of publication",
+  "uk": "Підписники в день публікації",
+  "uz": "Joylangan kundagi obunachilar"
+ },
+ "Подписчиков сейчас": {
+  "en": "Subscribers now",
+  "uk": "Підписників зараз",
+  "uz": "Hozirgi obunachilar"
+ },
  "Подробнее": {
   "ar": "أكثر تفصيلًا",
   "be": "Падрабязней",
@@ -5850,6 +6375,11 @@ private let dkxStringsJSON = #"""
   "uk": "Пізніше",
   "uz": "Keyinroq"
  },
+ "Поиск": {
+  "en": "Search",
+  "uk": "Пошук",
+  "uz": "Qidiruv"
+ },
  "Поиск идёт на сервере Telegram, поэтому находится и то, что не загружено на телефон. Перед выгрузкой покажу, сколько нашлось. Файлы грузятся фоном, ход виден в полосе вверху экрана, повторы на диск не попадут. За один раз до {} файлов.": {
   "ar": "يجري البحث على خادم Telegram، لذا يُعثر أيضًا على ما لم يُنزَّل على الهاتف. قبل الرفع سأعرض عدد ما وُجد. تُرفع الملفات في الخلفية، ويظهر التقدم في الشريط أعلى الشاشة، ولن تُرفع الملفات المكررة. حتى {} ملف في المرة الواحدة.",
   "be": "Пошук ідзе на серверы Telegram, таму знаходзіцца і тое, што не спампавана на тэлефон. Перад выгрузкай пакажу, колькі знайшлося. Файлы запампоўваюцца ў фоне, ход відаць у паласе ўверсе экрана, паўторы на дыск не трапяць. За адзін раз да {} файлаў.",
@@ -5869,6 +6399,21 @@ private let dkxStringsJSON = #"""
   "tr": "Arama Telegram sunucusunda yapılır, bu yüzden telefona indirilmemiş dosyalar da bulunur. Yüklemeden önce kaç tane bulunduğunu göstereceğim. Dosyalar arka planda yüklenir, ilerleme ekranın üstündeki çubukta görünür, tekrarlar diske gitmez. Tek seferde en fazla {} dosya.",
   "uk": "Пошук іде на сервері Telegram, тому знаходиться й те, що не завантажено на телефон. Перед вивантаженням покажу, скільки знайшлося. Файли завантажуються у фоні, перебіг видно в смузі вгорі екрана, повтори на диск не потраплять. За один раз до {} файлів.",
   "uz": "Qidiruv Telegram serverida boʻladi, shuning uchun telefonga yuklab olinmagan fayllar ham topiladi. Yuklashdan oldin qancha topilganini koʻrsataman. Fayllar fonda yuklanadi, jarayon ekran yuqorisidagi chiziqda koʻrinadi, takrorlar diskka tushmaydi. Bir safarda {} tagacha fayl."
+ },
+ "Поиск модели": {
+  "en": "Search model",
+  "uk": "Пошук моделі",
+  "uz": "Model qidirish"
+ },
+ "Показатель": {
+  "en": "Metric",
+  "uk": "Показник",
+  "uz": "Koʻrsatkich"
+ },
+ "Показать ещё, осталось {}": {
+  "en": "Show more, {} left",
+  "uk": "Показати ще, залишилося {}",
+  "uz": "Yana koʻrsatish, qoldi {}"
  },
  "Показать пароль": {
   "ar": "إظهار كلمة المرور",
@@ -5910,6 +6455,16 @@ private let dkxStringsJSON = #"""
   "uk": "Повні логи Telegram пишуться лише на запит. У меню налагодження ввімкніть Log to File, повторіть проблему й натисніть Send Logs там само.",
   "uz": "Telegramning toʻliq loglari faqat soʻrov boʻyicha yoziladi. Nosozliklarni tuzatish menyusida Log to File bandini yoqing, muammoni takrorlang va oʻsha yerda Send Logs bandini bosing."
  },
+ "Половину просмотров пост набрал за первые {} дн.": {
+  "en": "The post got half of its views in the first {} d.",
+  "uk": "Половину переглядів допис набрав за перші {} дн.",
+  "uz": "Post koʻrishlarining yarmini dastlabki {} kunda yigʻdi."
+ },
+ "Половину просмотров пост набрал за первые {} ч.": {
+  "en": "The post got half of its views in the first {} h.",
+  "uk": "Половину переглядів допис набрав за перші {} год.",
+  "uz": "Post koʻrishlarining yarmini dastlabki {} soatda yigʻdi."
+ },
  "Понятно": {
   "ar": "حسنًا",
   "be": "Зразумела",
@@ -5929,6 +6484,46 @@ private let dkxStringsJSON = #"""
   "tr": "Anladım",
   "uk": "Зрозуміло",
   "uz": "Tushunarli"
+ },
+ "Попробовать ещё раз": {
+  "en": "Try again",
+  "uk": "Спробувати ще раз",
+  "uz": "Yana urinib koʻrish"
+ },
+ "Постов": {
+  "en": "Posts",
+  "uk": "Дописів",
+  "uz": "Postlar"
+ },
+ "Постов в день": {
+  "en": "Posts per day",
+  "uk": "Дописів на день",
+  "uz": "Kuniga postlar"
+ },
+ "Постов со ссылкой": {
+  "en": "Posts with a link",
+  "uk": "Дописів із посиланням",
+  "uz": "Havolali postlar"
+ },
+ "Постов старше 48 часов": {
+  "en": "Posts older than 48 hours",
+  "uk": "Дописів, старших за 48 годин",
+  "uz": "48 soatdan eski postlar"
+ },
+ "Посту меньше 48 часов": {
+  "en": "The post is less than 48 hours old",
+  "uk": "Допису менше 48 годин",
+  "uz": "Post 48 soatdan yangi"
+ },
+ "Посты": {
+  "en": "Posts",
+  "uk": "Дописи",
+  "uz": "Postlar"
+ },
+ "Похожие каналы": {
+  "en": "Similar channels",
+  "uk": "Схожі канали",
+  "uz": "Oʻxshash kanallar"
  },
  "Почта": {
   "ar": "البريد الإلكتروني",
@@ -5950,6 +6545,16 @@ private let dkxStringsJSON = #"""
   "uk": "Пошта",
   "uz": "Email"
  },
+ "Предыдущие": {
+  "en": "Previous",
+  "uk": "Попередні",
+  "uz": "Oldingilar"
+ },
+ "Прибавка лучшего окна, %": {
+  "en": "Best window gain, %",
+  "uk": "Приріст найкращого вікна, %",
+  "uz": "Eng yaxshi oyna ustunligi, %"
+ },
  "Привязать другой аккаунт": {
   "ar": "ربط حساب آخر",
   "be": "Прывязаць іншы акаўнт",
@@ -5969,6 +6574,11 @@ private let dkxStringsJSON = #"""
   "tr": "Başka bir hesap bağla",
   "uk": "Привʼязати інший акаунт",
   "uz": "Boshqa hisobni ulash"
+ },
+ "Пригласил": {
+  "en": "Invited",
+  "uk": "Запросив",
+  "uz": "Taklif qilgan"
  },
  "Приехали в точку Б": {
   "ar": "وصلنا إلى النقطة ب",
@@ -6010,25 +6620,40 @@ private let dkxStringsJSON = #"""
   "uk": "Застосувати свій стиль",
   "uz": "Maxsus uslubni qoʻllash"
  },
- "Проверить и сохранить": {
-  "ar": "التحقق والحفظ",
-  "be": "Праверыць і захаваць",
-  "ca": "Comprova i desa",
-  "de": "Prüfen und speichern",
-  "en": "Check and save",
-  "es": "Comprobar y guardar",
-  "fa": "بررسی و ذخیره",
-  "fr": "Vérifier et enregistrer",
-  "id": "Periksa dan simpan",
-  "it": "Verifica e salva",
-  "ko": "확인 후 저장",
-  "ms": "Semak dan simpan",
-  "nl": "Controleren en opslaan",
-  "pl": "Sprawdź i zapisz",
-  "pt": "Verificar e salvar",
-  "tr": "Kontrol et ve kaydet",
-  "uk": "Перевірити й зберегти",
-  "uz": "Tekshirish va saqlash"
+ "Прирост и отток Telegram отдаёт по дням и только админу канала.": {
+  "en": "Telegram gives joins and leaves by day and only to the channel admin.",
+  "uk": "Приріст і відтік Telegram віддає за днями і лише адміну каналу.",
+  "uz": "Oʻsish va chiqib ketishni Telegram kunlar boʻyicha va faqat kanal adminiga beradi."
+ },
+ "Прирост и отток Telegram отдаёт по дням и только админу канала. Если в день было несколько постов, прирост делится между ними по просмотрам. Это оценка, а не точная привязка.": {
+  "en": "Telegram gives joins and leaves by day and only to the channel admin. If there were several posts in a day, the growth is split between them by views. This is an estimate, not an exact link.",
+  "uk": "Приріст і відтік Telegram віддає за днями і лише адміну каналу. Якщо за день було кілька дописів, приріст ділиться між ними за переглядами. Це оцінка, а не точна привʼязка.",
+  "uz": "Oʻsish va chiqib ketishni Telegram kunlar boʻyicha va faqat kanal adminiga beradi. Bir kunda bir nechta post boʻlsa, oʻsish ular orasida koʻrishlarga qarab boʻlinadi. Bu aniq bogʻlanish emas, taxmin."
+ },
+ "Прирост по дням": {
+  "en": "Growth by day",
+  "uk": "Приріст за днями",
+  "uz": "Kunlar boʻyicha oʻsish"
+ },
+ "Пришло": {
+  "en": "Joined",
+  "uk": "Прийшло",
+  "uz": "Qoʻshildi"
+ },
+ "Пришло, оценка": {
+  "en": "Joined, estimate",
+  "uk": "Прийшло, оцінка",
+  "uz": "Qoʻshildi, taxmin"
+ },
+ "Проверить и выбрать эту модель": {
+  "en": "Check and select this model",
+  "uk": "Перевірити й вибрати цю модель",
+  "uz": "Tekshirib, shu modelni tanlash"
+ },
+ "Проверить ключ и загрузить модели": {
+  "en": "Check key and load models",
+  "uk": "Перевірити ключ і завантажити моделі",
+  "uz": "Kalitni tekshirib, modellarni yuklash"
  },
  "Проверяю…": {
   "ar": "جارٍ التحقق…",
@@ -6090,6 +6715,66 @@ private let dkxStringsJSON = #"""
   "uk": "Проксі",
   "uz": "Proksi"
  },
+ "Просмотров": {
+  "en": "Views",
+  "uk": "Переглядів",
+  "uz": "Koʻrishlar"
+ },
+ "Просмотров всего": {
+  "en": "Total views",
+  "uk": "Переглядів усього",
+  "uz": "Jami koʻrishlar"
+ },
+ "Просмотры": {
+  "en": "Views",
+  "uk": "Перегляди",
+  "uz": "Koʻrishlar"
+ },
+ "Просмотры ещё растут, сравнение с другими постами появится позже.": {
+  "en": "Views are still growing, the comparison with other posts will appear later.",
+  "uk": "Перегляди ще ростуть, порівняння з іншими дописами зʼявиться пізніше.",
+  "uz": "Koʻrishlar hali oʻsmoqda, boshqa postlar bilan taqqoslash keyinroq chiqadi."
+ },
+ "Просмотры канала, Telegram": {
+  "en": "Channel views, Telegram",
+  "uk": "Перегляди каналу, Telegram",
+  "uz": "Kanal koʻrishlari, Telegram"
+ },
+ "Просмотры на историю": {
+  "en": "Views per story",
+  "uk": "Перегляди на історію",
+  "uz": "Hikoya boshiga koʻrishlar"
+ },
+ "Просмотры на обычный пост": {
+  "en": "Views per regular post",
+  "uk": "Перегляди на звичайний допис",
+  "uz": "Oddiy post boshiga koʻrishlar"
+ },
+ "Просмотры на пост": {
+  "en": "Views per post",
+  "uk": "Перегляди на допис",
+  "uz": "Post boshiga koʻrishlar"
+ },
+ "Просмотры на рекламный пост": {
+  "en": "Views per ad post",
+  "uk": "Перегляди на рекламний допис",
+  "uz": "Reklama posti boshiga koʻrishlar"
+ },
+ "Просмотры по часам": {
+  "en": "Views by hour",
+  "uk": "Перегляди за годинами",
+  "uz": "Soatlar boʻyicha koʻrishlar"
+ },
+ "Просмотры по часам, репосты и подписки по дням Telegram показывает только админу канала.": {
+  "en": "Telegram shows views by hour, reposts and joins by day only to the channel admin.",
+  "uk": "Перегляди за годинами, репости й підписки за днями Telegram показує лише адміну каналу.",
+  "uz": "Soatlar boʻyicha koʻrishlar, ulashishlar va kunlik obunalarni Telegram faqat kanal adminiga koʻrsatadi."
+ },
+ "Просмотры после публикации": {
+  "en": "Views after publication",
+  "uk": "Перегляди після публікації",
+  "uz": "Joylangandan keyingi koʻrishlar"
+ },
  "Просрочено": {
   "ar": "متأخرة",
   "be": "Пратэрмінавана",
@@ -6110,6 +6795,36 @@ private let dkxStringsJSON = #"""
   "uk": "Прострочено",
   "uz": "Muddati oʻtgan"
  },
+ "Прочее": {
+  "en": "Other",
+  "uk": "Інше",
+  "uz": "Boshqa"
+ },
+ "Прошлый период": {
+  "en": "Previous period",
+  "uk": "Минулий період",
+  "uz": "Oldingi davr"
+ },
+ "Прошлый период, ERR, %": {
+  "en": "Previous period, ERR, %",
+  "uk": "Минулий період, ERR, %",
+  "uz": "Oldingi davr, ERR, %"
+ },
+ "Прошлый период, вовлечённость, %": {
+  "en": "Previous period, engagement, %",
+  "uk": "Минулий період, залученість, %",
+  "uz": "Oldingi davr, faollik, %"
+ },
+ "Прошлый период, постов": {
+  "en": "Previous period, posts",
+  "uk": "Минулий період, дописів",
+  "uz": "Oldingi davr, postlar"
+ },
+ "Прошлый период, просмотры на пост": {
+  "en": "Previous period, views per post",
+  "uk": "Минулий період, перегляди на допис",
+  "uz": "Oldingi davr, post boshiga koʻrishlar"
+ },
  "Прячет штатные теги Telegram в Избранном. Пропадёт ряд тегов при поиске и ряд тегов в меню долгого нажатия на сообщение. Свои метки Dkx в Избранном работают отдельно и остаются.": {
   "ar": "يُخفي علامات Telegram المدمجة في الرسائل المحفوظة. سيختفي صف العلامات عند البحث وصف العلامات في قائمة الضغط المطوّل على الرسالة. وسوم Dkx في الرسائل المحفوظة تعمل بشكل منفصل وتبقى كما هي.",
   "be": "Хавае ўбудаваныя тэгі Telegram у Захаваным. Знікнуць радок тэгаў пры пошуку і радок тэгаў у меню доўгага націску на паведамленне. Уласныя меткі Dkx у Захаваным працуюць асобна і застаюцца.",
@@ -6129,6 +6844,11 @@ private let dkxStringsJSON = #"""
   "tr": "Telegram'ın Kayıtlı Mesajlar'daki kendi etiketlerini gizler. Aramadaki etiket satırı ve mesaja basılı tutunca açılan menüdeki etiket satırı kaybolur. Kayıtlı Mesajlar'daki Dkx etiketleri ayrı çalışır ve yerinde kalır.",
   "uk": "Ховає вбудовані теги Telegram у Збереженому. Зникнуть рядок тегів під час пошуку й рядок тегів у меню довгого натискання на повідомлення. Власні мітки Dkx у Збереженому працюють окремо й лишаються.",
   "uz": "Telegramning “Saqlangan xabarlar”dagi oʻz teglarini berkitadi. Qidiruvdagi teglar qatori va xabarni bosib turganda chiqadigan menyudagi teglar qatori yoʻqoladi. “Saqlangan xabarlar”dagi Dkx yorliqlari alohida ishlaydi va saqlanib qoladi."
+ },
+ "Публичные репосты": {
+  "en": "Public reposts",
+  "uk": "Публічні репости",
+  "uz": "Ochiq ulashishlar"
  },
  "Пункт «В Google Drive» в меню медиа. Файлы уходят только на ваш диск, в папку Dkx.": {
   "ar": "بند «حفظ في Google Drive» في قائمة الوسائط. تذهب الملفات إلى حسابك في Google Drive فقط، في مجلد Dkx.",
@@ -6170,6 +6890,26 @@ private let dkxStringsJSON = #"""
   "uk": "РОЗШИФРУВАННЯ ГОЛОСОВИХ",
   "uz": "OVOZLI XABARLARNI MATNGA AYLANTIRISH"
  },
+ "Разбор поста": {
+  "en": "Post breakdown",
+  "uk": "Розбір допису",
+  "uz": "Post tahlili"
+ },
+ "Разбор сообщения": {
+  "en": "Message breakdown",
+  "uk": "Розбір повідомлення",
+  "uz": "Xabar tahlili"
+ },
+ "Раздел": {
+  "en": "Section",
+  "uk": "Розділ",
+  "uz": "Boʻlim"
+ },
+ "Разница худшего окна, %": {
+  "en": "Worst window difference, %",
+  "uk": "Різниця найгіршого вікна, %",
+  "uz": "Eng yomon oyna farqi, %"
+ },
  "Расшифровка без Premium": {
   "ar": "التحويل إلى نص دون Premium",
   "be": "Расшыфроўка без Premium",
@@ -6189,6 +6929,51 @@ private let dkxStringsJSON = #"""
   "tr": "Premium olmadan metne dönüştürme",
   "uk": "Розшифрування без Premium",
   "uz": "Premiumsiz matnga aylantirish"
+ },
+ "Реакции": {
+  "en": "Reactions",
+  "uk": "Реакції",
+  "uz": "Reaksiyalar"
+ },
+ "Реакции на пост": {
+  "en": "Reactions per post",
+  "uk": "Реакції на допис",
+  "uz": "Post boshiga reaksiyalar"
+ },
+ "Реакций": {
+  "en": "Reactions",
+  "uk": "Реакцій",
+  "uz": "Reaksiyalar"
+ },
+ "Реакций {}, ответов {}": {
+  "en": "Reactions {}, replies {}",
+  "uk": "Реакцій {}, відповідей {}",
+  "uz": "Reaksiyalar {}, javoblar {}"
+ },
+ "Реакция": {
+  "en": "Reaction",
+  "uk": "Реакція",
+  "uz": "Reaksiya"
+ },
+ "Реклама": {
+  "en": "Ads",
+  "uk": "Реклама",
+  "uz": "Reklama"
+ },
+ "Реклама Telegram": {
+  "en": "Telegram Ads",
+  "uk": "Реклама Telegram",
+  "uz": "Telegram reklamasi"
+ },
+ "Рекламных постов": {
+  "en": "Ad posts",
+  "uk": "Рекламних дописів",
+  "uz": "Reklama postlari"
+ },
+ "Репосты на пост": {
+  "en": "Shares per post",
+  "uk": "Репости на допис",
+  "uz": "Post boshiga ulashishlar"
  },
  "Розовый": {
   "ar": "وردي",
@@ -6250,6 +7035,11 @@ private let dkxStringsJSON = #"""
   "uk": "З",
   "uz": "Boshlanish sanasi"
  },
+ "СЕРВИСЫ": {
+  "en": "SERVICES",
+  "uk": "СЕРВІСИ",
+  "uz": "XIZMATLAR"
+ },
  "СМАЙЛИКИ": {
   "ar": "الرموز التعبيرية",
   "be": "ЭМОДЗІ",
@@ -6310,6 +7100,16 @@ private let dkxStringsJSON = #"""
   "uk": "СТИЛЬ",
   "uz": "USLUB"
  },
+ "Сайт": {
+  "en": "Website",
+  "uk": "Сайт",
+  "uz": "Sayt"
+ },
+ "Сайты": {
+  "en": "Websites",
+  "uk": "Сайти",
+  "uz": "Saytlar"
+ },
  "Сами экраны не пропадают. Контакты открываются из списка чатов при создании чата, звонки из «Недавних звонков» в настройках, если эта строка не спрятана.": {
   "ar": "الشاشات نفسها لا تختفي. تُفتح جهات الاتصال من قائمة المحادثات عند إنشاء محادثة، والمكالمات من «أحدث المكالمات» في الإعدادات، إن لم يكن هذا الصف مخفيًا.",
   "be": "Самі экраны не знікаюць. Кантакты адкрываюцца са спісу чатаў пры стварэнні чата, званкі з «Нядаўніх званкоў» у наладах, калі гэты радок не схаваны.",
@@ -6329,6 +7129,16 @@ private let dkxStringsJSON = #"""
   "tr": "Ekranların kendisi kaybolmaz. Kişiler, sohbet listesinde yeni sohbet oluştururken açılır, aramalar ise ayarlardaki “Son Aramalar” satırından, bu satır gizli değilse.",
   "uk": "Самі екрани не зникають. Контакти відкриваються зі списку чатів під час створення чату, дзвінки з «Нещодавніх дзвінків» у налаштуваннях, якщо цей рядок не сховано.",
   "uz": "Ekranlarning oʻzi yoʻqolmaydi. Kontaktlar chatlar roʻyxatidan yangi chat yaratishda ochiladi, chaqiruvlar esa sozlamalardagi “Oxirgi chaqiruvlar”dan, agar bu qator berkitilmagan boʻlsa."
+ },
+ "Самые активные": {
+  "en": "Most active",
+  "uk": "Найактивніші",
+  "uz": "Eng faollar"
+ },
+ "Сводка": {
+  "en": "Summary",
+  "uk": "Зведення",
+  "uz": "Xulosa"
  },
  "Свои даты": {
   "ar": "تواريخ مخصصة",
@@ -6350,6 +7160,11 @@ private let dkxStringsJSON = #"""
   "uk": "Свої дати",
   "uz": "Sanalarni tanlash"
  },
+ "Свой ключ от DeepSeek, Qwen, GLM, OpenAI, Claude, Xiaomi, Cloudflare, Mistral, Gemini или OpenRouter. Через него работают «Улучшить текст» и «Совет ИИ» в аналитике каналов.": {
+  "en": "Your own key from DeepSeek, Qwen, GLM, OpenAI, Claude, Xiaomi, Cloudflare, Mistral, Gemini or OpenRouter. “Improve text” and “AI advice” in channel analytics work through it.",
+  "uk": "Власний ключ від DeepSeek, Qwen, GLM, OpenAI, Claude, Xiaomi, Cloudflare, Mistral, Gemini або OpenRouter. Через нього працюють «Покращити текст» і «Порада ШІ» в аналітиці каналів.",
+  "uz": "DeepSeek, Qwen, GLM, OpenAI, Claude, Xiaomi, Cloudflare, Mistral, Gemini yoki OpenRouterdan oʻz kalitingiz. «Matnni yaxshilash» va kanallar tahlilidagi «SI maslahati» shu orqali ishlaydi."
+ },
  "Свой стиль": {
   "ar": "أسلوب مخصص",
   "be": "Свой стыль",
@@ -6369,6 +7184,11 @@ private let dkxStringsJSON = #"""
   "tr": "Özel stil",
   "uk": "Свій стиль",
   "uz": "Maxsus uslub"
+ },
+ "Сделать основным": {
+  "en": "Make main",
+  "uk": "Зробити основним",
+  "uz": "Asosiy qilish"
  },
  "Сегодня": {
   "ar": "اليوم",
@@ -6430,6 +7250,16 @@ private let dkxStringsJSON = #"""
   "uk": "Сьогодні запитів {}. Російську та англійську покращує GLM, узбецьку Gemini, у разі збою запит іде в інший сервіс. Безкоштовний Gemini може показувати тексти співробітникам Google, особисте туди краще не надсилати.",
   "uz": "Bugungi soʻrovlar {}. Rus va ingliz tilidagi matnni GLM, oʻzbek tilidagisini Gemini yaxshilaydi, nosozlikda soʻrov boshqa xizmatga yuboriladi. Bepul Gemini matnlarni Google xodimlariga koʻrsatishi mumkin, shaxsiy narsalarni u yerga yubormagan maʼqul."
  },
+ "Сейчас": {
+  "en": "Now",
+  "uk": "Зараз",
+  "uz": "Hozir"
+ },
+ "Сервисы и ключи": {
+  "en": "Services and keys",
+  "uk": "Сервіси та ключі",
+  "uz": "Xizmatlar va kalitlar"
+ },
  "Синий": {
   "ar": "أزرق",
   "be": "Сіні",
@@ -6449,6 +7279,11 @@ private let dkxStringsJSON = #"""
   "tr": "Mavi",
   "uk": "Синій",
   "uz": "Koʻk"
+ },
+ "Скопировать": {
+  "en": "Copy",
+  "uk": "Скопіювати",
+  "uz": "Nusxalash"
  },
  "Скопировать логин": {
   "ar": "نسخ اسم الدخول",
@@ -6570,6 +7405,11 @@ private let dkxStringsJSON = #"""
   "uk": "Сховати розділи",
   "uz": "Boʻlimlarni berkitish"
  },
+ "Следующие": {
+  "en": "Next",
+  "uk": "Наступні",
+  "uz": "Keyingilar"
+ },
  "Сначала войдите в Google в настройках Dkx": {
   "ar": "سجّل الدخول إلى Google في إعدادات Dkx أولًا",
   "be": "Спачатку ўвайдзіце ў Google у наладах Dkx",
@@ -6589,6 +7429,11 @@ private let dkxStringsJSON = #"""
   "tr": "Önce Dkx ayarlarında Google hesabına giriş yapın",
   "uk": "Спочатку увійдіть у Google у налаштуваннях Dkx",
   "uz": "Avval Dkx sozlamalarida Google hisobiga kiring"
+ },
+ "Сначала вставьте ключ.": {
+  "en": "Paste the key first.",
+  "uk": "Спочатку вставте ключ.",
+  "uz": "Avval kalitni qoʻying."
  },
  "Снять Face ID": {
   "ar": "إزالة قفل Face ID",
@@ -6650,6 +7495,26 @@ private let dkxStringsJSON = #"""
   "uk": "Зняти мітку можна довгим натисканням на чат, пункт «Мітки».",
   "uz": "Yorliqni olib tashlash uchun chatni bosib turing va “Yorliqlar” bandini tanlang."
  },
+ "Совет ИИ": {
+  "en": "AI advice",
+  "uk": "Порада ШІ",
+  "uz": "SI maslahati"
+ },
+ "Совет не получен": {
+  "en": "No advice received",
+  "uk": "Пораду не отримано",
+  "uz": "Maslahat olinmadi"
+ },
+ "Совет пишет ИИ по цифрам этого экрана. Подключите любой сервис в Dkx, раздел «API ИИ». Там вставляется ключ с сайта сервиса и выбирается модель.": {
+  "en": "The advice is written by AI from the numbers on this screen. Connect any service in Dkx, section “AI API”. There you paste the key from the service website and choose a model.",
+  "uk": "Пораду пише ШІ за цифрами цього екрана. Підключіть будь-який сервіс у Dkx, розділ «API ШІ». Там вставляється ключ із сайту сервісу й вибирається модель.",
+  "uz": "Maslahatni SI shu ekrandagi raqamlar asosida yozadi. Dkxda «SI API» boʻlimida istalgan xizmatni ulang. U yerda xizmat saytidagi kalit qoʻyiladi va model tanlanadi."
+ },
+ "Совет скопирован": {
+  "en": "Advice copied",
+  "uk": "Пораду скопійовано",
+  "uz": "Maslahat nusxalandi"
+ },
  "Сообщение": {
   "ar": "رسالة",
   "be": "Паведамленне",
@@ -6690,6 +7555,11 @@ private let dkxStringsJSON = #"""
   "uk": "Повідомлення з вкладенням",
   "uz": "Biriktirmali xabar"
  },
+ "Сообщений": {
+  "en": "Messages",
+  "uk": "Повідомлень",
+  "uz": "Xabarlar"
+ },
  "Сообщений {}": {
   "ar": "عدد الرسائل {}",
   "be": "Паведамленняў {}",
@@ -6709,6 +7579,16 @@ private let dkxStringsJSON = #"""
   "tr": "Mesajlar {}",
   "uk": "Повідомлень {}",
   "uz": "Xabarlar {}"
+ },
+ "Сообщений в день": {
+  "en": "Messages per day",
+  "uk": "Повідомлень на день",
+  "uz": "Kuniga xabarlar"
+ },
+ "Сообщений и символов в среднем": {
+  "en": "Messages and average characters",
+  "uk": "Повідомлень і символів у середньому",
+  "uz": "Xabarlar va oʻrtacha belgilar"
  },
  "Сообщений с этой меткой нет. Метка ставится долгим нажатием на сообщение в Избранном, пункт «Метки».": {
   "ar": "لا رسائل بهذا الوسم. يُضاف الوسم بالضغط المطوّل على رسالة في الرسائل المحفوظة واختيار «الوسوم».",
@@ -6730,6 +7610,11 @@ private let dkxStringsJSON = #"""
   "uk": "Повідомлень із цією міткою немає. Мітка ставиться довгим натисканням на повідомлення в Збереженому, пункт «Мітки».",
   "uz": "Bu yorliqli xabarlar yoʻq. Yorliq “Saqlangan xabarlar”dagi xabarni bosib turib, “Yorliqlar” bandi orqali qoʻyiladi."
  },
+ "Сообщения": {
+  "en": "Messages",
+  "uk": "Повідомлення",
+  "uz": "Xabarlar"
+ },
  "Сохранил": {
   "ar": "حفظك",
   "be": "Захаваў",
@@ -6749,6 +7634,11 @@ private let dkxStringsJSON = #"""
   "tr": "Kaydetti",
   "uk": "Зберіг",
   "uz": "Saqlagan"
+ },
+ "Сохранить адрес": {
+  "en": "Save address",
+  "uk": "Зберегти адресу",
+  "uz": "Manzilni saqlash"
  },
  "Сохранять историю правок": {
   "ar": "حفظ سجل التعديلات",
@@ -6830,6 +7720,16 @@ private let dkxStringsJSON = #"""
   "uk": "Список «Без відповіді»",
   "uz": "“Javobsiz” roʻyxati"
  },
+ "Список моделей не получен, {}. Если ключ верный, впишите модель вручную ниже, ключ сохранится вместе с ней.": {
+  "en": "The model list was not received, {}. If the key is correct, type the model manually below, the key will be saved with it.",
+  "uk": "Список моделей не отримано, {}. Якщо ключ правильний, впишіть модель вручну нижче, ключ збережеться разом із нею.",
+  "uz": "Modellar roʻyxati olinmadi, {}. Agar kalit toʻgʻri boʻlsa, modelni pastda qoʻlda yozing, kalit u bilan birga saqlanadi."
+ },
+ "Список моделей приходит от самого сервиса по вашему ключу. Если сервис список не отдаёт, впишите название модели с его сайта. Перед выбором модель проверяется коротким запросом.": {
+  "en": "The model list comes from the service itself using your key. If the service does not return a list, type the model name from its website. Before selection the model is checked with a short request.",
+  "uk": "Список моделей надходить від самого сервісу за вашим ключем. Якщо сервіс список не віддає, впишіть назву моделі з його сайту. Перед вибором модель перевіряється коротким запитом.",
+  "uz": "Modellar roʻyxati kalitingiz boʻyicha xizmatning oʻzidan keladi. Agar xizmat roʻyxat bermasa, model nomini uning saytidan yozing. Tanlashdan oldin model qisqa soʻrov bilan tekshiriladi."
+ },
  "Список открывается долгим нажатием на вкладку «Чаты». В нём личные чаты, где последним написал собеседник, без ботов и архива. Сверху те, кто ждёт дольше всех.": {
   "ar": "تُفتح القائمة بالضغط المطوّل على علامة التبويب «المحادثات». تضم المحادثات الخاصة التي كان آخر من كتب فيها هو الطرف الآخر، دون البوتات والأرشيف. في الأعلى من ينتظر أطول مدة.",
   "be": "Спіс адкрываецца доўгім націскам на ўкладку «Чаты». У ім асабістыя чаты, дзе апошнім напісаў суразмоўца, без ботаў і архіва. Уверсе тыя, хто чакае даўжэй за ўсіх.",
@@ -6849,6 +7749,11 @@ private let dkxStringsJSON = #"""
   "tr": "Liste, “Sohbetler” sekmesine basılı tutunca açılır. İçinde son yazanın karşı taraf olduğu özel sohbetler bulunur, botlar ve arşiv hariç. En uzun bekleyenler üstte.",
   "uk": "Список відкривається довгим натисканням на вкладку «Чати». У ньому особисті чати, де останнім написав співрозмовник, без ботів і архіву. Угорі ті, хто чекає найдовше.",
   "uz": "Roʻyxat pastdagi “Chatlar” boʻlimini bosib turganda ochiladi. Unda oxirgi boʻlib suhbatdosh yozgan shaxsiy chatlar bor, botlar va arxivsiz. Eng uzoq kutayotganlar yuqorida."
+ },
+ "Спросить ещё раз": {
+  "en": "Ask again",
+  "uk": "Запитати ще раз",
+  "uz": "Yana soʻrash"
  },
  "Сразу": {
   "ar": "فورًا",
@@ -6870,6 +7775,16 @@ private let dkxStringsJSON = #"""
   "uk": "Одразу",
   "uz": "Darhol"
  },
+ "Среднее": {
+  "en": "Average",
+  "uk": "Середнє",
+  "uz": "Oʻrtacha"
+ },
+ "Среднее {}": {
+  "en": "Average {}",
+  "uk": "Середнє {}",
+  "uz": "Oʻrtacha {}"
+ },
  "Ссылка": {
   "ar": "الرابط",
   "be": "Спасылка",
@@ -6889,6 +7804,21 @@ private let dkxStringsJSON = #"""
   "tr": "Bağlantı",
   "uk": "Посилання",
   "uz": "Havola"
+ },
+ "Ссылки": {
+  "en": "Links",
+  "uk": "Посилання",
+  "uz": "Havolalar"
+ },
+ "Ссылки на сайты": {
+  "en": "Links to websites",
+  "uk": "Посилання на сайти",
+  "uz": "Saytlarga havolalar"
+ },
+ "Статистика Telegram": {
+  "en": "Telegram statistics",
+  "uk": "Статистика Telegram",
+  "uz": "Telegram statistikasi"
  },
  "Стикер": {
   "ar": "ملصق",
@@ -6950,6 +7880,26 @@ private let dkxStringsJSON = #"""
   "uk": "Стоп",
   "uz": "Toʻxtatish"
  },
+ "Страница {} из {}, моделей {}. Нажмите на модель, она проверится и станет рабочей.": {
+  "en": "Page {} of {}, models {}. Tap a model, it will be checked and become active.",
+  "uk": "Сторінка {} з {}, моделей {}. Натисніть на модель, вона перевіриться й стане робочою.",
+  "uz": "{}-sahifa, jami {}, modellar {}. Modelni bosing, u tekshiriladi va ishga tushadi."
+ },
+ "Таблица .xlsx для Google Таблиц.": {
+  "en": "An .xlsx spreadsheet for Google Sheets.",
+  "uk": "Таблиця .xlsx для Google Таблиць.",
+  "uz": "Google Sheets uchun .xlsx jadval."
+ },
+ "Таблица в очереди на Google Drive, ход загрузки вверху экрана": {
+  "en": "The spreadsheet is queued for Google Drive, upload progress is at the top of the screen",
+  "uk": "Таблиця в черзі на Google Drive, хід завантаження вгорі екрана",
+  "uz": "Jadval Google Drive navbatida, yuklash jarayoni ekran tepasida"
+ },
+ "Таблица загружена в Google Drive": {
+  "en": "The spreadsheet is uploaded to Google Drive",
+  "uk": "Таблицю завантажено в Google Drive",
+  "uz": "Jadval Google Drivega yuklandi"
+ },
  "Теги в Избранном": {
   "ar": "العلامات في الرسائل المحفوظة",
   "be": "Тэгі ў Захаваным",
@@ -6970,6 +7920,11 @@ private let dkxStringsJSON = #"""
   "uk": "Теги в Збереженому",
   "uz": "Saqlangan xabarlardagi teglar"
  },
+ "Текст": {
+  "en": "Text",
+  "uk": "Текст",
+  "uz": "Matn"
+ },
  "Текст шаблона": {
   "ar": "نص القالب",
   "be": "Тэкст шаблона",
@@ -6989,6 +7944,16 @@ private let dkxStringsJSON = #"""
   "tr": "Şablon metni",
   "uk": "Текст шаблону",
   "uz": "Shablon matni"
+ },
+ "Тип": {
+  "en": "Type",
+  "uk": "Тип",
+  "uz": "Turi"
+ },
+ "Типы": {
+  "en": "Types",
+  "uk": "Типи",
+  "uz": "Turlar"
  },
  "Точка": {
   "ar": "نقطة",
@@ -7050,6 +8015,11 @@ private let dkxStringsJSON = #"""
   "uk": "У будь-якого фото, відео, голосового чи файлу в меню довгого натискання є пункт «У Google Drive». Файли завантажуються у фоні, перебіг видно в смузі вгорі екрана. Тека Dkx з підтеками за чатами, лише на ваш диск. Права обмежено файлами, які завантажив цей застосунок.",
   "uz": "Har qanday rasm, video, ovozli xabar yoki faylni bosib turganda chiqadigan menyuda “Google Drivega” bandi bor. Fayllar fonda yuklanadi, jarayon ekran yuqorisidagi chiziqda koʻrinadi. Dkx jildi, ichida chatlar boʻyicha boʻlingan, faqat sizning diskingizda. Ruxsatlar faqat shu ilova yuklagan fayllar bilan cheklangan."
  },
+ "У среднего поста канала на это уходит {} ч.": {
+  "en": "An average channel post takes {} h.",
+  "uk": "Середньому допису каналу на це потрібно {} год.",
+  "uz": "Kanalning oʻrtacha postiga bunga {} soat ketadi."
+ },
  "УЛУЧШИТЬ ТЕКСТ": {
   "ar": "تحسين النص",
   "be": "ПАЛЕПШЫЦЬ ТЭКСТ",
@@ -7090,6 +8060,16 @@ private let dkxStringsJSON = #"""
   "uk": "Прибрати навʼязування Premium",
   "uz": "Premium reklamasini olib tashlash"
  },
+ "Уведомления включены": {
+  "en": "Notifications on",
+  "uk": "Сповіщення увімкнено",
+  "uz": "Bildirishnomalar yoqilgan"
+ },
+ "Уведомления включены, %": {
+  "en": "Notifications on, %",
+  "uk": "Сповіщення увімкнено, %",
+  "uz": "Bildirishnomalar yoqilgan, %"
+ },
  "Уведомления и звуки": {
   "ar": "الإشعارات والأصوات",
   "be": "Апавяшчэнні і гукі",
@@ -7109,6 +8089,11 @@ private let dkxStringsJSON = #"""
   "tr": "Bildirimler ve Sesler",
   "uk": "Сповіщення і звуки",
   "uz": "Bildirishnomalar va ovozlar"
+ },
+ "Удалил, выгнал, ограничил": {
+  "en": "Deleted, removed, restricted",
+  "uk": "Видалив, вигнав, обмежив",
+  "uz": "Oʻchirgan, chiqargan, cheklagan"
  },
  "Удалить": {
   "ar": "حذف",
@@ -7430,6 +8415,31 @@ private let dkxStringsJSON = #"""
   "uk": "Пристрої",
   "uz": "Qurilmalar"
  },
+ "Участники": {
+  "en": "Members",
+  "uk": "Учасники",
+  "uz": "Aʼzolar"
+ },
+ "Участники Telegram": {
+  "en": "Telegram members",
+  "uk": "Учасники Telegram",
+  "uz": "Telegram aʼzolari"
+ },
+ "Участников сейчас": {
+  "en": "Members now",
+  "uk": "Учасників зараз",
+  "uz": "Hozirgi aʼzolar"
+ },
+ "Ушло": {
+  "en": "Left",
+  "uk": "Пішло",
+  "uz": "Chiqib ketdi"
+ },
+ "Ушло, оценка": {
+  "en": "Left, estimate",
+  "uk": "Пішло, оцінка",
+  "uz": "Chiqib ketdi, taxmin"
+ },
  "Файл": {
   "ar": "ملف",
   "be": "Файл",
@@ -7610,6 +8620,16 @@ private let dkxStringsJSON = #"""
   "uk": "Фото й відео без стиснення",
   "uz": "Siqishsiz rasm va video"
  },
+ "Худшее время": {
+  "en": "Worst time",
+  "uk": "Найгірший час",
+  "uz": "Eng yomon vaqt"
+ },
+ "Хуже всего {}, в среднем {}. Считается по вашим постам за выбранный период, в расчёте постов старше 48 часов {}.": {
+  "en": "Worst is {}, {} on average. Calculated from your posts in the selected period, posts older than 48 hours counted {}.",
+  "uk": "Найгірше {}, у середньому {}. Рахується за вашими дописами за вибраний період, у розрахунку дописів, старших за 48 годин, {}.",
+  "uz": "Eng yomoni {}, oʻrtacha {}. Tanlangan davrdagi postlaringiz boʻyicha hisoblanadi, hisobda 48 soatdan eski postlar {}."
+ },
  "ЦВЕТ": {
   "ar": "اللون",
   "be": "КОЛЕР",
@@ -7649,6 +8669,11 @@ private let dkxStringsJSON = #"""
   "tr": "YÜKLENECEKLER",
   "uk": "ЩО ВИВАНТАЖУВАТИ",
   "uz": "NIMALAR YUKLANSIN"
+ },
+ "Час": {
+  "en": "Hour",
+  "uk": "Година",
+  "uz": "Soat"
  },
  "Чат": {
   "ar": "محادثة",
@@ -7769,6 +8794,21 @@ private let dkxStringsJSON = #"""
   "tr": "1 saat sonra",
   "uk": "Через годину",
   "uz": "1 soatdan keyin"
+ },
+ "Читали": {
+  "en": "Viewers",
+  "uk": "Читали",
+  "uz": "Oʻqiganlar"
+ },
+ "Что заходит лучше": {
+  "en": "What works best",
+  "uk": "Що заходить краще",
+  "uz": "Nima yaxshiroq ishlaydi"
+ },
+ "Что пишут": {
+  "en": "What people post",
+  "uk": "Що пишуть",
+  "uz": "Nima yozishadi"
  },
  "Что сделать": {
   "ar": "ما المطلوب فعله",
@@ -7930,6 +8970,11 @@ private let dkxStringsJSON = #"""
   "uk": "Енергозбереження",
   "uz": "Quvvat tejash"
  },
+ "Это основной сервис": {
+  "en": "This is the main service",
+  "uk": "Це основний сервіс",
+  "uz": "Bu asosiy xizmat"
+ },
  "Я": {
   "ar": "أنا",
   "be": "Я",
@@ -7990,6 +9035,26 @@ private let dkxStringsJSON = #"""
   "uk": "Мова",
   "uz": "Til"
  },
+ "Языки": {
+  "en": "Languages",
+  "uk": "Мови",
+  "uz": "Tillar"
+ },
+ "альбом считается одним постом, служебные сообщения не считаются": {
+  "en": "an album counts as one post, service messages are not counted",
+  "uk": "альбом рахується одним дописом, службові повідомлення не рахуються",
+  "uz": "albom bitta post hisoblanadi, xizmat xabarlari hisobga olinmaydi"
+ },
+ "был пост": {
+  "en": "post",
+  "uk": "був допис",
+  "uz": "post boʻlgan"
+ },
+ "в среднем {} просмотров к остальному времени": {
+  "en": "{} views on average compared to other times",
+  "uk": "у середньому {} переглядів порівняно з іншим часом",
+  "uz": "boshqa vaqtga nisbatan oʻrtacha {} koʻrish"
+ },
  "весь день": {
   "ar": "طوال اليوم",
   "be": "увесь дзень",
@@ -8009,6 +9074,11 @@ private let dkxStringsJSON = #"""
   "tr": "tüm gün",
   "uk": "увесь день",
   "uz": "kun boʻyi"
+ },
+ "время телефона": {
+  "en": "phone time",
+  "uk": "час телефона",
+  "uz": "telefon vaqti"
  },
  "вс": {
   "ar": "ح",
@@ -8070,6 +9140,26 @@ private let dkxStringsJSON = #"""
   "uk": "учора",
   "uz": "kecha"
  },
+ "выберите модель": {
+  "en": "choose a model",
+  "uk": "виберіть модель",
+  "uz": "model tanlang"
+ },
+ "группа": {
+  "en": "group",
+  "uk": "група",
+  "uz": "guruh"
+ },
+ "да": {
+  "en": "yes",
+  "uk": "так",
+  "uz": "ha"
+ },
+ "данные Telegram, сутки UTC": {
+  "en": "Telegram data, UTC days",
+  "uk": "дані Telegram, доба UTC",
+  "uz": "Telegram maʼlumotlari, UTC sutkalari"
+ },
  "дел нет": {
   "ar": "لا مهام",
   "be": "спраў няма",
@@ -8089,6 +9179,11 @@ private let dkxStringsJSON = #"""
   "tr": "görev yok",
   "uk": "справ немає",
   "uz": "vazifalar yoʻq"
+ },
+ "дн": {
+  "en": "d",
+  "uk": "дн",
+  "uz": "kun"
  },
  "завтра": {
   "ar": "غدًا",
@@ -8130,6 +9225,11 @@ private let dkxStringsJSON = #"""
   "uk": "завантажено {}",
   "uz": "yuklandi {}"
  },
+ "загружены последние {} сообщений": {
+  "en": "latest {} messages loaded",
+  "uk": "завантажено останні {} повідомлень",
+  "uz": "oxirgi {} ta xabar yuklangan"
+ },
  "заметка": {
   "ar": "ملاحظة",
   "be": "нататка",
@@ -8149,6 +9249,16 @@ private let dkxStringsJSON = #"""
   "tr": "not",
   "uk": "нотатка",
   "uz": "qayd"
+ },
+ "к числу подписчиков сейчас": {
+  "en": "relative to current subscribers",
+  "uk": "до кількості підписників зараз",
+  "uz": "hozirgi obunachilar soniga nisbatan"
+ },
+ "канал": {
+  "en": "channel",
+  "uk": "канал",
+  "uz": "kanal"
  },
  "ключ не подходит": {
   "ar": "المفتاح غير صالح",
@@ -8210,6 +9320,16 @@ private let dkxStringsJSON = #"""
   "uk": "логін",
   "uz": "login"
  },
+ "лучше всего {} {}": {
+  "en": "best {} {}",
+  "uk": "найкраще {} {}",
+  "uz": "eng yaxshisi {} {}"
+ },
+ "модель или адрес не найдены": {
+  "en": "model or address not found",
+  "uk": "модель або адресу не знайдено",
+  "uz": "model yoki manzil topilmadi"
+ },
  "на диске ": {
   "ar": "في Drive ",
   "be": "на дыску ",
@@ -8249,6 +9369,11 @@ private let dkxStringsJSON = #"""
   "tr": "bugün görev yok",
   "uk": "на сьогодні справ немає",
   "uz": "bugunga vazifalar yoʻq"
+ },
+ "на счёте сервиса нет денег": {
+  "en": "the service account has no funds",
+  "uk": "на рахунку сервісу немає грошей",
+  "uz": "xizmat hisobida mablagʻ yoʻq"
  },
  "напомнит в момент дела": {
   "ar": "تذكير في وقت المهمة",
@@ -8330,6 +9455,11 @@ private let dkxStringsJSON = #"""
   "uk": "нагадає за годину",
   "uz": "1 soat oldin eslatadi"
  },
+ "не подключены": {
+  "en": "not connected",
+  "uk": "не підключені",
+  "uz": "ulanmagan"
+ },
  "не подключён": {
   "ar": "غير متصل",
   "be": "не падключаны",
@@ -8410,25 +9540,10 @@ private let dkxStringsJSON = #"""
   "uk": "не вдалося підготувати файл",
   "uz": "faylni tayyorlab boʻlmadi"
  },
- "не удалось проверить": {
-  "ar": "تعذّر التحقق",
-  "be": "не ўдалося праверыць",
-  "ca": "no s'ha pogut comprovar",
-  "de": "Prüfung fehlgeschlagen",
-  "en": "couldn't verify",
-  "es": "no se pudo comprobar",
-  "fa": "بررسی ممکن نشد",
-  "fr": "vérification impossible",
-  "id": "gagal memeriksa",
-  "it": "impossibile verificare",
-  "ko": "확인하지 못함",
-  "ms": "gagal menyemak",
-  "nl": "controle mislukt",
-  "pl": "nie udało się sprawdzić",
-  "pt": "não foi possível verificar",
-  "tr": "doğrulanamadı",
-  "uk": "не вдалося перевірити",
-  "uz": "tekshirib boʻlmadi"
+ "неверный адрес API": {
+  "en": "invalid API address",
+  "uk": "неправильна адреса API",
+  "uz": "API manzili notoʻgʻri"
  },
  "неизвестно": {
   "ar": "غير معروف",
@@ -8470,25 +9585,20 @@ private let dkxStringsJSON = #"""
   "uk": "немає",
   "uz": "yoʻq"
  },
- "нет ключей. Вставьте ключ Gemini или GLM в Dkx, раздел «Улучшить текст»": {
-  "ar": "لا توجد مفاتيح. أضف مفتاح Gemini أو GLM في Dkx، قسم «تحسين النص»",
-  "be": "няма ключоў. Устаўце ключ Gemini або GLM у Dkx, раздзел «Палепшыць тэкст»",
-  "ca": "no hi ha claus. Afegiu una clau de Gemini o GLM a Dkx, secció «Millora el text»",
-  "de": "keine Schlüssel. Füge einen Gemini- oder GLM-Schlüssel in Dkx ein, Bereich „Text verbessern“",
-  "en": "no keys. Add a Gemini or GLM key in Dkx, “Improve text” section",
-  "es": "no hay claves. Añade una clave de Gemini o GLM en Dkx, sección «Mejorar texto»",
-  "fa": "کلیدی نیست. کلید Gemini یا GLM را در Dkx، بخش «بهبود متن» وارد کنید",
-  "fr": "aucune clé. Ajoutez une clé Gemini ou GLM dans Dkx, section « Améliorer le texte »",
-  "id": "tidak ada kunci API. Tempel kunci API Gemini atau GLM di Dkx, bagian “Perbaiki teks”",
-  "it": "nessuna chiave. Aggiungi una chiave Gemini o GLM in Dkx, sezione «Migliora testo»",
-  "ko": "키가 없습니다. Dkx의 ‘텍스트 다듬기’ 섹션에 Gemini 또는 GLM 키를 입력하세요",
-  "ms": "tiada kunci API. Tampal kunci API Gemini atau GLM dalam Dkx, bahagian “Tambah baik teks”",
-  "nl": "geen sleutels. Voeg een Gemini- of GLM-sleutel toe in Dkx, onderdeel “Tekst verbeteren”",
-  "pl": "brak kluczy. Wklej klucz Gemini lub GLM w Dkx, sekcja „Ulepsz tekst”",
-  "pt": "sem chaves. Adicione uma chave Gemini ou GLM no Dkx, seção “Melhorar texto”",
-  "tr": "anahtar yok. Dkx ayarlarındaki “Metni iyileştir” bölümüne bir Gemini veya GLM anahtarı ekleyin",
-  "uk": "немає ключів. Вставте ключ Gemini або GLM у Dkx, розділ «Покращити текст»",
-  "uz": "kalitlar yoʻq. Gemini yoki GLM kalitini Dkx ichidagi “Matnni yaxshilash” boʻlimiga qoʻying"
+ "нет ключа": {
+  "en": "no key",
+  "uk": "немає ключа",
+  "uz": "kalit yoʻq"
+ },
+ "нет номера аккаунта": {
+  "en": "no account ID",
+  "uk": "немає номера акаунта",
+  "uz": "hisob raqami yoʻq"
+ },
+ "нет подключённого сервиса. Добавьте ключ и модель в Dkx, раздел «API ИИ»": {
+  "en": "no connected service. Add a key and model in Dkx, section “AI API”",
+  "uk": "немає підключеного сервісу. Додайте ключ і модель у Dkx, розділ «API ШІ»",
+  "uz": "ulangan xizmat yoʻq. Dkxda «SI API» boʻlimiga kalit va model qoʻshing"
  },
  "нет связи с сервисом": {
   "ar": "لا اتصال بالخدمة",
@@ -8550,6 +9660,21 @@ private let dkxStringsJSON = #"""
   "uk": "номер",
   "uz": "telefon raqami"
  },
+ "обычно": {
+  "en": "usually",
+  "uk": "зазвичай",
+  "uz": "odatda"
+ },
+ "окно 3 часа с наибольшими средними просмотрами, время телефона": {
+  "en": "3 hour window with the highest average views, phone time",
+  "uk": "вікно 3 години з найбільшими середніми переглядами, час телефона",
+  "uz": "oʻrtacha koʻrishlari eng koʻp 3 soatlik oyna, telefon vaqti"
+ },
+ "основной, {}": {
+  "en": "main, {}",
+  "uk": "основний, {}",
+  "uz": "asosiy, {}"
+ },
  "ответ {}": {
   "ar": "استجابة {}",
   "be": "адказ {}",
@@ -8610,6 +9735,16 @@ private let dkxStringsJSON = #"""
   "uk": "пн",
   "uz": "Du"
  },
+ "по пометкам {}": {
+  "en": "by the marks {}",
+  "uk": "за позначками {}",
+  "uz": "{} belgilari boʻyicha"
+ },
+ "по тем же постам": {
+  "en": "for the same posts",
+  "uk": "за тими самими дописами",
+  "uz": "oʻsha postlar boʻyicha"
+ },
  "подключён": {
   "ar": "متصل",
   "be": "падключаны",
@@ -8629,6 +9764,11 @@ private let dkxStringsJSON = #"""
   "tr": "bağlı",
   "uk": "підключено",
   "uz": "ulangan"
+ },
+ "подписчик|подписчика|подписчиков": {
+  "en": "subscriber|subscribers",
+  "uk": "підписник|підписники|підписників",
+  "uz": "obunachi|obunachi"
  },
  "последние": {
   "ar": "الأحدث",
@@ -8650,6 +9790,21 @@ private let dkxStringsJSON = #"""
   "uk": "останні",
   "uz": "oxirgilari"
  },
+ "пост|поста|постов": {
+  "en": "post|posts",
+  "uk": "допис|дописи|дописів",
+  "uz": "post|post"
+ },
+ "посты / дни периода": {
+  "en": "posts / days in the period",
+  "uk": "дописи / дні періоду",
+  "uz": "postlar / davr kunlari"
+ },
+ "посты старше 48 часов": {
+  "en": "posts older than 48 hours",
+  "uk": "дописи, старші за 48 годин",
+  "uz": "48 soatdan eski postlar"
+ },
  "почта": {
   "ar": "البريد الإلكتروني",
   "be": "пошта",
@@ -8669,6 +9824,26 @@ private let dkxStringsJSON = #"""
   "tr": "e-posta",
   "uk": "пошта",
   "uz": "email"
+ },
+ "пришли": {
+  "en": "joined",
+  "uk": "прийшли",
+  "uz": "qoʻshildi"
+ },
+ "просм.": {
+  "en": "views",
+  "uk": "перегл.",
+  "uz": "koʻrish"
+ },
+ "просмотры на пост / подписчики сейчас × 100": {
+  "en": "views per post / current subscribers × 100",
+  "uk": "перегляди на допис / підписники зараз × 100",
+  "uz": "post boshiga koʻrishlar / hozirgi obunachilar × 100"
+ },
+ "просмотры от подписчиков": {
+  "en": "views from subscribers",
+  "uk": "перегляди від підписників",
+  "uz": "obunachilarga nisbatan koʻrishlar"
  },
  "пт": {
   "ar": "ج",
@@ -8690,6 +9865,16 @@ private let dkxStringsJSON = #"""
   "uk": "пт",
   "uz": "Ju"
  },
+ "реакций {}": {
+  "en": "reactions {}",
+  "uk": "реакцій {}",
+  "uz": "reaksiyalar {}"
+ },
+ "реклама": {
+  "en": "ad",
+  "uk": "реклама",
+  "uz": "reklama"
+ },
  "сб": {
   "ar": "س",
   "be": "сб",
@@ -8709,6 +9894,11 @@ private let dkxStringsJSON = #"""
   "tr": "Cmt",
   "uk": "сб",
   "uz": "Sh"
+ },
+ "свои эмодзи": {
+  "en": "custom emoji",
+  "uk": "власні емодзі",
+  "uz": "maxsus emojilar"
  },
  "сегодня": {
   "ar": "اليوم",
@@ -8790,25 +9980,10 @@ private let dkxStringsJSON = #"""
   "uk": "сервіс повернув порожню відповідь",
   "uz": "xizmat boʻsh javob qaytardi"
  },
- "сервис не ответил за 30 секунд": {
-  "ar": "لم تستجب الخدمة خلال 30 ثانية",
-  "be": "сэрвіс не адказаў за 30 секунд",
-  "ca": "el servei no ha respost en 30 segons",
-  "de": "der Dienst hat nicht innerhalb von 30 Sekunden geantwortet",
-  "en": "the service didn't respond in 30 seconds",
-  "es": "el servicio no respondió en 30 segundos",
-  "fa": "سرویس در 30 ثانیه پاسخ نداد",
-  "fr": "le service n'a pas répondu en 30 secondes",
-  "id": "layanan tidak merespons dalam 30 detik",
-  "it": "il servizio non ha risposto entro 30 secondi",
-  "ko": "서비스가 30초 동안 응답하지 않음",
-  "ms": "perkhidmatan tidak membalas dalam 30 saat",
-  "nl": "de dienst reageerde niet binnen 30 seconden",
-  "pl": "usługa nie odpowiedziała w ciągu 30 sekund",
-  "pt": "o serviço não respondeu em 30 segundos",
-  "tr": "servis 30 saniye içinde yanıt vermedi",
-  "uk": "сервіс не відповів за 30 секунд",
-  "uz": "xizmat 30 soniya ichida javob bermadi"
+ "сервис не ответил вовремя": {
+  "en": "the service did not answer in time",
+  "uk": "сервіс не відповів вчасно",
+  "uz": "xizmat oʻz vaqtida javob bermadi"
  },
  "сервис не принял запрос": {
   "ar": "رفضت الخدمة الطلب",
@@ -8870,6 +10045,16 @@ private let dkxStringsJSON = #"""
   "uk": "ср",
   "uz": "Ch"
  },
+ "среднее по постам старше 48 часов, если их нет, то по всем": {
+  "en": "average over posts older than 48 hours, or over all posts if there are none",
+  "uk": "середнє за дописами, старшими за 48 годин, якщо їх немає, то за всіма",
+  "uz": "48 soatdan eski postlar boʻyicha oʻrtacha, ular boʻlmasa hammasi boʻyicha"
+ },
+ "средние просмотры в окне к средним просмотрам остальных постов": {
+  "en": "average views in the window compared to average views of other posts",
+  "uk": "середні перегляди у вікні до середніх переглядів інших дописів",
+  "uz": "oynadagi oʻrtacha koʻrishlar qolgan postlarning oʻrtacha koʻrishlariga nisbatan"
+ },
  "ссылка": {
   "ar": "رابط",
   "be": "спасылка",
@@ -8890,6 +10075,16 @@ private let dkxStringsJSON = #"""
   "uk": "посилання",
   "uz": "havola"
  },
+ "сумма просмотров постов периода": {
+  "en": "sum of views of posts in the period",
+  "uk": "сума переглядів дописів періоду",
+  "uz": "davrdagi postlar koʻrishlari yigʻindisi"
+ },
+ "такой же длины перед выбранным": {
+  "en": "of the same length before the selected one",
+  "uk": "такої ж довжини перед вибраним",
+  "uz": "tanlangan davrdan oldingi xuddi shunday uzunlikdagi"
+ },
  "только что": {
   "ar": "للتو",
   "be": "толькі што",
@@ -8909,6 +10104,11 @@ private let dkxStringsJSON = #"""
   "tr": "az önce",
   "uk": "щойно",
   "uz": "hozirgina"
+ },
+ "точки это посты": {
+  "en": "dots are posts",
+  "uk": "точки це дописи",
+  "uz": "nuqtalar bu postlar"
  },
  "у {} из {}": {
   "ar": "على {} من {}",
@@ -8950,6 +10150,11 @@ private let dkxStringsJSON = #"""
   "uk": "видалено ",
   "uz": "oʻchirilgan "
  },
+ "удалил {} · выгнал {} · ограничил {}": {
+  "en": "deleted {} · removed {} · restricted {}",
+  "uk": "видалив {} · вигнав {} · обмежив {}",
+  "uz": "oʻchirgan {} · chiqargan {} · cheklagan {}"
+ },
  "уже были {}": {
   "ar": "موجودة مسبقًا {}",
   "be": "ужо былі {}",
@@ -8969,6 +10174,21 @@ private let dkxStringsJSON = #"""
   "tr": "zaten vardı {}",
   "uk": "уже були {}",
   "uz": "avval bor edi {}"
+ },
+ "участник|участника|участников": {
+  "en": "member|members",
+  "uk": "учасник|учасники|учасників",
+  "uz": "aʼzo|aʼzo"
+ },
+ "ушли": {
+  "en": "left",
+  "uk": "пішли",
+  "uz": "chiqib ketdi"
+ },
+ "ч": {
+  "en": "h",
+  "uk": "год",
+  "uz": "soat"
  },
  "чат": {
   "ar": "محادثة",
