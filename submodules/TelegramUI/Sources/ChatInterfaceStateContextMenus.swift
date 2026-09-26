@@ -1603,6 +1603,17 @@ func contextMenuForChatPresentationInterfaceState(chatPresentationInterfaceState
             })))
         }
         
+        // MARK: DKX свои метки на сообщение в Избранном
+        if dkxSavedLabelsApplicable(context: context, message: message) {
+            let dkxLabelCount = DkxSavedLabelsStore.current.labelIds(account: message.id.peerId.toInt64(), message: message.id.id).count
+            actions.append(.action(ContextMenuActionItem(text: dkxLabelCount == 0 ? DkxStrings.tr("Метки") : DkxStrings.tr("Метки, {}", dkxLabelCount), icon: { theme in
+                return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Tag"), color: theme.actionSheet.primaryTextColor)
+            }, action: { _, f in
+                f(.default)
+                controllerInteraction.navigationController()?.pushViewController(dkxSavedLabelsPickerController(context: context, messageId: message.id))
+            })))
+        }
+        
         // MARK: DKX пункт «Send Logs» убран, логи Telegram отправляются из отладочного меню
         
         var threadId: Int64?

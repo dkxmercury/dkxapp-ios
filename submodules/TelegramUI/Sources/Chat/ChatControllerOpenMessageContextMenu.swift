@@ -18,6 +18,7 @@ import TopMessageReactions
 import TelegramNotices
 import PresentationDataUtils
 import ChatPresentationInterfaceState
+import TelegramUIPreferences
 
 extension ChatControllerImpl {
     func openMessageContextMenu(message: EngineMessage, selectAll: Bool, node: ASDisplayNode, frame: CGRect, anyRecognizer: UIGestureRecognizer?, location: CGPoint?) -> Void {
@@ -128,7 +129,9 @@ extension ChatControllerImpl {
                 actions.context = self.context
                 actions.animationCache = self.controllerInteraction?.presentationContext.animationCache
                                                          
-                if canAddMessageReactions(message: EngineMessage(topMessage)), let allowedReactions = allowedReactions, !topReactions.isEmpty {
+                // MARK: DKX штатные теги Избранного можно спрятать в «Скрыть разделы»
+                let dkxHideSavedTags = message.areReactionsTags(accountPeerId: self.context.account.peerId) && DkxRuntime.current.isHidden(.savedTags)
+                if canAddMessageReactions(message: EngineMessage(topMessage)), let allowedReactions = allowedReactions, !topReactions.isEmpty, !dkxHideSavedTags {
                     actions.reactionItems = topReactions.map { ReactionContextItem.reaction(item: $0, icon: .none) }
                     actions.selectedReactionItems = selectedReactions.reactions
                     if message.areReactionsTags(accountPeerId: self.context.account.peerId) {

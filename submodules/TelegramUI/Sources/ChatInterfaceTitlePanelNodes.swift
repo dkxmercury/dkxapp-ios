@@ -7,6 +7,7 @@ import ChatControllerInteraction
 import ComponentFlow
 import ChatSideTopicsPanel
 import LegacyChatHeaderPanelComponent
+import TelegramUIPreferences
 
 func titlePanelForChatPresentationInterfaceState(_ chatPresentationInterfaceState: ChatPresentationInterfaceState, context: AccountContext, currentPanel: ChatTitleAccessoryPanelNode?, controllerInteraction: ChatControllerInteraction?, interfaceInteraction: ChatPanelInterfaceInteraction?, force: Bool) -> ChatTitleAccessoryPanelNode? {
     if !force, case .standard(.embedded) = chatPresentationInterfaceState.mode {
@@ -22,7 +23,8 @@ func titlePanelForChatPresentationInterfaceState(_ chatPresentationInterfaceStat
     if let search = chatPresentationInterfaceState.search {
         var matches = false
         if chatPresentationInterfaceState.chatLocation.peerId == context.account.peerId {
-            if chatPresentationInterfaceState.hasSearchTags || !chatPresentationInterfaceState.isPremium {
+            // MARK: DKX штатные теги Избранного можно спрятать в «Скрыть разделы»
+            if (chatPresentationInterfaceState.hasSearchTags || !chatPresentationInterfaceState.isPremium) && !DkxRuntime.current.isHidden(.savedTags) {
                 if case .everything = search.domain {
                     matches = true
                 } else if case .tag = search.domain, search.query.isEmpty {
@@ -233,6 +235,16 @@ func titlePanelForChatPresentationInterfaceState(_ chatPresentationInterfaceStat
                     }
                 }
         }
+    }
+    
+    // MARK: DKX ряд своих меток под заголовком Избранного, если нет панели важнее
+    if chatPresentationInterfaceState.chatLocation.peerId == context.account.peerId, case .standard(.default) = chatPresentationInterfaceState.mode, chatPresentationInterfaceState.subject == nil, !DkxSavedLabelsStore.current.labels.isEmpty {
+        if let currentPanel = currentPanel as? DkxSavedLabelsTitlePanelNode {
+            return currentPanel
+        }
+        let panel = DkxSavedLabelsTitlePanelNode(context: context)
+        panel.interfaceInteraction = interfaceInteraction
+        return panel
     }
     
     return nil

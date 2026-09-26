@@ -30,6 +30,12 @@ public enum DkxHiddenSection: String, CaseIterable {
     case passport = "settings.passport"
     case watch = "settings.watch"
 
+    case savedTags = "saved.tags"
+
+    public var isSavedMessages: Bool {
+        return self == .savedTags
+    }
+
     public var isTab: Bool {
         switch self {
         case .tabContacts, .tabCalls:
@@ -87,6 +93,8 @@ public enum DkxHiddenSection: String, CaseIterable {
             return "Telegram Passport"
         case .watch:
             return "Apple Watch"
+        case .savedTags:
+            return DkxStrings.tr("Теги в Избранном")
         }
     }
 }
