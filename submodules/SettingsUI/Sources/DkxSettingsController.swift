@@ -132,6 +132,7 @@ private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
 private final class DkxSettingsControllerArguments {
     let updateHideStories: (Bool) -> Void
     let updateHidePremiumPromo: (Bool) -> Void
+    let openAppIcon: () -> Void
     let updateAntiDelete: (Bool) -> Void
     let updateEditHistory: (Bool) -> Void
     let updateToggle: (DkxToggle, Bool) -> Void
@@ -148,6 +149,7 @@ private final class DkxSettingsControllerArguments {
     init(
         updateHideStories: @escaping (Bool) -> Void,
         updateHidePremiumPromo: @escaping (Bool) -> Void,
+        openAppIcon: @escaping () -> Void,
         updateAntiDelete: @escaping (Bool) -> Void,
         updateEditHistory: @escaping (Bool) -> Void,
         updateToggle: @escaping (DkxToggle, Bool) -> Void,
@@ -163,6 +165,7 @@ private final class DkxSettingsControllerArguments {
     ) {
         self.updateHideStories = updateHideStories
         self.updateHidePremiumPromo = updateHidePremiumPromo
+        self.openAppIcon = openAppIcon
         self.updateAntiDelete = updateAntiDelete
         self.updateEditHistory = updateEditHistory
         self.updateToggle = updateToggle
@@ -192,6 +195,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case interfaceHeader
     case hideStories(Bool)
     case hidePremiumPromo(Bool)
+    case openAppIcon
     case interfaceFooter
 
     case chatsHeader
@@ -225,7 +229,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
 
     var section: ItemListSectionId {
         switch self {
-        case .interfaceHeader, .hideStories, .hidePremiumPromo, .interfaceFooter:
+        case .interfaceHeader, .hideStories, .hidePremiumPromo, .openAppIcon, .interfaceFooter:
             return DkxSettingsSection.interface.rawValue
         case .chatsHeader, .toggle, .openQuickReplies, .chatsFooter:
             return DkxSettingsSection.chats.rawValue
@@ -252,6 +256,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 1
         case .hidePremiumPromo:
             return 2
+        case .openAppIcon:
+            return 3
         case .interfaceFooter:
             return 99
         case .chatsHeader:
@@ -323,6 +329,10 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         case let .hidePremiumPromo(value):
             return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: "Убрать навязывание премиума", value: value, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateHidePremiumPromo(value)
+            })
+        case .openAppIcon:
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: "Значок приложения", label: "", sectionId: self.section, style: .blocks, action: {
+                arguments.openAppIcon()
             })
         case .interfaceFooter:
             return ItemListTextItem(presentationData: presentationData, text: .plain("Лента историй над списком чатов исчезнет полностью. Сами истории останутся доступны в профилях.\n\nБез навязывания пропадут плашки и экраны покупки Premium, пункты Premium, Business и подарков в настройках, значки подарков в поле ввода, а при наборе будут предлагаться только ваши стикеры, без чужих паков. Если Premium уже есть, он продолжит работать. Покупка Stars остаётся. Применяется при следующем открытии экрана."), sectionId: self.section)
@@ -415,6 +425,7 @@ private func dkxSettingsControllerEntries(settings: DkxSettings) -> [DkxSettings
     entries.append(.interfaceHeader)
     entries.append(.hideStories(settings.hideStories))
     entries.append(.hidePremiumPromo(settings.hidePremiumPromo))
+    entries.append(.openAppIcon)
     entries.append(.interfaceFooter)
 
     entries.append(.chatsHeader)
@@ -505,6 +516,9 @@ public func dkxSettingsController(context: AccountContext) -> ViewController {
         },
         updateHidePremiumPromo: { value in
             update { $0.hidePremiumPromo = value }
+        },
+        openAppIcon: {
+            pushControllerImpl?(dkxAppIconController(context: context))
         },
         updateAntiDelete: { value in
             update { $0.antiDelete = value }
