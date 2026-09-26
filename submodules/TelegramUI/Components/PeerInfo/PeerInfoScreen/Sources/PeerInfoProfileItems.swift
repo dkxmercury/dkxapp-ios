@@ -212,6 +212,9 @@ func infoItems(
         if !isMyProfile, user.id != context.account.peerId, let dkxBadgeItem = dkxContactBadgeItem(id: 3098, user: user, isContact: data.isContact) {
             items[currentPeerInfoSection]!.append(dkxBadgeItem)
         }
+        if !isMyProfile {
+            items[currentPeerInfoSection]!.append(contentsOf: dkxPeerHistoryItems(firstId: 3096, user: user, context: context, interaction: interaction))
+        }
         
         if let cachedData = data.cachedData as? CachedUserData {
             if let birthday = cachedData.birthday {
