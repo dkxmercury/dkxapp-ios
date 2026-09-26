@@ -954,10 +954,6 @@ private final class DkxTasksCalendarController: ViewController {
         self.reload(resetOffset: false)
     }
 
-    private func push(_ controller: ViewController) {
-        (self.navigationController as? NavigationController)?.pushViewController(controller)
-    }
-
     @objc private func addPressed() {
         let date = self.mode == .feed ? Date() : self.selectedDay
         self.push(dkxTaskEditController(context: self.context, task: nil, suggestedDate: Int32(date.timeIntervalSince1970)))
