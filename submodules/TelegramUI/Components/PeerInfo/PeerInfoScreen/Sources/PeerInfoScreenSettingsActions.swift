@@ -145,13 +145,7 @@ extension PeerInfoScreenNode {
             push(dataAndStorageController(context: self.context))
         // MARK: DKX
         case .dkx:
-            let dkxContext = self.context
-            push(dkxSettingsController(context: dkxContext, makeLocationPicker: { initial, completion in
-                let initialLocation = initial.map { CLLocationCoordinate2D(latitude: $0.latitude, longitude: $0.longitude) }
-                return LocationPickerController(context: dkxContext, style: .glass, mode: .pick, initialLocation: initialLocation, completion: { location, _, _, _, _ in
-                    completion(location.latitude, location.longitude)
-                })
-            }))
+            push(dkxSettingsController(context: self.context))
         case .dkxTasks:
             push(dkxTasksController(context: self.context))
         case .dkxPasswords:

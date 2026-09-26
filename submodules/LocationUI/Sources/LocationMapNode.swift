@@ -561,6 +561,16 @@ public final class LocationMapNode: ASDisplayNode, MKMapViewDelegateTarget {
             return nil
         }
         
+        // MARK: DKX метки подмены геопозиции
+        if let annotation = annotation as? DkxSpoofAnnotation {
+            let view = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: nil)
+            view.markerTintColor = annotation.tint
+            view.glyphText = annotation.glyph
+            view.displayPriority = .required
+            view.canShowCallout = false
+            return view
+        }
+        
         if let annotation = annotation as? LocationPinAnnotation {
             var view = mapView.dequeueReusableAnnotationView(withIdentifier: locationPinReuseIdentifier)
             if view == nil {
@@ -633,6 +643,13 @@ public final class LocationMapNode: ASDisplayNode, MKMapViewDelegateTarget {
     }
         
     public func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        // MARK: DKX путь подмены геопозиции
+        if let polyline = overlay as? DkxSpoofPolyline {
+            let renderer = MKPolylineRenderer(polyline: polyline)
+            renderer.strokeColor = UIColor(rgb: 0x3E88F7)
+            renderer.lineWidth = 4.0
+            return renderer
+        }
         if let circle = overlay as? MKCircle {
             let renderer = ProximityCircleRenderer(circle: circle)
             renderer.fillColor = .clear
@@ -925,5 +942,69 @@ public final class LocationMapNode: ASDisplayNode, MKMapViewDelegateTarget {
         }
         
         self.applyPendingSetMapCenter()
+    }
+}
+
+// MARK: DKX подмена геопозиции. Метки точки, А и Б, линия пути и перевод
+// точки нажатия в координату. Здесь, потому что сама карта у узла приватная.
+public final class DkxSpoofAnnotation: NSObject, MKAnnotation {
+    public let coordinate: CLLocationCoordinate2D
+    @objc public let title: String?
+    let glyph: String
+    let tint: UIColor
+
+    init(coordinate: CLLocationCoordinate2D, title: String, glyph: String, tint: UIColor) {
+        self.coordinate = coordinate
+        self.title = title
+        self.glyph = glyph
+        self.tint = tint
+        super.init()
+    }
+}
+
+final class DkxSpoofPolyline: MKPolyline {
+}
+
+extension LocationMapNode {
+    func dkxUpdateSpoofOverlay(point: CLLocationCoordinate2D?, from: CLLocationCoordinate2D?, to: CLLocationCoordinate2D?, path: [Double]) {
+        guard let mapView = self.mapView else {
+            return
+        }
+        mapView.removeAnnotations(mapView.annotations.filter { $0 is DkxSpoofAnnotation })
+        mapView.removeOverlays(mapView.overlays.filter { $0 is DkxSpoofPolyline })
+
+        var annotations: [DkxSpoofAnnotation] = []
+        if let point = point {
+            annotations.append(DkxSpoofAnnotation(coordinate: point, title: "Точка", glyph: "•", tint: UIColor(rgb: 0xFF9500)))
+        }
+        if let from = from {
+            annotations.append(DkxSpoofAnnotation(coordinate: from, title: "А", glyph: "А", tint: UIColor(rgb: 0x34C759)))
+        }
+        if let to = to {
+            annotations.append(DkxSpoofAnnotation(coordinate: to, title: "Б", glyph: "Б", tint: UIColor(rgb: 0xFF3B30)))
+        }
+        mapView.addAnnotations(annotations)
+
+        if path.count >= 4 {
+            var coordinates: [CLLocationCoordinate2D] = []
+            var index = 0
+            while index + 1 < path.count {
+                coordinates.append(CLLocationCoordinate2D(latitude: path[index], longitude: path[index + 1]))
+                index += 2
+            }
+            mapView.addOverlay(DkxSpoofPolyline(coordinates: coordinates, count: coordinates.count))
+        }
+    }
+
+    // nil, если нажали мимо карты
+    func dkxCoordinate(for recognizer: UIGestureRecognizer) -> CLLocationCoordinate2D? {
+        guard let mapView = self.mapView else {
+            return nil
+        }
+        let point = recognizer.location(in: mapView)
+        guard mapView.bounds.contains(point) else {
+            return nil
+        }
+        return mapView.convert(point, toCoordinateFrom: mapView)
     }
 }

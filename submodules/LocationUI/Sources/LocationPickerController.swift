@@ -201,6 +201,8 @@ public final class LocationPickerController: ViewController, AttachmentContainab
                         guard let self else {
                             return
                         }
+                        // MARK: DKX маршрут подмены трогается вместе с трансляцией
+                        dkxStartRouteForBroadcast(accountManager: self.context.sharedContext.accountManager)
                         self.completion(TelegramMediaMap(coordinate: coordinate, liveBroadcastingTimeout: period), nil, nil, nil, nil)
                         self.dismiss()
                     }

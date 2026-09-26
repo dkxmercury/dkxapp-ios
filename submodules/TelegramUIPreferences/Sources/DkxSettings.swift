@@ -69,6 +69,9 @@ public struct DkxSettings: Codable, Equatable {
     public var lockedPeers: [Int64]
     public var quickReplyTemplates: [String]
 
+    // Панель подмены на экране карты. Выключенная прячет панель, и
+    // приложение отдаёт настоящую геопозицию.
+    public var spoofPanel: Bool
     // Подмена координат, общий выключатель
     public var spoofLocation: Bool
     public var spoofMode: SpoofMode
@@ -114,6 +117,7 @@ public struct DkxSettings: Codable, Equatable {
         self.remindLater = true
         self.lockedPeers = []
         self.quickReplyTemplates = []
+        self.spoofPanel = true
         self.spoofLocation = false
         self.spoofMode = .point
         self.spoofCoordinate = ""
@@ -191,6 +195,7 @@ public struct DkxSettings: Codable, Equatable {
         self.remindLater = (try container.decodeIfPresent(Int32.self, forKey: "remindLater")).map { $0 != 0 } ?? defaults.remindLater
         self.lockedPeers = (try container.decodeIfPresent([Int64].self, forKey: "lockedPeers")) ?? defaults.lockedPeers
         self.quickReplyTemplates = (try container.decodeIfPresent([String].self, forKey: "quickReplyTemplates")) ?? defaults.quickReplyTemplates
+        self.spoofPanel = (try container.decodeIfPresent(Int32.self, forKey: "spoofPanel")).map { $0 != 0 } ?? defaults.spoofPanel
         self.spoofLocation = (try container.decodeIfPresent(Int32.self, forKey: "spoofLocation") ?? 0) != 0
         self.spoofMode = SpoofMode(rawValue: (try container.decodeIfPresent(Int32.self, forKey: "spoofMode")) ?? defaults.spoofMode.rawValue) ?? defaults.spoofMode
         self.spoofCoordinate = (try container.decodeIfPresent(String.self, forKey: "spoofCoordinate")) ?? defaults.spoofCoordinate
@@ -225,6 +230,7 @@ public struct DkxSettings: Codable, Equatable {
         try container.encode((self.remindLater ? 1 : 0) as Int32, forKey: "remindLater")
         try container.encode(self.lockedPeers, forKey: "lockedPeers")
         try container.encode(self.quickReplyTemplates, forKey: "quickReplyTemplates")
+        try container.encode((self.spoofPanel ? 1 : 0) as Int32, forKey: "spoofPanel")
         try container.encode((self.spoofLocation ? 1 : 0) as Int32, forKey: "spoofLocation")
         try container.encode(self.spoofMode.rawValue, forKey: "spoofMode")
         try container.encode(self.spoofCoordinate, forKey: "spoofCoordinate")

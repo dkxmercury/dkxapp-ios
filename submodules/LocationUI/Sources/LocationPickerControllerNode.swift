@@ -23,6 +23,7 @@ import MultilineTextComponent
 import SearchInputPanelComponent
 import ButtonComponent
 import EdgeEffect
+import TelegramUIPreferences
 
 private struct LocationPickerTransaction {
     let deletions: [ListViewDeleteItem]
@@ -376,6 +377,11 @@ final class LocationPickerControllerNode: ViewControllerTracingNode, CLLocationM
     
     private var validLayout: (layout: ContainerViewLayout, navigationHeight: CGFloat)?
     private var listOffset: CGFloat?
+    
+    // MARK: DKX панель подмены геопозиции над картой
+    private var dkxSpoofPanel: DkxSpoofPanelController?
+    private let dkxLongPressDelegate = DkxSpoofLongPressDelegate()
+    private var dkxPanelInset: CGFloat = 0.0
         
     var beganInteractiveDragging: () -> Void = {}
     var locationAccessDeniedUpdated: (Bool) -> Void = { _ in }
@@ -989,7 +995,8 @@ final class LocationPickerControllerNode: ViewControllerTracingNode, CLLocationM
             self.listOffset = max(0.0, offset)
             let headerFrame = CGRect(origin: CGPoint(), size: CGSize(width: layout.size.width, height: max(0.0, offset + overlap)))
             listTransition.updateFrame(node: self.headerNode, frame: headerFrame)
-            self.headerNode.updateLayout(layout: layout, navigationBarHeight: navigationBarHeight, topPadding: self.state.displayingMapModeOptions ? 38.0 : 0.0, controlsTopPadding: self.state.displayingMapModeOptions ? 38.0 : 0.0, controlsBottomPadding: self.isPickingLocation ? 94.0 : 0.0, offset: 0.0, size: headerFrame.size, transition: listTransition)
+            self.headerNode.updateLayout(layout: layout, navigationBarHeight: navigationBarHeight, topPadding: (self.state.displayingMapModeOptions ? 38.0 : 0.0) + self.dkxPanelInset, controlsTopPadding: self.state.displayingMapModeOptions ? 38.0 : 0.0, controlsBottomPadding: self.isPickingLocation ? 94.0 : 0.0, offset: 0.0, size: headerFrame.size, transition: listTransition)
+            self.dkxUpdatePanelVisibility(headerHeight: headerFrame.height, navigationHeight: navigationBarHeight, transition: listTransition)
             self.layoutEmptyResultsPlaceholder(transition: listTransition)
         }
         
@@ -1080,6 +1087,52 @@ final class LocationPickerControllerNode: ViewControllerTracingNode, CLLocationM
         
         self.locationManager.manager.stopUpdatingHeading()
     }
+    
+    override func didLoad() {
+        super.didLoad()
+        
+        self.dkxSetupSpoofPanel()
+    }
+    
+    // MARK: DKX панель только в экране отправки, в выборе точки она не нужна
+    private func dkxSetupSpoofPanel() {
+        guard case .share = self.mode, DkxRuntime.current.spoofPanel else {
+            return
+        }
+        let panel = DkxSpoofPanelController(accountManager: self.context.sharedContext.accountManager, mapNode: self.headerNode.mapNode, theme: self.presentationData.theme)
+        panel.layoutUpdated = { [weak self] in
+            guard let self, let (layout, navigationHeight) = self.validLayout else {
+                return
+            }
+            self.containerLayoutUpdated(layout, navigationHeight: navigationHeight, transition: .animated(duration: 0.25, curve: .easeInOut))
+        }
+        self.dkxSpoofPanel = panel
+        self.view.addSubview(panel.view)
+        
+        // На родителе карты, а не на ней самой. Карта пропускает жесты только
+        // рядом со своими метками.
+        let recognizer = UILongPressGestureRecognizer(target: self, action: #selector(self.dkxLongPress(_:)))
+        recognizer.minimumPressDuration = 0.5
+        recognizer.delegate = self.dkxLongPressDelegate
+        self.headerNode.view.addGestureRecognizer(recognizer)
+    }
+    
+    @objc private func dkxLongPress(_ recognizer: UILongPressGestureRecognizer) {
+        guard recognizer.state == .began, let panel = self.dkxSpoofPanel, let coordinate = self.headerNode.mapNode.dkxCoordinate(for: recognizer) else {
+            return
+        }
+        panel.handleLongPress(coordinate)
+    }
+    
+    // Панель прячется, когда шапка с картой сжалась под неё, иначе висела бы поверх списка
+    private func dkxUpdatePanelVisibility(headerHeight: CGFloat, navigationHeight: CGFloat, transition: ContainedViewLayoutTransition) {
+        guard let panel = self.dkxSpoofPanel else {
+            return
+        }
+        let visible = self.searchContainerNode == nil && headerHeight >= navigationHeight + self.dkxPanelInset + 60.0
+        transition.updateAlpha(layer: panel.view.layer, alpha: visible ? 1.0 : 0.0)
+        panel.view.isUserInteractionEnabled = visible
+    }
         
     func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
         self.headerNode.mapNode.userHeading = CGFloat(newHeading.magneticHeading)
@@ -1095,6 +1148,7 @@ final class LocationPickerControllerNode: ViewControllerTracingNode, CLLocationM
         self.shadeNode.backgroundColor = self.presentationData.theme.list.plainBackgroundColor
         self.innerShadeNode.backgroundColor = self.presentationData.theme.list.plainBackgroundColor
         self.searchContainerNode?.updatePresentationData(self.presentationData)
+        self.dkxSpoofPanel?.updateTheme(self.presentationData.theme)
     }
     
     func updateState(_ f: (LocationPickerState) -> LocationPickerState) {
@@ -1260,7 +1314,17 @@ final class LocationPickerControllerNode: ViewControllerTracingNode, CLLocationM
         let headerFrame = CGRect(origin: CGPoint(), size: CGSize(width: layout.size.width, height: headerHeight))
         transition.updateFrame(node: self.headerNode, frame: headerFrame)
         
-        self.headerNode.updateLayout(layout: layout, navigationBarHeight: navigationHeight, topPadding: self.state.displayingMapModeOptions && !glass ? optionsHeight : 0.0, controlsTopPadding: self.state.displayingMapModeOptions && !glass ? optionsHeight : 0.0, controlsBottomPadding: isPickingLocation ? 94.0 : 0.0, offset: 0.0, size: headerFrame.size, transition: transition)
+        // MARK: DKX панель подмены над картой, кнопки и центр карты уходят под неё
+        if let panel = self.dkxSpoofPanel {
+            let sideInset: CGFloat = 12.0
+            let panelWidth = max(100.0, layout.size.width - sideInset * 2.0 - layout.safeInsets.left - layout.safeInsets.right)
+            let panelHeight = panel.view.layout(width: panelWidth)
+            transition.updateFrame(view: panel.view, frame: CGRect(x: sideInset + layout.safeInsets.left, y: navigationHeight + 6.0, width: panelWidth, height: panelHeight))
+            self.dkxPanelInset = panelHeight + 8.0
+            self.dkxUpdatePanelVisibility(headerHeight: headerHeight, navigationHeight: navigationHeight, transition: transition)
+        }
+        
+        self.headerNode.updateLayout(layout: layout, navigationBarHeight: navigationHeight, topPadding: (self.state.displayingMapModeOptions && !glass ? optionsHeight : 0.0) + self.dkxPanelInset, controlsTopPadding: self.state.displayingMapModeOptions && !glass ? optionsHeight : 0.0, controlsBottomPadding: isPickingLocation ? 94.0 : 0.0, offset: 0.0, size: headerFrame.size, transition: transition)
             
         let (duration, curve) = listViewAnimationDurationAndCurve(transition: transition)
         let scrollToItem: ListViewScrollToItem?
