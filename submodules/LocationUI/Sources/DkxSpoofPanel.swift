@@ -220,7 +220,7 @@ final class DkxSpoofPanelView: UIView {
     }
 }
 
-// Логика панели: читает и пишет настройки Dkx, прокладывает маршрут по
+// Логика панели. Читает и пишет настройки Dkx, прокладывает маршрут по
 // дорогам, рисует метки на карте и раз в секунду обновляет строку состояния,
 // пока точка едет.
 final class DkxSpoofPanelController {
@@ -334,7 +334,7 @@ final class DkxSpoofPanelController {
         })
     }
 
-    // Настройки перечитываем, а не берём из подписки: она может ещё не
+    // Настройки перечитываем, а не берём из подписки. Она может ещё не
     // донести правку, после которой нас позвали
     private func recomputeRoute() {
         self.routeDisposable.set((self.accountManager.sharedData(keys: [ApplicationSpecificSharedDataKeys.dkxSettings])
