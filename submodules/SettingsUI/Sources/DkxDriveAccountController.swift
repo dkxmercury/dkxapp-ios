@@ -93,7 +93,7 @@ private enum DkxDriveAccountEntry: ItemListNodeEntry {
         case let .nameFooter(text), let .mainFooter(text), let .disconnectFooter(text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
         case let .mainSwitch(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Основной аккаунт"), value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Основной аккаунт"), value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.setMain(value)
             })
         case .disconnect:

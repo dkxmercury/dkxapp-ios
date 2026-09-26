@@ -9,14 +9,17 @@ import ItemListUI
 import PresentationDataUtils
 import AccountContext
 
-// MARK: DKX «Скрыть разделы». Включённый тумблер прячет вкладку внизу или
-// строку главного экрана настроек. Список и названия в DkxHiddenSection.
+// «Скрыть». Включённый тумблер прячет ленту историй, вкладку внизу, строку
+// главного экрана настроек или теги Избранного. Список и названия в DkxHiddenSection,
+// лента историй хранится отдельным флагом hideStories.
 
 private final class DkxHiddenSectionsArguments {
     let update: (DkxHiddenSection, Bool) -> Void
+    let updateStories: (Bool) -> Void
 
-    init(update: @escaping (DkxHiddenSection, Bool) -> Void) {
+    init(update: @escaping (DkxHiddenSection, Bool) -> Void, updateStories: @escaping (Bool) -> Void) {
         self.update = update
+        self.updateStories = updateStories
     }
 }
 
@@ -24,9 +27,13 @@ private enum DkxHiddenSectionsSection: Int32 {
     case tabs
     case settings
     case saved
+    case stories
 }
 
 private enum DkxHiddenSectionsEntry: ItemListNodeEntry {
+    case storiesHeader
+    case stories(Bool)
+    case storiesFooter
     case tabsHeader
     case item(index: Int32, section: DkxHiddenSection, hidden: Bool)
     case tabsFooter
@@ -37,6 +44,8 @@ private enum DkxHiddenSectionsEntry: ItemListNodeEntry {
 
     var section: ItemListSectionId {
         switch self {
+        case .storiesHeader, .stories, .storiesFooter:
+            return DkxHiddenSectionsSection.stories.rawValue
         case .tabsHeader, .tabsFooter:
             return DkxHiddenSectionsSection.tabs.rawValue
         case let .item(_, section, _):
@@ -53,6 +62,12 @@ private enum DkxHiddenSectionsEntry: ItemListNodeEntry {
 
     var stableId: Int32 {
         switch self {
+        case .storiesHeader:
+            return -3
+        case .stories:
+            return -2
+        case .storiesFooter:
+            return -1
         case .tabsHeader:
             return 0
         case let .item(index, _, _):
@@ -90,10 +105,18 @@ private enum DkxHiddenSectionsEntry: ItemListNodeEntry {
     func item(presentationData: ItemListPresentationData, arguments: Any) -> ListViewItem {
         let arguments = arguments as! DkxHiddenSectionsArguments
         switch self {
+        case .storiesHeader:
+            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("СПИСОК ЧАТОВ"), sectionId: self.section)
+        case let .stories(value):
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Лента историй"), value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
+                arguments.updateStories(value)
+            })
+        case .storiesFooter:
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Лента историй над списком чатов исчезнет полностью. Сами истории останутся доступны в профилях.")), sectionId: self.section)
         case .tabsHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ВКЛАДКИ ВНИЗУ"), sectionId: self.section)
         case let .item(_, section, hidden):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: section.title, value: hidden, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: section.title, value: hidden, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.update(section, value)
             })
         case .tabsFooter:
@@ -113,6 +136,9 @@ private enum DkxHiddenSectionsEntry: ItemListNodeEntry {
 private func dkxHiddenSectionsEntries(settings: DkxSettings) -> [DkxHiddenSectionsEntry] {
     var entries: [DkxHiddenSectionsEntry] = []
     let all = DkxHiddenSection.allCases
+    entries.append(.storiesHeader)
+    entries.append(.stories(settings.hideStories))
+    entries.append(.storiesFooter)
     entries.append(.tabsHeader)
     for (index, section) in all.enumerated() where section.isTab {
         entries.append(.item(index: Int32(index), section: section, hidden: settings.isHidden(section)))
@@ -142,6 +168,12 @@ func dkxHiddenSectionsController(context: AccountContext) -> ViewController {
             }
             return updated
         }).start()
+    }, updateStories: { hidden in
+        let _ = updateDkxSettingsInteractively(accountManager: accountManager, { current in
+            var updated = current
+            updated.hideStories = hidden
+            return updated
+        }).start()
     })
 
     let signal = combineLatest(queue: .mainQueue(),
@@ -150,7 +182,7 @@ func dkxHiddenSectionsController(context: AccountContext) -> ViewController {
     )
     |> map { presentationData, sharedData -> (ItemListControllerState, (ItemListNodeState, Any)) in
         let settings = sharedData.entries[ApplicationSpecificSharedDataKeys.dkxSettings]?.get(DkxSettings.self) ?? DkxSettings.defaultSettings
-        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Скрыть разделы")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
+        let controllerState = ItemListControllerState(presentationData: ItemListPresentationData(presentationData), title: .text(DkxStrings.tr("Скрыть")), leftNavigationButton: nil, rightNavigationButton: nil, backNavigationButton: ItemListBackButton(title: presentationData.strings.Common_Back))
         let listState = ItemListNodeState(presentationData: ItemListPresentationData(presentationData), entries: dkxHiddenSectionsEntries(settings: settings), style: .blocks, animateChanges: false)
         return (controllerState, (listState, arguments))
     }

@@ -130,12 +130,11 @@ private func dkxToggleTitle(_ toggle: DkxToggle) -> String {
     case .passwords:
         return DkxStrings.tr("«Пароли» в настройках")
     case .remindLater:
-        return DkxStrings.tr("«Напомнить позже» у чатов и сообщений")
+        return DkxStrings.tr("«Напомнить позже»")
     }
 }
 
 private final class DkxSettingsControllerArguments {
-    let updateHideStories: (Bool) -> Void
     let updateHidePremiumPromo: (Bool) -> Void
     let openAppIcon: () -> Void
     let openHiddenSections: () -> Void
@@ -150,14 +149,11 @@ private final class DkxSettingsControllerArguments {
     let openQuickReplies: () -> Void
     let openChatLabels: () -> Void
     let updateSpoofPanel: (Bool) -> Void
-    let openLog: () -> Void
-    let openDebug: () -> Void
     let updateDriveEnabled: (Bool) -> Void
     let connectDrive: () -> Void
     let openDriveAccount: (String) -> Void
 
     init(
-        updateHideStories: @escaping (Bool) -> Void,
         updateHidePremiumPromo: @escaping (Bool) -> Void,
         openAppIcon: @escaping () -> Void,
         openHiddenSections: @escaping () -> Void,
@@ -172,13 +168,10 @@ private final class DkxSettingsControllerArguments {
         openQuickReplies: @escaping () -> Void,
         openChatLabels: @escaping () -> Void,
         updateSpoofPanel: @escaping (Bool) -> Void,
-        openLog: @escaping () -> Void,
-        openDebug: @escaping () -> Void,
         updateDriveEnabled: @escaping (Bool) -> Void,
         connectDrive: @escaping () -> Void,
         openDriveAccount: @escaping (String) -> Void
     ) {
-        self.updateHideStories = updateHideStories
         self.updateHidePremiumPromo = updateHidePremiumPromo
         self.openAppIcon = openAppIcon
         self.openHiddenSections = openHiddenSections
@@ -193,8 +186,6 @@ private final class DkxSettingsControllerArguments {
         self.openQuickReplies = openQuickReplies
         self.openChatLabels = openChatLabels
         self.updateSpoofPanel = updateSpoofPanel
-        self.openLog = openLog
-        self.openDebug = openDebug
         self.updateDriveEnabled = updateDriveEnabled
         self.connectDrive = connectDrive
         self.openDriveAccount = openDriveAccount
@@ -211,12 +202,10 @@ private enum DkxSettingsSection: Int32 {
     case location
     case features
     case drive
-    case debug
 }
 
 private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case interfaceHeader
-    case hideStories(Bool)
     case hidePremiumPromo(Bool)
     case openAppIcon
     case openHiddenSections(Int32)
@@ -259,14 +248,10 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
     case driveAccount(Int32, String, String, String)
     case driveAdd(Bool)
     case driveFooter(String)
-    case debugHeader
-    case openLog
-    case openDebug
-    case debugFooter
 
     var section: ItemListSectionId {
         switch self {
-        case .interfaceHeader, .hideStories, .hidePremiumPromo, .openAppIcon, .openHiddenSections, .interfaceFooter:
+        case .interfaceHeader, .hidePremiumPromo, .openAppIcon, .openHiddenSections, .interfaceFooter:
             return DkxSettingsSection.interface.rawValue
         case .chatsHeader, .toggle, .openQuickReplies, .openChatLabels, .chatsFooter:
             return DkxSettingsSection.chats.rawValue
@@ -284,8 +269,6 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return DkxSettingsSection.features.rawValue
         case .driveHeader, .driveToggle, .driveAccount, .driveAdd, .driveFooter:
             return DkxSettingsSection.drive.rawValue
-        case .debugHeader, .openLog, .openDebug, .debugFooter:
-            return DkxSettingsSection.debug.rawValue
         }
     }
 
@@ -295,8 +278,6 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         switch self {
         case .interfaceHeader:
             return 0
-        case .hideStories:
-            return 1
         case .hidePremiumPromo:
             return 2
         case .openAppIcon:
@@ -367,14 +348,6 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             return 2598
         case .driveFooter:
             return 2599
-        case .debugHeader:
-            return 3000
-        case .openLog:
-            return 3001
-        case .openDebug:
-            return 3002
-        case .debugFooter:
-            return 3003
         }
     }
 
@@ -387,12 +360,8 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         switch self {
         case .interfaceHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ИНТЕРФЕЙС"), sectionId: self.section)
-        case let .hideStories(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Скрыть ленту историй"), value: value, sectionId: self.section, style: .blocks, updated: { value in
-                arguments.updateHideStories(value)
-            })
         case let .hidePremiumPromo(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Убрать навязывание премиума"), value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Убрать навязывание премиума"), value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateHidePremiumPromo(value)
             })
         case .openAppIcon:
@@ -400,16 +369,16 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
                 arguments.openAppIcon()
             })
         case let .openHiddenSections(count):
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Скрыть разделы"), label: count == 0 ? DkxStrings.tr("нет") : "\(count)", sectionId: self.section, style: .blocks, action: {
+            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Скрыть"), label: count == 0 ? DkxStrings.tr("нет") : "\(count)", sectionId: self.section, style: .blocks, action: {
                 arguments.openHiddenSections()
             })
         case .interfaceFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Лента историй над списком чатов исчезнет полностью. Сами истории останутся доступны в профилях.\n\nБез навязывания пропадут плашки и экраны покупки Premium, пункты Premium, Business и подарков в настройках, значки подарков в поле ввода, а при наборе будут предлагаться только ваши стикеры, без чужих паков. Если Premium уже есть, он продолжит работать. Покупка Stars остаётся. Применяется при следующем открытии экрана.")), sectionId: self.section)
+            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Без навязывания пропадут плашки и экраны покупки Premium, пункты Premium, Business и подарков в настройках, значки подарков в поле ввода, а при наборе будут предлагаться только ваши стикеры, без чужих паков. Если Premium уже есть, он продолжит работать. Покупка Stars остаётся. Применяется при следующем открытии экрана.")), sectionId: self.section)
 
         case .chatsHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("КОНТАКТЫ И ЧАТЫ"), sectionId: self.section)
         case let .toggle(toggle, value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: dkxToggleTitle(toggle), value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: dkxToggleTitle(toggle), value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateToggle(toggle, value)
             })
         case let .openQuickReplies(count):
@@ -432,7 +401,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         case .transcriptionHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("РАСШИФРОВКА ГОЛОСОВЫХ"), sectionId: self.section)
         case let .transcription(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Расшифровка без Premium"), value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Расшифровка без Premium"), value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateTranscription(value)
             })
         case let .transcriptionLocale(_, id, title, checked):
@@ -444,7 +413,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         case .improveHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("УЛУЧШИТЬ ТЕКСТ"), sectionId: self.section)
         case let .improveToggle(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Кнопка в поле ввода"), value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Кнопка в поле ввода"), value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateImproveText(value)
             })
         case .aiHeader:
@@ -463,7 +432,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         case .locationHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ГЕОПОЗИЦИЯ"), sectionId: self.section)
         case let .spoofPanel(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Панель подмены на карте"), value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Панель подмены на карте"), value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateSpoofPanel(value)
             })
         case let .locationFooter(text):
@@ -472,11 +441,11 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         case .featuresHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("СООБЩЕНИЯ"), sectionId: self.section)
         case let .antiDelete(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Сохранять удалённые"), value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Сохранять удалённые"), value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateAntiDelete(value)
             })
         case let .editHistory(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Сохранять историю правок"), value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Сохранять историю правок"), value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateEditHistory(value)
             })
         case .featuresFooter:
@@ -485,7 +454,7 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
         case .driveHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: "GOOGLE DRIVE", sectionId: self.section)
         case let .driveToggle(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Выгрузка в Google Drive"), value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Выгрузка в Google Drive"), value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateDriveEnabled(value)
             })
         case let .driveAccount(_, id, title, label):
@@ -498,18 +467,6 @@ private enum DkxSettingsControllerEntry: ItemListNodeEntry {
             })
         case let .driveFooter(text):
             return ItemListTextItem(presentationData: presentationData, text: .plain(text), sectionId: self.section)
-        case .debugHeader:
-            return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ОТЛАДКА"), sectionId: self.section)
-        case .openLog:
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Журнал Dkx"), label: "", sectionId: self.section, style: .blocks, action: {
-                arguments.openLog()
-            })
-        case .openDebug:
-            return ItemListDisclosureItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Отладочное меню Telegram"), label: "", sectionId: self.section, style: .blocks, action: {
-                arguments.openDebug()
-            })
-        case .debugFooter:
-            return ItemListTextItem(presentationData: presentationData, text: .plain(DkxStrings.tr("Полные логи Telegram пишутся только по запросу. В отладочном меню включите Log to File, повторите проблему и нажмите Send Logs там же.")), sectionId: self.section)
         }
     }
 }
@@ -518,10 +475,10 @@ private func dkxSettingsControllerEntries(settings: DkxSettings) -> [DkxSettings
     var entries: [DkxSettingsControllerEntry] = []
 
     entries.append(.interfaceHeader)
-    entries.append(.hideStories(settings.hideStories))
     entries.append(.hidePremiumPromo(settings.hidePremiumPromo))
     entries.append(.openAppIcon)
-    entries.append(.openHiddenSections(Int32(settings.hiddenSections.count)))
+    let hiddenCount: Int = settings.hiddenSections.count + (settings.hideStories ? 1 : 0)
+    entries.append(.openHiddenSections(Int32(hiddenCount)))
     entries.append(.interfaceFooter)
 
     entries.append(.chatsHeader)
@@ -610,12 +567,6 @@ private func dkxSettingsControllerEntries(settings: DkxSettings) -> [DkxSettings
         entries.append(.driveFooter(DkxStrings.tr("Пункт «В Google Drive» в меню медиа. Файлы уходят только на ваш диск, в папку Dkx.")))
     }
 
-    entries.append(.debugHeader)
-    // Экран журнала Dkx убран по просьбе владельца. Запись идёт дальше, тихо,
-    // по ней разбираем падения
-    entries.append(.openDebug)
-    entries.append(.debugFooter)
-
     return entries
 }
 
@@ -646,9 +597,6 @@ public func dkxSettingsController(context: AccountContext) -> ViewController {
     }
 
     let arguments = DkxSettingsControllerArguments(
-        updateHideStories: { value in
-            update { $0.hideStories = value }
-        },
         updateHidePremiumPromo: { value in
             update { $0.hidePremiumPromo = value }
         },
@@ -708,14 +656,6 @@ public func dkxSettingsController(context: AccountContext) -> ViewController {
                     settings.spoofLocation = false
                     settings.routeStartedAt = 0
                 }
-            }
-        },
-        openLog: {
-            pushControllerImpl?(dkxLogController(context: context))
-        },
-        openDebug: {
-            if let controller = context.sharedContext.makeDebugSettingsController(context: context) {
-                pushControllerImpl?(controller)
             }
         },
         updateDriveEnabled: { value in

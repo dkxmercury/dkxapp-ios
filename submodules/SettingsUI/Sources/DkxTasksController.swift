@@ -1117,7 +1117,7 @@ private enum DkxTaskEditEntry: ItemListNodeEntry {
         case .whenHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("КОГДА"), sectionId: self.section)
         case let .allDay(value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Весь день"), value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: DkxStrings.tr("Весь день"), value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.updateAllDay(value)
             })
         case let .date(dateTimeFormat, date, hasTime, displayingDate, displayingTime):

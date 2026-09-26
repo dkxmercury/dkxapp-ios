@@ -150,7 +150,7 @@ private enum DkxChatMediaEntry: ItemListNodeEntry {
         case .kindsHeader:
             return ItemListSectionHeaderItem(presentationData: presentationData, text: DkxStrings.tr("ЧТО ВЫГРУЖАТЬ"), sectionId: self.section)
         case let .kind(kind, value):
-            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: kind.title, value: value, sectionId: self.section, style: .blocks, updated: { value in
+            return ItemListSwitchItem(presentationData: presentationData, systemStyle: .glass, title: kind.title, value: value, maximumNumberOfLines: 3, sectionId: self.section, style: .blocks, updated: { value in
                 arguments.toggleKind(kind, value)
             })
         case let .start(searching, enabled):
