@@ -33,6 +33,10 @@ let dkxAnalyticsMatureAge: Int32 = 48 * 60 * 60
 // Для длинных периодов прошлый такой же период не грузим, слишком долго
 let dkxAnalyticsCompareMaxDays = 365
 
+// Очередь последовательная. На общей параллельной очереди завершение обгоняло
+// расчёт отчёта, и готовый отчёт молча терялся
+private let dkxAnalyticsQueue = Queue(name: "dkx.analytics")
+
 enum DkxPostKind: Int {
     case text
     case photo
@@ -1081,7 +1085,7 @@ func dkxLoadAnalytics(context: AccountContext, peerId: EnginePeer.Id, periodDays
         }
         return combineLatest(history, admin)
         |> take(1)
-        |> deliverOn(Queue.concurrentDefaultQueue())
+        |> deliverOn(dkxAnalyticsQueue)
         |> map { source, admin -> DkxAnalyticsRaw in
             return DkxAnalyticsRaw(posts: dkxMakePosts(source.messages), messageCount: source.messages.count, incomplete: source.incomplete, isChannel: isChannel, members: members, capped: source.capped, oldestDate: source.oldestDate, loadedFrom: minDate, admin: admin)
         }

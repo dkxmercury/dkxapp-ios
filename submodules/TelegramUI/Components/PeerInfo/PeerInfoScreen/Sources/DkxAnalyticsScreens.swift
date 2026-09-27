@@ -119,7 +119,10 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
     private var rawNow: Int32 = 0
     private var report: DkxAnalyticsReport?
     private var loading = true
+    private var loadFailed = false
     private var loadedCount = 0
+    private var stageText: String?
+    private var loadGeneration = 0
     private let loadDisposable = MetaDisposable()
     private var peerDisposable: Disposable?
     private weak var progressLabel: UILabel?
@@ -151,6 +154,9 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
     private func load() {
         let days = dkxAnalyticsPeriods[self.periodIndex].days
         let needDays = days <= dkxAnalyticsCompareMaxDays ? days * 2 : days
+        self.loadFailed = false
+        self.loadGeneration += 1
+        let generation = self.loadGeneration
         // Упёрлись в предел сообщений, новая загрузка даст то же самое
         if let raw = self.raw, !raw.incomplete, raw.capped || raw.loadedFrom <= self.rawNow - Int32(needDays) * 86400 {
             let now = self.rawNow
@@ -173,15 +179,25 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
         let now = Int32(Date().timeIntervalSince1970)
         self.loading = true
         self.loadedCount = 0
+        self.stageText = nil
         self.report = nil
         self.reload()
+        // Счётчик и этап от прежнего периода не должны попасть в новую загрузку
         self.loadDisposable.set((dkxLoadAnalytics(context: self.context, peerId: self.peerId, periodDays: days, now: now, progress: { [weak self] count in
             Queue.mainQueue().async {
-                self?.updateProgress(count)
+                guard let self, self.loadGeneration == generation else {
+                    return
+                }
+                self.updateProgress(count)
             }
         }, historyDone: { [weak self] count in
             Queue.mainQueue().async {
-                self?.progressLabel?.text = DkxStrings.tr("Сообщений {}. Считаю и жду статистику Telegram, до 15 секунд", dkxAnNumber(count))
+                guard let self, self.loadGeneration == generation else {
+                    return
+                }
+                // Текст длиннее счётчика, карточку перестраиваем под новую высоту
+                self.stageText = DkxStrings.tr("Сообщений {}. Считаю и жду статистику Telegram, до 15 секунд", dkxAnNumber(count))
+                self.reload()
             }
         })
         |> map { raw -> (DkxAnalyticsRaw, DkxAnalyticsReport) in
@@ -196,11 +212,22 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
             self.report = report
             self.loading = false
             self.reload()
+        }, completed: { [weak self] in
+            guard let self, self.loading else {
+                return
+            }
+            DkxLog.write("аналитика", "загрузка закончилась без отчёта")
+            self.loading = false
+            self.loadFailed = true
+            self.reload()
         }))
     }
 
     private func updateProgress(_ count: Int) {
         self.loadedCount = count
+        if self.stageText != nil {
+            return
+        }
         self.progressLabel?.text = DkxStrings.tr("Загружено сообщений {}", dkxAnNumber(count))
     }
 
@@ -230,6 +257,19 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
             self.load()
         }) + 14.0
 
+        if !self.loading && self.loadFailed {
+            y = self.addFootnote(DkxStrings.tr("Не удалось собрать отчёт. Попробуйте загрузить заново."), x: x, top: y, width: width) + 10.0
+            let retry = self.makeButton(DkxStrings.tr("Загрузить заново"), width: width, height: 44.0, filled: false, fontSize: 15.0, icon: "arrow.clockwise", action: { [weak self] in
+                guard let self else {
+                    return
+                }
+                self.raw = nil
+                self.load()
+            })
+            retry.frame.origin = CGPoint(x: x, y: y)
+            self.add(retry)
+            return y + 44.0 + 14.0
+        }
         guard !self.loading, let report = self.report else {
             return self.buildLoading(x: x, top: y, width: width)
         }
@@ -341,7 +381,7 @@ final class DkxAnalyticsController: DkxAnalyticsBaseController {
             indicator.startAnimating()
             card.addSubview(indicator)
             var y = top + 56.0
-            let progress = dkxAnLabel(DkxStrings.tr("Загружено сообщений {}", dkxAnNumber(self.loadedCount)), size: 15.0, color: self.colors.primary, alignment: .center)
+            let progress = dkxAnLabel(self.stageText ?? DkxStrings.tr("Загружено сообщений {}", dkxAnNumber(self.loadedCount)), size: 15.0, color: self.colors.primary, lines: 0, alignment: .center)
             y += dkxAnPlace(progress, in: card, x: inner, y: y, width: innerWidth) + 6.0
             self.progressLabel = progress
             let hint = dkxAnLabel(DkxStrings.tr("Для больших каналов и длинных периодов загрузка занимает до пары минут"), size: 13.0, color: self.colors.secondary, lines: 0, alignment: .center)
