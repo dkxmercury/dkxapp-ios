@@ -528,7 +528,7 @@ private func dkxSettingsControllerEntries(settings: DkxSettings) -> [DkxSettings
         let day: Int = now.day ?? 0
         let today = Int32(year * 10000 + month * 100 + day)
         let count = settings.improveDay == today ? settings.improveCount : 0
-        entries.append(.improveFooter(DkxStrings.tr("Кнопка с волшебной палочкой появляется в поле ввода, когда там есть текст. Стиль, смайлики, обращение и язык выбираются на её экране, последний выбор запоминается. Работает через сервисы из раздела «API ИИ». Сегодня запросов {}.", count)))
+        entries.append(.improveFooter(DkxStrings.tr("Кнопка с волшебной палочкой всегда стоит в поле ввода, слева от смайлика. Стиль, смайлики, обращение и язык выбираются на её экране, последний выбор запоминается. Работает через сервисы из раздела «API ИИ». Сегодня запросов {}.", count)))
     } else {
         entries.append(.improveFooter(DkxStrings.tr("Кнопки «Улучшить текст» в поле ввода не будет.")))
     }

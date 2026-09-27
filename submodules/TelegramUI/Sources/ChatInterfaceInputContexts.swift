@@ -164,12 +164,20 @@ func inputTextPanelStateForChatPresentationInterfaceState(_ chatPresentationInte
     
     switch chatPresentationInterfaceState.inputMode {
         case .media:
+            // MARK: DKX палочка видна и при открытой панели эмодзи
+            if DkxRuntime.current.improveText && canSendTextMessages && chatPresentationInterfaceState.interfaceState.forwardMessageIds == nil {
+                accessoryItems.append(.dkxImprove)
+            }
             accessoryItems.append(.input(isEnabled: true, inputMode: .keyboard))
             return ChatTextInputPanelState(accessoryItems: accessoryItems, contextPlaceholder: contextPlaceholder, mediaRecordingState: chatPresentationInterfaceState.inputTextPanelState.mediaRecordingState)
         case .inputButtons:
             return ChatTextInputPanelState(accessoryItems: [.botInput(isEnabled: true, inputMode: .keyboard)], contextPlaceholder: contextPlaceholder, mediaRecordingState: chatPresentationInterfaceState.inputTextPanelState.mediaRecordingState)
         case .none, .text:
             if let _ = chatPresentationInterfaceState.interfaceState.editMessage {
+                // MARK: DKX и при правке сообщения
+                if DkxRuntime.current.improveText {
+                    accessoryItems.append(.dkxImprove)
+                }
                 accessoryItems.append(.input(isEnabled: true, inputMode: .emoji))
                 
                 return ChatTextInputPanelState(accessoryItems: accessoryItems, contextPlaceholder: contextPlaceholder, mediaRecordingState: chatPresentationInterfaceState.inputTextPanelState.mediaRecordingState)
@@ -227,9 +235,10 @@ func inputTextPanelStateForChatPresentationInterfaceState(_ chatPresentationInte
                 if DkxRuntime.current.quickReplies && !DkxRuntime.current.quickReplyTemplates.isEmpty && !hasForward {
                     accessoryItems.append(.dkxTemplates)
                 }
-                // MARK: DKX «Улучшить текст», когда в поле есть текст. Без сервиса ИИ
-                // экран объяснит, где его подключить
-                if !isTextEmpty && DkxRuntime.current.improveText && !hasForward {
+                // MARK: DKX «Улучшить текст» видна всегда, пока включена в Dkx. Когда она
+                // появлялась только с текстом, её не находили. Без сервиса ИИ экран
+                // объяснит, где его подключить
+                if DkxRuntime.current.improveText && canSendTextMessages && !hasForward {
                     accessoryItems.append(.dkxImprove)
                 }
                     

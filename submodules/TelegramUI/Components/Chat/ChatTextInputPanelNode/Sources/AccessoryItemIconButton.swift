@@ -89,7 +89,7 @@ final class AccessoryItemIconButton: HighlightTrackingButton, GlassBackgroundVie
         }
         
         self.iconImageView.image = image
-        self.iconImageView.tintColor = theme.chat.inputPanel.inputControlColor.withAlphaComponent(1.0)
+        self.iconImageView.tintColor = AccessoryItemIconButton.dkxIconColor(item: item, theme: theme).withAlphaComponent(1.0)
         self.iconImageView.alpha = alpha * theme.chat.inputPanel.inputControlColor.alpha
         self.iconImageView.tintMask.alpha = alpha * theme.chat.inputPanel.inputControlColor.alpha
         
@@ -131,7 +131,7 @@ final class AccessoryItemIconButton: HighlightTrackingButton, GlassBackgroundVie
         }
         
         self.iconImageView.image = image
-        self.iconImageView.tintColor = theme.chat.inputPanel.inputControlColor.withAlphaComponent(1.0)
+        self.iconImageView.tintColor = AccessoryItemIconButton.dkxIconColor(item: item, theme: theme).withAlphaComponent(1.0)
         self.iconImageView.alpha = alpha * theme.chat.inputPanel.inputControlColor.alpha
         
         self.accessibilityLabel = accessibilityLabel
@@ -182,6 +182,14 @@ final class AccessoryItemIconButton: HighlightTrackingButton, GlassBackgroundVie
         }
     }
     
+    // MARK: DKX палочка акцентным цветом, серую рядом со смайликом не замечали
+    private static func dkxIconColor(item: ChatTextInputAccessoryItem, theme: PresentationTheme) -> UIColor {
+        if case .dkxImprove = item {
+            return theme.chat.inputPanel.panelControlAccentColor
+        }
+        return theme.chat.inputPanel.inputControlColor
+    }
+
     private static func calculateWidth(item: ChatTextInputAccessoryItem, image: UIImage?, text: String?, strings: PresentationStrings) -> CGFloat {
         switch item {
         case .input, .botInput, .silentPost, .commands, .scheduledMessages, .gift, .suggestPost, .dkxTemplates, .dkxImprove:

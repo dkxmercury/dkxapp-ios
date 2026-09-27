@@ -5773,6 +5773,8 @@ public class ChatTextInputPanelNode: ChatInputPanelNode, ASEditableTextNodeDeleg
         }
         let text = self.presentationInterfaceState?.interfaceState.effectiveInputState.inputText.string ?? ""
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            let presentationData = context.sharedContext.currentPresentationData.with { $0 }
+            interfaceInteraction.presentControllerInCurrent(UndoOverlayController(presentationData: presentationData, content: .info(title: nil, text: DkxStrings.tr("Сначала напишите текст, потом нажмите палочку."),timeout: nil, customUndoText: nil), elevatedLayout: false, action: { _ in return false }), nil)
             return
         }
         let controller = dkxTextImproveController(context: context, text: text, apply: { [weak interfaceInteraction] result in
