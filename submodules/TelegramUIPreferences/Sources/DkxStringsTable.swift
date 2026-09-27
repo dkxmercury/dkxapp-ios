@@ -3875,10 +3875,10 @@ private let dkxStringsJSON = #"""
   "uk": "Кнопка розшифрування зʼявляється в голосових і відеоповідомленнях. Є Premium, розшифровує Telegram. Немає Premium, розшифровує сам телефон вибраною мовою, на сервер Telegram нічого не йде. Якщо мову не завантажено на телефон, iOS розпізнає через сервери Apple.",
   "uz": "Matnga aylantirish tugmasi ovozli va videoxabarlarda chiqadi. Premium boʻlsa, matnga Telegram aylantiradi. Premium boʻlmasa, telefonning oʻzi tanlangan tilda aylantiradi, Telegram serveriga hech narsa yuborilmaydi. Agar til telefonga yuklab olinmagan boʻlsa, iOS nutqni Apple serverlari orqali taniydi."
  },
- "Кнопка с волшебной палочкой появляется в поле ввода, когда там есть текст. Стиль, смайлики, обращение и язык выбираются на её экране, последний выбор запоминается. Работает через сервисы из раздела «API ИИ». Сегодня запросов {}.": {
-  "en": "The magic wand button appears in the input field when there is text. Style, emoji, form of address and language are chosen on its screen, the last choice is remembered. It works through the services in the “AI API” section. Requests today {}.",
-  "uk": "Кнопка з чарівною паличкою зʼявляється в полі введення, коли там є текст. Стиль, смайлики, звертання й мова вибираються на її екрані, останній вибір запамʼятовується. Працює через сервіси з розділу «API ШІ». Сьогодні запитів {}.",
-  "uz": "Sehrli tayoqcha tugmasi kiritish maydonida matn boʻlganda chiqadi. Uslub, smayliklar, murojaat va til uning ekranida tanlanadi, oxirgi tanlov eslab qolinadi. «SI API» boʻlimidagi xizmatlar orqali ishlaydi. Bugungi soʻrovlar {}."
+ "Кнопка с волшебной палочкой всегда стоит в поле ввода, слева от смайлика. Стиль, смайлики, обращение и язык выбираются на её экране, последний выбор запоминается. Работает через сервисы из раздела «API ИИ». Сегодня запросов {}.": {
+  "en": "The magic wand button always sits in the input field, to the left of the emoji button. Style, emoji, form of address and language are chosen on its screen, the last choice is remembered. It works through the services in the “AI API” section. Requests today {}.",
+  "uk": "Кнопка з чарівною паличкою завжди стоїть у полі введення, ліворуч від смайлика. Стиль, смайлики, звертання й мова вибираються на її екрані, останній вибір запамʼятовується. Працює через сервіси з розділу «API ШІ». Сьогодні запитів {}.",
+  "uz": "Sehrli tayoqcha tugmasi doim kiritish maydonida, smaylik tugmasining chap tomonida turadi. Uslub, smayliklar, murojaat va til uning ekranida tanlanadi, oxirgi tanlov eslab qolinadi. «SI API» boʻlimidagi xizmatlar orqali ishlaydi. Bugungi soʻrovlar {}."
  },
  "Кнопки «Улучшить текст» в поле ввода не будет.": {
   "ar": "لن يظهر زر «تحسين النص» في حقل الإدخال.",
@@ -5189,6 +5189,11 @@ private let dkxStringsJSON = #"""
   "en": "Couldn't transcribe. Check the language in Dkx, “Voice transcription” section.",
   "uk": "Не вдалося розшифрувати. Перевірте мову в Dkx, розділ «Розшифрування голосових».",
   "uz": "Matnga aylantirib boʻlmadi. Dkx ichidagi “Ovozli xabarlarni matnga aylantirish” boʻlimida tilni tekshiring."
+ },
+ "Не удалось собрать отчёт. Попробуйте загрузить заново.": {
+  "en": "Couldn't build the report. Try loading it again.",
+  "uk": "Не вдалося зібрати звіт. Спробуйте завантажити знову.",
+  "uz": "Hisobotni tuzib boʻlmadi. Qaytadan yuklab koʻring."
  },
  "Не удалось собрать таблицу": {
   "en": "Could not build the spreadsheet",
@@ -6570,11 +6575,6 @@ private let dkxStringsJSON = #"""
   "uk": "Перевірити ключ і завантажити моделі",
   "uz": "Kalitni tekshirib, modellarni yuklash"
  },
- "Проверяю модель {}, это до минуты…": {
-  "en": "Checking model {}, it takes up to a minute…",
-  "uk": "Перевіряю модель {}, це до хвилини…",
-  "uz": "{} modeli tekshirilmoqda, bu bir daqiqagacha…"
- },
  "Проверяю модель {}…": {
   "en": "Checking model {}…",
   "uk": "Перевіряю модель {}…",
@@ -7314,6 +7314,11 @@ private let dkxStringsJSON = #"""
   "en": "Paste the key first.",
   "uk": "Спочатку вставте ключ.",
   "uz": "Avval kalitni qoʻying."
+ },
+ "Сначала напишите текст, потом нажмите палочку.": {
+  "en": "Write some text first, then tap the wand.",
+  "uk": "Спочатку напишіть текст, потім натисніть паличку.",
+  "uz": "Avval matn yozing, keyin tayoqchani bosing."
  },
  "Снять Face ID": {
   "ar": "إزالة قفل Face ID",
@@ -8935,6 +8940,11 @@ private let dkxStringsJSON = #"""
   "uk": "у записі не чути мовлення",
   "uz": "yozuvda nutq eshitilmayapti"
  },
+ "в настройках OpenRouter выключены бесплатные модели. Включите их на openrouter.ai/settings/privacy и выберите модель снова": {
+  "en": "free models are turned off in your OpenRouter settings. Turn them on at openrouter.ai/settings/privacy and choose the model again",
+  "uk": "у налаштуваннях OpenRouter вимкнено безкоштовні моделі. Увімкніть їх на openrouter.ai/settings/privacy і виберіть модель знову",
+  "uz": "OpenRouter sozlamalarida bepul modellar oʻchirilgan. Ularni openrouter.ai/settings/privacy sahifasida yoqing va modelni qaytadan tanlang"
+ },
  "в среднем {} просмотров к остальному времени": {
   "en": "{} views on average compared to other times",
   "uk": "у середньому {} переглядів порівняно з іншим часом",
@@ -9864,6 +9874,26 @@ private let dkxStringsJSON = #"""
   "en": "the service did not answer in time",
   "uk": "сервіс не відповів вчасно",
   "uz": "xizmat oʻz vaqtida javob bermadi"
+ },
+ "сервис не ответил за 30 секунд": {
+  "ar": "لم تستجب الخدمة خلال 30 ثانية",
+  "be": "сэрвіс не адказаў за 30 секунд",
+  "ca": "el servei no ha respost en 30 segons",
+  "de": "der Dienst hat nicht innerhalb von 30 Sekunden geantwortet",
+  "en": "the service didn't respond within 30 seconds",
+  "es": "el servicio no respondió en 30 segundos",
+  "fa": "سرویس در 30 ثانیه پاسخ نداد",
+  "fr": "le service n'a pas répondu en 30 secondes",
+  "id": "layanan tidak merespons dalam 30 detik",
+  "it": "il servizio non ha risposto entro 30 secondi",
+  "ko": "서비스가 30초 동안 응답하지 않음",
+  "ms": "perkhidmatan tidak membalas dalam 30 saat",
+  "nl": "de dienst reageerde niet binnen 30 seconden",
+  "pl": "usługa nie odpowiedziała w ciągu 30 sekund",
+  "pt": "o serviço não respondeu em 30 segundos",
+  "tr": "servis 30 saniye içinde yanıt vermedi",
+  "uk": "сервіс не відповів за 30 секунд",
+  "uz": "xizmat 30 soniya ichida javob bermadi"
  },
  "сервис не принял запрос": {
   "ar": "رفضت الخدمة الطلب",
