@@ -44,6 +44,10 @@ private func dkxErrorText(status: Int, body: Data?) -> String {
             detail = message
         }
     }
+    // Бесплатные модели OpenRouter отвечают 404, если в настройках приватности аккаунта они выключены
+    if detail.lowercased().contains("data policy") {
+        return DkxStrings.tr("в настройках OpenRouter выключены бесплатные модели. Включите их на openrouter.ai/settings/privacy и выберите модель снова")
+    }
     let base: String
     switch status {
     case 400:
